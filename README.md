@@ -88,7 +88,8 @@ E:\大学\项目\
 │   ├── regression_test_stage8.py  逐条反馈/聚类/领域优先级/电源门禁回归测试
 │   ├── regression_test_stage9.py  本地抖音采集回归测试（假插件，不联网/不开浏览器）
 │   ├── power.py                   电源门禁（WMI BatteryStatus → Win32_Battery）
-│   └── install_tasks.ps1          Windows 定时任务示例（只提供，未注册）
+│   ├── install_tasks.ps1          Windows 定时任务安装器（生产入口）
+│   └── run_task.ps1               计划任务日志包装器（显式 Git 路径、UTF-8 日志）
 ├── state/                         运行时状态（已被 .gitignore 排除）
 │   ├── startup_last_run.json      开机检查的「今日已执行」日期标记
 │   ├── published/YYYY-MM-DD.json  push 成功后的发布回执（仅供审计）
@@ -195,14 +196,14 @@ Pages 配置（**本轮未做任何线上操作**）：仓库推送后，在 **S
 
 远端状态含义：`verified` 远端提交确实含昨日网页；`not_published` 远端无该网页；`no_remote` 未配置远端；`remote_unreachable` 读不到远端；`unverified` 远端提交对象本地不可见、无法核对内容。**后四种都不能开始采集**。
 
-## 7. 定时任务示例（只提供，未注册）
+## 7. 定时任务安装器
 
-`scripts/install_tasks.ps1` 默认只打印，加 `-Apply` 才会注册。两点修正：
+`scripts/install_tasks.ps1` 默认只打印，加 `-Apply` 才会注册：
 
-- **不再用裸 `python`**：脚本解析当前解释器的绝对路径（`sys.executable`），也可用 `-PythonPath` 显式指定，避免任务计划程序在非交互环境找不到命令。
-- **明确区分两类任务**：
-  - 当前会注册的只有两个 **DRY-RUN** 任务：`DailyReport-StartupCheck-DRYRUN`（登录 + 5 分钟）、`DailyReport-2200-Prepare-DRYRUN`（每天 22:00），参数里**没有** `--publish`，只准备本地文件和检查状态，**不会更新 GitHub**。
-  - 将来真正的发布任务（`prepare_publish.py --publish`、`startup_check.py --publish`）在本模板里**只打印说明、不创建、不注册**；必须等 GitHub remote、凭据、分支都配置好之后再单独决定。
+- **使用绝对路径**：Python、Git、项目目录和任务包装器都由脚本显式解析，不依赖任务计划程序的 PATH。
+- **正式任务**：`DailyReport-Boot` 在登录后延迟 5 分钟运行，`DailyReport-Nightly` 每天 22:00 运行。
+- **发布开关**：加 `-EnablePublish` 才会把 `--publish` 传给两个入口；默认不带该开关时只生成本地内容。
+- **可诊断日志**：`run_task.ps1` 把每次运行的 stdout/stderr 写入 `state/logs/`，并在 `last-boot.json` / `last-nightly.json` 记录退出码和日志路径。
 
 若某台机器的 `New-ScheduledTaskTrigger -AtLogOn` 不支持 `Delay`，脚本会提示在任务计划程序里手动补 5 分钟延迟。
 
@@ -286,22 +287,23 @@ python scripts/regression_test.py
 
 `collect.py` 自身：0 成功（含 0 条）、1 配置错误、4 采集失败。
 
-### 11.6 定时任务示例（`install_tasks.ps1`）
+### 11.6 定时任务（`install_tasks.ps1`）
 
-已把两个 DRY-RUN 任务指向两个生产入口：
+两个任务指向生产入口：
 
-- `DailyReport-Boot-DRYRUN`：登录 + 5 分钟 → `run_boot.py`（默认无 `--publish`）
-- `DailyReport-Nightly-DRYRUN`：每天 22:00 → `run_nightly.py`（默认无 `--publish`）
+- `DailyReport-Boot`：登录 + 5 分钟 → `run_boot.py`
+- `DailyReport-Nightly`：每天 22:00 → `run_nightly.py`
 
-脚本保留绝对 Python 路径解析，并新增 `-EnablePublish` 开关：只有显式传入才给命令追加 `--publish`。**默认仍是只打印、不注册**，`-Apply` 才注册 DRY-RUN 任务；真实发布任务（`--publish`）仍只打印说明、不创建。
+脚本解析绝对 Python/Git 路径；`-Apply` 注册任务，`-EnablePublish` 才允许真实提交推送。任务包装器会记录日志并显式使用 Git 路径，避免非交互任务环境找不到 Git。
 
-### 11.7 仍需人工配置（未在本轮完成）
+### 11.7 机器相关配置与可选增强
 
-- **真实 GitHub 仓库、remote、凭据、Pages 配置、首次白名单发布** —— 全部留待人工。
-- **注册 Windows 定时任务**（`-Apply`）—— 当前未注册。
-- **接入真实公开 RSS/Atom 源**（`config/sources.json` 里示例源默认 `enabled: false`）。
-- **抖音/B站采集** —— 需另写 adapter（登录/授权不在本轮范围）。
-- **接入真实模型总结器** —— 配 `summarizer.command`，默认仍是「未AI总结」清单。
+- **GitHub remote / Pages / 发布凭据**：已由仓库配置提供；换机时需重新配置。
+- **Windows 定时任务**：由 `install_tasks.ps1 -EnablePublish -Apply` 注册。
+- **B站 / 抖音登录态**：分别来自两个 DSH 插件的独立 profile；登录过期后需本人重新扫码。
+- **网络代理**：GitHub Git 访问可在项目本地配置中指定本机代理；代理端口变化时需同步更新。
+- **真实模型总结器**：仍可选；配置 `summarizer.command` 后启用，默认使用确定性模板并明确标注“未 AI 总结”。
+- **额外公开 RSS/Atom 源**：示例源默认关闭，需要时在 `config/sources.json` 启用。
 
 ---
 
@@ -535,7 +537,7 @@ npm test        # node --test，内存 KV mock，不连真实 Cloudflare
 
 ### 15.6 环境变量如何由计划任务继承
 
-`run_boot.py` / `run_nightly.py` 通过环境变量 `FEEDBACK_API_URL` 和 `FEEDBACK_KEY` 访问后端。计划任务（`scripts/install_tasks.ps1` 只提供示例、默认不注册）需要让子进程继承这两个变量，推荐做法（三选一，**密钥不写入任务脚本或仓库**）：
+`run_boot.py` / `run_nightly.py` 通过环境变量 `FEEDBACK_API_URL` 和 `FEEDBACK_KEY` 访问后端。计划任务需要让子进程继承这两个变量，推荐做法（三选一，**密钥不写入任务脚本或仓库**）：
 
 1. **用户级环境变量**（推荐）：在 Windows「系统属性 → 环境变量 → 用户变量」里设置 `FEEDBACK_API_URL` 和 `FEEDBACK_KEY`，之后登录会话里的计划任务自动继承。
 2. **计划任务属性里单独设置**：任务计划程序 → 选中任务 → 属性 → 操作，把 Python 命令包进一个不含密钥的小脚本，或在该任务「条件/设置」里通过「启动于」指定的会话继承用户变量。

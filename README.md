@@ -4,6 +4,7 @@
 > **反馈主后端为 Cloudflare Pages Functions**（`cloudflare-pages/`，`*.pages.dev` 可访问，复用现有账号、KV 与 `FEEDBACK_KEY`）；Cloudflare Worker（`backend/`）为备用，Deno Deploy 版（`backend-deno/`）因官方停止注册并宣布 2027 年关闭，仅作历史备份。
 > **B站采集已本地化**（第 17 节）：插件只提供登录态 + 只读 API，搜索/过滤/字幕/评分由本项目完成，不启动 DSH 模型、不产生 token 费用。
 > **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容单独「这条加重/减轻」，事件聚类成标签/标签对权重参与评分；`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
+> **抖音采集也已本地化**（第 19 节）：复用插件的独立浏览器 profile/CDP/本机 OCR，只走 8 个只读动作，不启动 DSH 模型、不调插件 `/run`、不产生 token 费用；B站与抖音各自独立采集，一个平台失败不影响另一个平台出报。
 > 变更只做代码与本地测试：**没有** push、**没有**部署、**没有**创建账号、**没有**注册 Windows 定时任务、**没有**点赞/评论/私信/收藏/投稿。
 > `agent-synergy/` 已废弃，本项目不引用、不复制、不修改其中任何代码，也不把它作为技术底座。
 
@@ -80,9 +81,12 @@ E:\大学\项目\
 │   ├── import_dsh_reports.py      DSH（B站/抖音）插件报告导入器（备用/历史兼容）
 │   ├── bilibili_local_worker.py   插件只读桥接器（在插件 venv 下运行，4 个只读 action）
 │   ├── collect_bilibili_local.py  本地 B站采集（搜索/过滤/字幕/确定性评分，不用模型）
+│   ├── douyin_local_worker.mjs    抖音只读桥接器（Node，8 个只读 action + 本机 OCR）
+│   ├── collect_douyin_local.py    本地抖音采集（搜索/热榜/关注/详情/截帧OCR/确定性评分）
 │   ├── regression_test_stage6.py  DSH 导入回归测试
 │   ├── regression_test_stage7.py  本地 B站采集回归测试（假插件，不联网）
 │   ├── regression_test_stage8.py  逐条反馈/聚类/领域优先级/电源门禁回归测试
+│   ├── regression_test_stage9.py  本地抖音采集回归测试（假插件，不联网/不开浏览器）
 │   ├── power.py                   电源门禁（WMI BatteryStatus → Win32_Battery）
 │   └── install_tasks.ps1          Windows 定时任务示例（只提供，未注册）
 ├── state/                         运行时状态（已被 .gitignore 排除）
@@ -682,6 +686,8 @@ python scripts/collect_bilibili_local.py --json
 
 **顺序**：`run_boot` → `collect.py` → 本地 B站采集；`run_nightly` 先本地采集，再导入 DSH 报告（备用），最后才做「有没有数据」的判断。所以即使完全停掉 DSH，日报仍能产出。
 
+登录完成并确认 profile 有效后，应停用 DSH 内的 `dsh-douyin-scroll` 宿主组件。本项目只复用它的登录 profile 和只读 `lib/*.mjs`，不需要宿主继续运行；两边同时管理同一个 Edge profile 会争抢 CDP 端口并反复切换窗口。采集固定使用 `browser_mode=hidden`：窗口最小化或移出屏幕，不抢前台；实测纯 `headless` 会被抖音返回非 JSON。
+
 ### 17.4 退出码
 
 | 码 | 含义 | 处理 |
@@ -702,7 +708,7 @@ python scripts/collect_bilibili_local.py --json
 
 1. **拿不到精确发布时间**：插件只读函数 `bili_video_info` 的返回里**没有 `pubdate`**，所以真实环境里「最近 N 天」只能靠搜索按 `pubdate` 排序 + 顶多少量候选来近似。默认 `unknown_date_policy=keep`（保留并打 `published_unknown: true` 标记），要严格就加 `--drop-unknown-date`——代价是可能把新视频也丢掉。
 2. **没有字幕就跳过**：本地不跑 Whisper/ASR，只用 B站自带字幕。没字幕的视频默认丢弃（`--allow-no-subtitle` 可保留，摘要退化成简介）。
-3. **抖音没有本地化**：抖音仍只能靠插件产出的 Markdown 报告（第 16 节），本地采集尚未实现。
+3. **抖音已本地化（第 19 节）**：搜索/热榜/关注/详情/截帧 OCR 都有本地只读通道；推荐流（feed）不在只读白名单内，仍固定关闭；插件产出的 Markdown 报告（第 16 节）继续作为备用导入。
 4. **不做语义判断**："值不值得看" 仍由关键词命中和播放量决定，不理解内容；真正的摘要要等接上模型总结器。
 5. **依赖插件登录态**：cookie 过期就返回 3，需要人工扫码，无法自动续期。
 
@@ -822,3 +828,151 @@ python scripts/regression_test_stage8.py      # 90 项
 ```
 
 覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变、正负冲突；聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/无旧区块/无标记泄漏/幂等）；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 49 项（含 `feedback-events`）。
+
+---
+
+## 19. 本地抖音采集（复用插件登录态/CDP/OCR，不启动 DSH 模型，2026-11-14）
+
+抖音这一步和 B站同一个思路：**插件只借"登录态 + 浏览器 + 本地 OCR"这三样脏活，筛选和判断全部由本项目完成**。区别是抖音走的是 Node（插件本身就是 ESM），所以桥接器是一个 `.mjs`。
+
+### 19.1 两段式结构
+
+| 层 | 文件 | 干什么 |
+|---|---|---|
+| 只读桥接（Node） | `scripts/douyin_local_worker.mjs` | stdin 一行 JSON → 固定 8 个只读 action → stdout 一行 JSON。复用插件的 `BrowserSession`（独立 profile）、`Douyin`（页面内 fetch + 归一化）、`ocrFiles`（Windows 内置 OCR）。 |
+| 采集器（Python，零依赖） | `scripts/collect_douyin_local.py` | 读 `topics.json` 关键词/排除词 → 调 worker → 去重/过滤/评分 → 写 `state/collections/YYYY-MM-DD.douyin-local.jsonl`。 |
+
+**动作白名单（只有这 8 个，写死在代码里）**
+
+`status` / `whoami`（同一件事的两个叫法）、`search`、`hot`、`following`、`user_posts`、`video_info`、`frames`（截帧 + 本机 OCR）。
+
+绝对没有：点赞、评论、回复、私信、分享、收藏、投稿/发布、关注。三个层次一起兜底：
+
+1. `ACTIONS` 是唯一入口，未知 action 直接 `exit 2`；
+2. **每个动作只接受列出来的参数，多余参数一律拒绝**（`expr` / `module` / `cmd` / `path` / `js` 这类一定被拒）——所以不能借 stdin 注入 JS、命令、模块名或文件路径；
+3. 插件目录只来自命令行 `--plugin-dir`，且必须含固定的 `lib/browser.mjs`、`lib/douyin.mjs`、`lib/ocr.mjs`；stdin 里没有任何字段能改变加载目标。
+
+`vision.mjs`（视觉模型）**从不加载**；`useVision` 即使写成 `true` 也会被强制关掉并打印说明。
+
+### 19.2 采集流程
+
+```
+status(登录检查)                       ← 不可用直接停，exit 3
+  ↓
+search × N 关键词 / hot(热榜词→再搜) / following
+  ↓  按 作品 id → 链接 → 文案 三层去重 + 排除词 + 关键词命中 + 最近 N 天
+scan_limit / max_candidates / per_day 截断
+  ↓  只对进入候选集的少量视频：
+video_info（补标题/作者/时间/播放）
+  ↓
+frames（默认 2 帧）+ 本机 OCR（字符预算 ocr_char_budget）
+  ↓
+确定性评分（关键词命中 + 播放量对数，无模型）→ CheckpointStore 逐条落盘
+```
+
+- **摘要 = OCR 文本**；没 OCR 出字就退化成作品文案（`summary_source: ocr|desc`），**不用视觉模型**。
+- `frames_per_video=0` 可整轮不截帧（最省电）。
+- 二次运行**不会重复请求、不会重复截帧**：先读当天 jsonl 里已有的 `aweme_id`，命中就跳过（省电、也降低风控风险）。
+- 每轮扫描上限 `scan_limit`、每天条数 `per_day`、请求间隔 `request_interval_seconds` 都可配。
+
+### 19.3 配置
+
+`config/sources.json`：
+
+```json
+{
+  "id": "douyin-local",
+  "type": "douyin-local",
+  "enabled": true,
+  "plugin_dir": "C:/Users/25625/.dsh/profiles/desktop/node_modules/dsh-douyin-scroll",
+  "home": "C:/Users/25625/.dsh/douyin-duty",
+  "node_bin": "node",
+  "browser_mode": "hidden",
+  "sources": { "search": true, "hot": true, "following": true, "users": false, "feed": false },
+  "per_keyword_candidates": 6, "max_keywords": 8,
+  "hot_words": 15, "hot_videos": 6, "following_limit": 12,
+  "scan_limit": 40, "max_candidates": 8, "per_day": 4,
+  "frames_per_video": 2, "ocr_char_budget": 600, "require_ocr": false,
+  "useVision": false,
+  "request_interval_seconds": 2.0, "recent_days": 7, "unknown_date_policy": "keep"
+}
+```
+
+| 字段 | 说明 |
+|---|---|
+| `plugin_dir` | 插件**代码**目录（`lib/*.mjs` 在这里）。环境变量 `DSH_DOUYIN_PLUGIN_DIR` 可覆盖 |
+| `home` | 插件**数据**目录（登录态 profile、`frames/` 在这里）。环境变量 `DSH_DOUYIN_HOME` 可覆盖 |
+| `sources.feed` | **固定无效**：推荐流不在只读白名单内，写 `true` 只会打印"已忽略" |
+| `useVision` | 固定 `false`：只用本机 OCR |
+
+`config/runtime.json` 增加开关（可热更新）：
+
+```json
+"collectors": { "douyin_local": { "enabled": true } }
+```
+
+### 19.4 与生产入口的关系
+
+- `scripts/collect.py`（统一采集入口）：遇到 `type=douyin-local` 直接分派给本地采集器；B站与抖音**各自独立**，一个平台抛异常只记一笔失败，另一个平台照常落盘。
+- `scripts/run_boot.py`：走 `collect.py`，自动带上；电池暂停（退出码 6）时提示接电源后重跑续采。
+- `scripts/run_nightly.py`：先跑 B站本地采集，再跑抖音本地采集，然后才是 DSH 报告导入；**任何一个平台登录失效/被拦截都不阻止日报生成**（有数据就出报，没数据才 `exit 2`）。
+- 电源门禁沿用第 18.5 节：开始前检查；**每条候选之前**再检查；中途拔电 `break`，已写 checkpoint 保留，退出码 6。
+
+### 19.5 退出码
+
+| 码 | 含义 | 怎么办 |
+|---|---|---|
+| 0 | 成功（可能 0 条） | — |
+| 1 | 配置错误 / 插件目录或 node 缺失 / 参数非法 | 看日志修配置 |
+| 3 | 登录缺失或失效 | 在插件里重新扫码（本脚本**不会**自动登录） |
+| 4 | 平台拦截（403/429/验证码/风控/跳验证页） | 停下，不绕过；隔一段时间再跑 |
+| 5 | 其它失败（页面异常、worker 输出不可解析） | 看日志；单条失败只跳过该条 |
+| 6 | `paused_on_battery` | 接电源后重跑，从 checkpoint 续采 |
+
+### 19.6 成本
+
+| 环节 | 费用 |
+|---|---|
+| 浏览器 / CDP / 页面内接口 | 0（复用已装 Edge/Chrome + 独立 profile） |
+| OCR | 0（Windows 内置 `Windows.Media.Ocr`） |
+| 视觉模型 | 不启用（`useVision` 强制 false） |
+| DSH 模型 / 插件 `/run` | 不启动、不调用 → **0 token** |
+| 筛选/评分/写盘 | 本项目 Python，确定性代码 |
+
+真正的成本只有本机 CPU/电量和平台风控风险（所以才有电源门禁 + 请求间隔 + 扫描上限）。
+
+### 19.7 用法
+
+```bash
+# 默认：读 topics.json 关键词，日期=今天
+python scripts/collect_douyin_local.py
+
+# 先小范围试跑，只看不写
+python scripts/collect_douyin_local.py --keyword "ESP32" --per-keyword 3 \
+  --max-candidates 2 --frames 1 --interval 1 --dry-run
+
+# 只刷搜索，不刷热榜/关注（最省电）
+python scripts/collect_douyin_local.py --no-hot --no-following --frames 0
+
+# 机器可读报告
+python scripts/collect_douyin_local.py --json
+```
+
+### 19.8 测试
+
+```bash
+python scripts/regression_test_stage9.py     # 107 项
+```
+
+全部跑 `tests/fixtures/dsh_douyin_mock`（假 `BrowserSession` / `Douyin` / `ocrFiles`）：**不连真实抖音、不开真实浏览器、不读真实登录态**。样本按"相对今天"生成，所以"最近 N 天"的判定不随日期漂移。
+
+覆盖：8 个只读动作可用 + 12 类写操作被拒 + 源码扫描无写调用/无视觉/无 `/run`；多余参数（`expr`/`module`/`cmd`/`path`）与非法 `num`/`aweme_id`/`sec_uid`/`frames`/`max_chars` 全部 `exit 2`；未登录/掉登录→3；验证码/403→4；普通异常→5；OCR 截断、无 OCR 引擎、零帧；坏记录过滤；正常采集 schema/平台/OCR 摘要/帧数/不启用视觉；排除词/无命中/过旧/重复；OCR 预算；幂等（不重复请求、不重复截帧）；登录失效与验证码立即停止且不写盘；`per_day`/`scan_limit`；无 OCR 时文案兜底与 `require_ocr`；路由开关与 `feed`/`useVision` 被忽略；电池开始前拦截（6）与中途拔电保留 checkpoint（6）；B站+抖音合并日报；平台失败隔离；`collect.py` 统一调度。
+
+### 19.9 已知缺失（刻意留白）
+
+1. **当前未登录抖音**：本轮只实现代码与 mock 测试，没有扫码登录、没有真实采集。要跑真实数据，先在插件设置页登录，再执行 19.7 的 `--dry-run` 看候选质量。
+2. **没有字幕接口**：抖音本来就只靠画面文字，所以 OCR 是主要信息来源；画面无字时只剩作品文案，摘要会很短（`summary_source=desc`）。
+3. **推荐流不支持**：只读白名单不含 `feed`，配置写 `true` 也只打印"已忽略"。
+4. **相关性仍是启发式**：关键词命中 + 播放量对数，不理解内容；真正的摘要要等接上模型总结器。
+5. **登录态会过期**：过期就 `exit 3`，需要人工在插件里重新扫码，无法自动续期。
+6. **浏览器是常驻的**：worker 不主动关浏览器（下次复用更快），它由插件那套 detached 进程管；要彻底清掉就在插件面板里停止或手动关窗口。

@@ -3,7 +3,7 @@
 > **阶段：上线前清理（第五阶段）+ 后端迁移（第六、七阶段）+ 采集本地化（第八阶段）。** 站点名称「AI × 嵌入式 信息日报」，示例/占位页已从站点移除，`reports/` 只放真实日报。
 > **反馈主后端为 Cloudflare Pages Functions**（`cloudflare-pages/`，`*.pages.dev` 可访问，复用现有账号、KV 与 `FEEDBACK_KEY`）；Cloudflare Worker（`backend/`）为备用，Deno Deploy 版（`backend-deno/`）因官方停止注册并宣布 2027 年关闭，仅作历史备份。
 > **B站采集已本地化**（第 17 节）：插件只提供登录态 + 只读 API，搜索/过滤/字幕/评分由本项目完成，不启动 DSH 模型、不产生 token 费用。
-> **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容单独「这条加重/减轻」，事件聚类成标签/标签对权重参与评分；`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
+> **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容可「加重 / 减轻 / 清除标记」，同一内容只认最后一次选择；前端刷新后仍显示当前状态，历史点击保留审计但不会重复累计。`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
 > **抖音采集也已本地化**（第 19 节）：复用插件的独立浏览器 profile/CDP/本机 OCR，只走 8 个只读动作，不启动 DSH 模型、不调插件 `/run`、不产生 token 费用；B站与抖音各自独立采集，一个平台失败不影响另一个平台出报。
 > **日报 AI 总结已接到 WorkBuddy**（第 20 节）：20:30 本地采集并生成输入，21:30 WorkBuddy 使用 `DeepSeek-V4.1-Flash` 总结、分级和推荐，22:00 Windows 任务校验并发布。DSH 模型与插件 `/run` 均不参与日常流程。
 > 生产流程已部署：GitHub Pages 已上线，Windows 开机、20:30 采集和 22:00 发布任务均已注册；采集仍只执行公开只读动作，不点赞、不评论、不私信、不收藏、不投稿。
@@ -27,7 +27,7 @@ E:\大学\项目\
 │   ├── .nojekyll                  跳过 Jekyll 处理，保证静态资源原样发布
 │   ├── assets/styles.css          浅色响应式样式，手机端可读
 │   ├── assets/feedback-config.js  反馈后端地址配置（apiUrl 占位，不写密钥）
-│   ├── assets/feedback.js         加重/减轻按钮调用后端的前端逻辑
+│   ├── assets/feedback.js         加重/减轻/清除、状态恢复与后端调用
 │   ├── reports/YYYY-MM-DD.html    每日历史网页（固定日期归档）
 │   ├── reports/latest.html        最新日报稳定页（每日覆盖）
 │   └── reports/index.html         /reports/ 稳定入口，自动跳到 latest.html
@@ -357,12 +357,13 @@ WorkBuddy 自己的定时任务在每天 21:30 读取输入并生成 AI 结构�
 
 GitHub Pages 是纯静态站点，**不能写回仓库，也无法在浏览器里安全保存 GitHub Token**。为了手机和电脑点击都能直接提交、不跳 GitHub、不需要平台账号登录，反馈走 **Cloudflare Pages Functions + Workers KV**：
 
-1. **每一条内容后面**（重要条目和「其他相关」里的每一条都算）紧跟一行按钮：`这条加重` / `这条减轻`，并有**自己的状态提示**（提交中 / 已加重这一条 / 失败原因）。
+1. **每一条内容后面**（重要条目和「其他相关」里的每一条都算）紧跟一行按钮：`这条加重` / `这条减轻` / `清除标记`，并有**自己的状态提示**（提交中 / 已加重这一条 / 已减轻这一条 / 失败原因）。
 2. 按钮携带 `data-item-id`（稳定内容哈希）、`data-report-date`、`data-domain`、`data-tags`（命中的领域关键词）、`data-title`。只带领域 ID 是不够的——聚类需要知道**是哪一条**被点了。
 3. 点击后**直接调用后端** `POST /api/feedback`，不跳转 GitHub。
 4. 首次点击弹出页面内自定义设定框（不是 `window.prompt`），输入**反馈密钥**；密钥只存在本设备 `localStorage`，可清除。
 5. 用 `crypto.randomUUID()` 生成 `eventId` 保证幂等。
-6. 成功显示「已加重这一条 / 已减轻这一条」；失败显示可读错误，**不假装成功**。
+6. 同一内容无论点多少次，**只有最后一次选择参与权重计算**；刷新页面后会读取后端最新状态并保留「（已加重这一条）/（已减轻这一条）」小字。点击「清除标记」会提交 `delta=0`，撤销该条当前权重并移除旧小字。
+7. 失败显示可读错误，**不假装成功**；旧点击仍保留在事件历史中用于审计，但会被最新状态替代，不再重复累计。
 7. API 地址未配置时按钮禁用，并逐条提示先部署后端。
 
 原来的「日报底部统一偏好调整区域」已**删除**。后端地址配置在 `docs/assets/feedback-config.js`（`apiUrl` 为空占位，**不写密钥**）。
@@ -474,7 +475,7 @@ cd cloudflare-pages
 npm test        # node --test，40 passed，不联网、不需要 wrangler
 ```
 
-覆盖：鉴权（缺密钥 / 错密钥 / 未配置密钥）、CORS（放行 / 拒绝 / 预检）、参数校验（领域 / delta / 日期 / eventId / JSON / 4KB）、`+1`/`-1`、幂等、clamp `±10`、事件 TTL、`GET /weights`、405/404、写入被覆盖后的重试收敛、持续冲突返回 409 且删除回执、KV 异常 500 不泄漏栈、路由文件布局与 `onRequest` 透传。
+覆盖：鉴权（缺密钥 / 错密钥 / 未配置密钥）、CORS（放行 / 拒绝 / 预检）、参数校验（领域 / delta / 日期 / eventId / JSON / 4KB）、`+1`/`-1`/条目级 `0` 清除、同一 itemId 最后一次选择覆盖、幂等、clamp `±10`、事件 TTL、`GET /weights`、405/404、写入被覆盖后的重试收敛、持续冲突返回 409 且删除回执、KV 异常 500 不泄漏栈、路由文件布局与 `onRequest` 透传。
 
 ### 13.5 并发边界（KV 没有 CAS）
 
@@ -531,9 +532,9 @@ backend/
 | 端点 | 鉴权 | 说明 |
 |---|---|---|
 | `GET /health` | 无 | 返回 `{ok, version}` |
-| `POST /api/feedback` | `X-Feedback-Key` | 提交 `+1`/`-1`（`domain`/`delta`/`date`/`eventId`） |
+| `POST /api/feedback` | `X-Feedback-Key` | 提交 `+1`/`-1`；条目级可提交 `0` 清除（`domain`/`delta`/`date`/`eventId`） |
 | `GET /api/weights` | `X-Feedback-Key` | 返回各领域累计权重 |
-| `GET /api/feedback-events` | `X-Feedback-Key` | 返回逐条反馈事件（含 itemId/tags/title） |
+| `GET /api/feedback-events` | `X-Feedback-Key` | 返回历史事件与每个 itemId 的最新 `itemStates`（含 tags/title/delta） |
 
 - KV：`weight:<domain>` 存累计权重（`-10~+10`）+ `updatedAt`；`event:<eventId>` 幂等回执（TTL 30 天）。**不记录 IP/UA/Cookie/个人信息**。
 - CORS 仅允许 `https://yth-beep.github.io` 和本地开发地址；请求体限制 4 KB。
@@ -744,18 +745,20 @@ python scripts/regression_test_stage7.py     # 62 项，全部用假插件，不
 每条内容（重要条目和「其他相关」里的每一条）后面都紧跟一行：
 
 ```
-[这条加重] [这条减轻]   提交中… / 已加重这一条 / 失败原因
+[这条加重] [这条减轻] [清除标记]   （已加重这一条）/（已减轻这一条）/ 失败原因
 ```
 
 - 按钮自带 `data-item-id`（`collect_core.content_hash` 的稳定哈希）、`data-report-date`、`data-domain`、`data-tags`、`data-title`；页面只负责发请求，判定逻辑在后端与本地。
 - 每条一行**独立状态区**（`role="status" aria-live="polite"`），不会一条成功就整页变成"已提交"。
+- 浏览器已有反馈密钥时，刷新会读取 `/api/feedback-events`，按 `itemId` 还原最后一次状态；三个按钮同时用 `aria-pressed` 显示当前选中项。
+- **最后一次选择覆盖旧选择**：同一 `itemId` 多次提交时，后端和本地聚类只取 `at` 最新的一条。误按不会叠加；`delta=0` 表示清除。
 - 移动端按钮 `min-height: 44px`，窄屏 `flex: 1 1 0` 平分宽度，不横向溢出。
 - 密钥弹窗全页只有一个，密钥只进本设备 `localStorage`。
 - 没有 `data-domain` 的条目（未命中任何领域）同样可以反馈：后端只记事件、不动领域权重，标签仍参与聚类。这一条很重要——**未分类但想看/不想看的内容不该被丢掉**。
 
 ### 18.2 后端：可选字段 + 事件列表
 
-`POST /api/feedback` 的必填项仍是 `domain`/`delta`/`date`/`eventId`（旧请求完全兼容）；新版额外接受：
+`POST /api/feedback` 的必填项仍是 `domain`/`delta`/`date`/`eventId`（旧请求完全兼容）；条目反馈的 `delta` 接受 `1`、`-1`、`0`，其中 `0` 必须同时提供 `itemId`，表示清除。新版额外接受：
 
 | 字段 | 规则 | 缺省 |
 |---|---|---|
@@ -764,7 +767,7 @@ python scripts/regression_test_stage7.py     # 62 项，全部用假插件，不
 | `title` | 字符串，≤120 字，不允许 `<>` | 空 |
 | `domain` | 若提供必须在 `ALLOWED_DOMAINS` 内 | 可省略（条目级反馈） |
 
-违反规则一律 400，不做"部分信任"。事件同时写入 `fevent:<eventId>`（TTL 30 天，`{eventId, domain, delta, date, itemId, tags, title, at}`），供 `GET /api/feedback-events` 读取（需 `X-Feedback-Key`，最多 500 条，按 `at` 排序）。**不记录 IP / UA / Cookie。**
+违反规则一律 400，不做"部分信任"。事件同时写入 `fevent:<eventId>`（TTL 30 天，`{eventId, domain, delta, date, itemId, tags, title, at}`），供 `GET /api/feedback-events` 读取（需 `X-Feedback-Key`，最多 500 条，按 `at` 排序）；响应另带 `itemStates`，每个 `itemId` 只包含最新记录。**不记录 IP / UA / Cookie。**
 
 `ALLOWED_DOMAINS` 已扩到 `ai-embedded,embedded-linux-foundation`（`wrangler.toml` 与 handler 默认值都改了）。**已部署的实例需要更新这个环境变量**，否则新领域的反馈会被 400 拒掉。
 
@@ -780,20 +783,21 @@ python scripts/sync_feedback.py --events-json events.json   # 离线/测试
 1. 从 `GET /api/feedback-events` 拉事件（后端没升级时 404：保留旧权重、只警告，不阻断）。
 2. 每条事件取标签，顺序是：**事件自带 `tags`** → 否则用 `itemId` 去 `state/collections/*.jsonl` 找回原条目，用 `config/topics.json` 的词表在标题+摘要里提标签。
 3. 标签必须在领域词表内（关键词或领域 id），否则丢弃并计入 `invalidTags`；不认识的标签不会污染权重。
-4. 分别统计加重组 / 减轻组的**标签计数**与**标签对（同一条里共现）计数**。
-5. 平滑权重：`w = K × (pos − neg) / (pos + neg + 2)`，标签 `K=3`、标签对 `K=1.5`；没人点过的标签权重为 0（= 不调整）。
-6. `eventId` 记进 `appliedEvents`，重复导入不重复累计。
+4. 先按 `itemId` 取最后一次选择，再分别统计加重组 / 减轻组的**标签计数**与**标签对（同一条里共现）计数**；`delta=0` 的条目不计入任何权重。
+5. 平滑权重：`w = K × (pos − neg) / (pos + neg + 2)`，标签 `K=3`、标签对 `K=1.5`；没人点过或已清除的标签权重为 0（= 不调整）。
+6. 所有事件按 `eventId` 幂等保存；旧点击记录在 `sourceEvents` 中供审计，但只有每个 `itemId` 的最新记录参与 `counts / pairs / weights`，因此重复误按不会叠加。
 7. 写 `state/feedback_weights.json`：
 
 ```json
 {
   "updatedAt": "2026-11-14T21:10:00+08:00",
-  "totals": {"events": 6, "applied": 6, "up": 4, "down": 2, "unresolved": 0, "invalid": 0},
-  "counts": {"GPIO": {"pos": 3, "neg": 1}},
+  "totals": {"events": 6, "applied": 6, "up": 4, "down": 2, "cleared": 0, "superseded": 0},
+  "counts": {"GPIO": {"pos": 4, "neg": 2}},
   "pairs":  {"GPIO||systemd": {"pos": 2, "neg": 0}},
-  "weights": {"GPIO": 1.2},
+  "weights": {"GPIO": 0.75},
   "pairWeights": {"GPIO||systemd": 0.75},
-  "appliedEvents": {"<eventId>": "2026-11-14T20:59:00+08:00"}
+  "appliedEvents": {"<eventId>": "2026-11-14T20:59:00+08:00"},
+  "sourceEvents": {"<eventId>": {"itemId": "<id>", "delta": 1, "at": "..."}}
 }
 ```
 
@@ -842,7 +846,7 @@ score = base_score + adjustment
 python scripts/regression_test_stage8.py      # 90 项
 ```
 
-覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变、正负冲突；聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/无旧区块/无标记泄漏/幂等）；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 49 项（含 `feedback-events`）。
+覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变；同一内容只按最后一次选择、清除标记、历史保留、聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/清除按钮/状态恢复/无标记泄漏/幂等）；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 51 项（含 `feedback-events`、last-wins 与 clear）。
 
 ---
 

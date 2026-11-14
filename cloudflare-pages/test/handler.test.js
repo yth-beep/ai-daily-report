@@ -199,13 +199,20 @@ test("非白名单领域返回 400", async () => {
   assert.equal((await read(res)).error, "invalid domain");
 });
 
-test("delta 只接受 +1 / -1", async () => {
+test("delta 只接受 +1 / -1，itemId 反馈额外接受 0=清除", async () => {
   const env = makeEnv(new MockKV());
-  for (const delta of [2, 0, -2, "1", 1.5, null]) {
+  for (const delta of [2, -2, "1", 1.5, null]) {
     const res = await call(env, "POST", "/api/feedback", payload({ delta }));
     assert.equal(res.status, 400, `delta=${JSON.stringify(delta)}`);
     assert.equal((await read(res)).error, "invalid delta");
   }
+  const noItem = await call(env, "POST", "/api/feedback", payload({ delta: 0 }));
+  assert.equal(noItem.status, 400);
+  const clear = await call(env, "POST", "/api/feedback", payload({
+    delta: 0,
+    itemId: "0123456789abcdef0123456789abcdef01234567",
+  }));
+  assert.equal(clear.status, 200);
 });
 
 test("日期格式非法返回 400", async () => {
@@ -372,7 +379,7 @@ test("POST 携带 itemId / tags / title 时接受并原样记录", async () => {
   });
   assert.equal(res.status, 200);
   const body = await read(res);
-  assert.equal(body.itemLevel, false);
+  assert.equal(body.itemLevel, true);
   const record = JSON.parse(kv.peek(`fevent:${eventId}`));
   assert.deepEqual(record.tags, ["GPIO", "系统d", "I2C"]);
   assert.equal(record.itemId, "0123456789abcdef0123456789abcdef01234567");
@@ -471,6 +478,46 @@ test("GET /api/feedback-events 返回结构化事件（按时间排序）", asyn
   assert.deepEqual(itemLevel.tags, ["OTA", "systemd"]);
   assert.equal(itemLevel.delta, -1);
   assert.equal(itemLevel.domain, "");
+});
+
+test("同一内容只按最后一次点击计入权重", async () => {
+  const kv = new MockKV();
+  const env = makeEnv(kv);
+  const itemId = "0123456789abcdef0123456789abcdef01234567";
+  for (const delta of [1, 1, -1]) {
+    const res = await call(env, "POST", "/api/feedback", {
+      domain: DOMAIN, delta, date: DAY, eventId: uuid(), itemId,
+      tags: ["GPIO", "systemd"], title: "同一内容",
+    });
+    assert.equal(res.status, 200);
+  }
+
+  const events = await read(await call(env, "GET", "/api/feedback-events"));
+  assert.equal(events.count, 3);
+  assert.equal(events.itemStates[itemId].delta, -1);
+
+  const weights = await read(await call(env, "GET", "/api/weights"));
+  assert.equal(weights.weights[DOMAIN].weight, -1);
+});
+
+test("清除标记写入 delta=0，并撤销该内容当前权重", async () => {
+  const kv = new MockKV();
+  const env = makeEnv(kv);
+  const itemId = "abcdef0123456789abcdef0123456789abcdef01";
+  await call(env, "POST", "/api/feedback", {
+    domain: DOMAIN, delta: 1, date: DAY, eventId: uuid(), itemId,
+    tags: ["GPIO"], title: "先加重",
+  });
+  await call(env, "POST", "/api/feedback", {
+    domain: DOMAIN, delta: 0, date: DAY, eventId: uuid(), itemId,
+    tags: ["GPIO"], title: "再清除",
+  });
+
+  const events = await read(await call(env, "GET", "/api/feedback-events"));
+  assert.equal(events.count, 2);
+  assert.equal(events.itemStates[itemId].delta, 0);
+  const weights = await read(await call(env, "GET", "/api/weights"));
+  assert.equal(weights.weights[DOMAIN].weight, 0);
 });
 
 test("POST /api/feedback-events 返回 405", async () => {

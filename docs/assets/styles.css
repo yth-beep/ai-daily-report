@@ -175,8 +175,14 @@ pre code { background: none; color: inherit; padding: 0; }
 .pref-btn:active { transform: translateY(1px); }
 .pref-up { border-color: #86efac; background: #f0fdf4; color: #166534; }
 .pref-down { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
+.pref-clear { border-color: #cbd5e1; background: #f8fafc; color: #475569; }
 .pref-up:hover:not(:disabled) { background: #dcfce7; }
 .pref-down:hover:not(:disabled) { background: #fee2e2; }
+.pref-clear:hover:not(:disabled) { background: #e2e8f0; }
+.pref-btn[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px currentColor;
+  font-weight: 700;
+}
 .pref-status-ok { color: #166534; }
 .pref-status-err { color: #991b1b; }
 

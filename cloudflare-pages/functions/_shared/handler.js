@@ -6,14 +6,15 @@
  * changing `apiUrl` in docs/assets/feedback-config.js.
  *
  *   GET  /health        -> { ok:true, version }            (no key)
- *   POST /api/feedback  -> apply one +1 / -1 delta         (X-Feedback-Key)
+ *   POST /api/feedback  -> save one +1 / -1 / 0 item state  (X-Feedback-Key)
  *   GET  /api/weights   -> current cumulative weights       (X-Feedback-Key)
  *   GET  /api/feedback-events -> structured per-item events (X-Feedback-Key)
  *
  * POST body: domain/delta/date/eventId are required (legacy contract);
- * itemId/tags/title are OPTIONAL extras used by the per-item buttons. When
- * domain is omitted the event is recorded as item-level only and no domain
- * counter is touched.
+ * itemId/tags/title are OPTIONAL extras used by the per-item buttons.
+ * For item feedback, delta=-1/1 sets "less/more" and delta=0 clears it.
+ * Only the newest event for each itemId contributes to current weights; older
+ * clicks remain in history for audit/status display but never stack up.
  *
  * KV layout (namespace bound as WEIGHTS_KV, shared with the Worker):
  *   weight:<domain>  -> JSON { "weight": <int -10..10>, "updatedAt": "<ISO>" }
@@ -40,7 +41,7 @@
  *   ALLOWED_DOMAINS  comma-separated enabled topic ids, default "ai-embedded"
  */
 
-export const VERSION = "1.0.0";
+export const VERSION = "1.1.0";
 export const MAX_BODY_BYTES = 4096;
 export const WEIGHT_MIN = -10;
 export const WEIGHT_MAX = 10;
@@ -133,6 +134,76 @@ function inReasonableRange(value, nowYear) {
 
 function clamp(value) {
   return Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, value));
+}
+
+function eventSortKey(event) {
+  return `${String(event?.at ?? "")}\u0000${String(event?.eventId ?? "")}`;
+}
+
+/**
+ * Collapse event history to one current record per itemId.
+ * Legacy domain-only events have no itemId and therefore remain independent.
+ */
+export function latestEvents(events) {
+  const byItem = new Map();
+  const standalone = [];
+  for (const event of events ?? []) {
+    if (!event || typeof event !== "object") continue;
+    const itemId = String(event.itemId ?? "").trim();
+    if (!itemId) {
+      standalone.push(event);
+      continue;
+    }
+    const previous = byItem.get(itemId);
+    if (!previous || eventSortKey(event) >= eventSortKey(previous)) {
+      byItem.set(itemId, event);
+    }
+  }
+  return [...standalone, ...byItem.values()];
+}
+
+function itemStatesFromEvents(events) {
+  const states = {};
+  for (const event of latestEvents(events)) {
+    const itemId = String(event.itemId ?? "").trim();
+    if (itemId) states[itemId] = event;
+  }
+  return states;
+}
+
+async function readEvents(kv) {
+  const events = [];
+  const listed = await kv.list({ prefix: "fevent:", limit: MAX_EVENTS_RETURNED });
+  for (const key of listed?.keys ?? []) {
+    const raw = await kv.get(key.name);
+    if (typeof raw !== "string") continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") events.push(parsed);
+    } catch {
+      /* skip unreadable record, never fail the whole list */
+    }
+  }
+  events.sort((a, b) => eventSortKey(a).localeCompare(eventSortKey(b)));
+  return events;
+}
+
+function latestDomainWeights(events, allowed) {
+  const totals = Object.fromEntries(allowed.map((domain) => [domain, 0]));
+  const updated = Object.fromEntries(allowed.map((domain) => [domain, null]));
+  for (const event of latestEvents(events)) {
+    const domain = String(event.domain ?? "");
+    if (!(domain in totals)) continue;
+    const delta = Number(event.delta);
+    if (delta !== 1 && delta !== -1) continue; // delta 0 is an explicit clear
+    totals[domain] += delta;
+    const at = String(event.at ?? "");
+    if (at && (!updated[domain] || at > updated[domain])) updated[domain] = at;
+  }
+  return Object.fromEntries(allowed.map((domain) => [
+    domain,
+    { weight: clamp(totals[domain]), updatedAt: updated[domain] },
+  ]));
 }
 
 export async function readWeight(kv, weightKey) {
@@ -258,9 +329,6 @@ async function handleFeedback(request, env, cors) {
       return error(400, "invalid domain", cors);
     }
   }
-  if (delta !== 1 && delta !== -1) {
-    return error(400, "invalid delta", cors);
-  }
   if (!isValidDate(date) || !inReasonableRange(date, new Date().getUTCFullYear())) {
     return error(400, "invalid date", cors);
   }
@@ -270,9 +338,16 @@ async function handleFeedback(request, env, cors) {
 
   const extras = parseOptionalExtras(body);
   if (extras.error) return error(400, extras.error, cors);
+  if (delta !== 1 && delta !== -1 && delta !== 0) {
+    return error(400, "invalid delta", cors);
+  }
+  if (delta === 0 && !extras.itemId) {
+    return error(400, "invalid delta", cors);
+  }
 
   const kv = env.WEIGHTS_KV;
-  const weightKey = domain ? `weight:${domain}` : null;
+  const itemLevel = Boolean(extras.itemId);
+  const weightKey = domain && !itemLevel ? `weight:${domain}` : null;
   const eventKey = `event:${eventId}`;
   const recordKey = `fevent:${eventId}`;
   const at = new Date().toISOString();
@@ -319,6 +394,11 @@ async function handleFeedback(request, env, cors) {
     }
     weight = result.weight;
     updatedAt = result.updatedAt ?? at;
+  } else if (itemLevel) {
+    const events = await readEvents(kv);
+    const derived = latestDomainWeights(events, allowedDomains(env));
+    weight = domain ? derived[domain]?.weight ?? 0 : null;
+    updatedAt = domain ? derived[domain]?.updatedAt ?? at : at;
   }
 
   return json(
@@ -328,7 +408,7 @@ async function handleFeedback(request, env, cors) {
       delta,
       weight,
       updatedAt,
-      itemLevel: weightKey === null,
+      itemLevel,
     },
     200,
     cors,
@@ -337,29 +417,19 @@ async function handleFeedback(request, env, cors) {
 
 async function handleEvents(env, cors) {
   const kv = env.WEIGHTS_KV;
-  const events = [];
-  const listed = await kv.list({ prefix: "fevent:", limit: MAX_EVENTS_RETURNED });
-  for (const key of listed?.keys ?? []) {
-    const raw = await kv.get(key.name);
-    if (typeof raw !== "string") continue;
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") events.push(parsed);
-    } catch {
-      /* skip unreadable record, never fail the whole list */
-    }
-  }
-  events.sort((a, b) => String(a.at ?? "").localeCompare(String(b.at ?? "")));
-  return json({ ok: true, count: events.length, events }, 200, cors);
+  const events = await readEvents(kv);
+  return json({
+    ok: true,
+    count: events.length,
+    events,
+    itemStates: itemStatesFromEvents(events),
+  }, 200, cors);
 }
 
 async function handleWeights(env, cors) {
   const kv = env.WEIGHTS_KV;
-  const weights = {};
-  for (const domain of allowedDomains(env)) {
-    const w = await readWeight(kv, `weight:${domain}`);
-    weights[domain] = { weight: w.weight, updatedAt: w.updatedAt };
-  }
+  const events = await readEvents(kv);
+  const weights = latestDomainWeights(events, allowedDomains(env));
   return json({ ok: true, weights }, 200, cors);
 }
 

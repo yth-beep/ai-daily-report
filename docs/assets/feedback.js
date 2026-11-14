@@ -29,6 +29,17 @@
     for (var i = 0; i < buttons.length; i++) buttons[i].disabled = disabled;
   }
 
+  function setChoice(row, delta) {
+    var buttons = row.querySelectorAll(".pref-btn[data-delta]");
+    for (var i = 0; i < buttons.length; i++) {
+      var value = parseInt(buttons[i].getAttribute("data-delta"), 10);
+      buttons[i].setAttribute("aria-pressed", value === delta ? "true" : "false");
+    }
+    if (delta === 1) rowStatus(row, "（已加重这一条）", true);
+    else if (delta === -1) rowStatus(row, "（已减轻这一条）", true);
+    else rowStatus(row, "", null);
+  }
+
   // 后端地址未配置：全部按钮禁用，并逐条说明原因（不假装成功）。
   if (!API_URL) {
     for (var r = 0; r < rows.length; r++) {
@@ -95,6 +106,60 @@
     });
   }
 
+  function latestByItem(events) {
+    var latest = {};
+    for (var i = 0; i < events.length; i++) {
+      var event = events[i];
+      if (!event || !event.itemId) continue;
+      var previous = latest[event.itemId];
+      var key = String(event.at || "") + "\u0000" + String(event.eventId || "");
+      var previousKey = previous
+        ? String(previous.at || "") + "\u0000" + String(previous.eventId || "")
+        : "";
+      if (!previous || key >= previousKey) latest[event.itemId] = event;
+    }
+    return latest;
+  }
+
+  function applySavedStates(itemStates) {
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var itemId = row.getAttribute("data-item-id") || "";
+      var saved = itemStates[itemId];
+      if (!saved) {
+        setChoice(row, null);
+        continue;
+      }
+      var delta = parseInt(saved.delta, 10);
+      setChoice(row, delta === 1 || delta === -1 ? delta : null);
+    }
+  }
+
+  function loadSavedStates() {
+    var key = getKey();
+    if (!key) return;
+    fetch(API_URL.replace(/\/+$/, "") + "/api/feedback-events", {
+      headers: { "Accept": "application/json", "X-Feedback-Key": key },
+    })
+      .then(function (resp) {
+        return resp.json().catch(function () { return {}; }).then(function (data) {
+          return { ok: resp.ok, status: resp.status, data: data };
+        });
+      })
+      .then(function (r) {
+        if (r.status === 401) {
+          clearKey();
+          return;
+        }
+        if (!r.ok) return;
+        var states = r.data && r.data.itemStates && typeof r.data.itemStates === "object"
+          ? r.data.itemStates
+          : latestByItem((r.data && r.data.events) || []);
+        applySavedStates(states);
+      })
+      .catch(function () { /* 保留未标记状态，不遮挡日报正文 */ });
+  }
+
   function submit(row, delta) {
     var domain = row.getAttribute("data-domain") || "";
     var itemId = row.getAttribute("data-item-id") || "";
@@ -136,7 +201,7 @@
         .then(function (r) {
           setRowDisabled(row, false);
           if (r.ok) {
-            rowStatus(row, delta > 0 ? "已加重这一条" : "已减轻这一条", true);
+            setChoice(row, delta === 1 || delta === -1 ? delta : null);
             return;
           }
           if (r.status === 401) {
@@ -161,10 +226,12 @@
         (function (btn) {
           btn.addEventListener("click", function () {
             var delta = parseInt(btn.getAttribute("data-delta"), 10);
-            if (delta === 1 || delta === -1) submit(row, delta);
+            if (delta === 1 || delta === -1 || delta === 0) submit(row, delta);
           });
         })(buttons[b]);
       }
     })(rows[i]);
   }
+
+  loadSavedStates();
 })();

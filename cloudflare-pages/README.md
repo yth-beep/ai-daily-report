@@ -1,6 +1,6 @@
 # 反馈后端 · Cloudflare Pages Functions（主后端）
 
-日报页面的「加重 / 减轻」按钮调用这个后端。它是**主后端**：`*.pages.dev` 在当前网络可访问，
+日报页面的「加重 / 减轻 / 清除标记」按钮调用这个后端。它是**主后端**：`*.pages.dev` 在当前网络可访问，
 复用已有的 Cloudflare 账号、已有的 KV namespace 和已有的 `FEEDBACK_KEY`，**不需要新账号、新域名或 GitHub 登录**。
 
 > 为什么需要后端：GitHub Pages 是纯静态站点，浏览器里无法安全保存 GitHub Token，也没有任何位置能持久写回仓库。
@@ -32,8 +32,8 @@ cloudflare-pages/
 
 | 方法 | 路径 | 鉴权 | 说明 |
 |---|---|---|---|
-| GET | `/health` | 无 | `{ ok: true, version: "1.0.0" }` |
-| POST | `/api/feedback` | `X-Feedback-Key` | 应用一次 `+1` / `-1` |
+| GET | `/health` | 无 | `{ ok: true, version: "1.1.0" }` |
+| POST | `/api/feedback` | `X-Feedback-Key` | 保存一次 `+1` / `-1`；条目级 `0` 表示清除 |
 | GET | `/api/weights` | `X-Feedback-Key` | 返回各领域累计权重 |
 
 请求体：
@@ -51,7 +51,7 @@ cloudflare-pages/
 ```
 
 错误码：`400` 参数/JSON 非法 · `401` 密钥缺失或错误 · `404` 未知路由 · `405` 方法错误 ·
-`409` 权重写入未能收敛（未生效，可用同一 eventId 重试）· `413` 请求体超过 4KB · `500` 内部错误。
+`409` 权重写入未能收敛（未生效，可用同一 eventId 重试）· `413` 请求体超过 4KB · `500` 内部错误。带 `itemId` 的事件按内容只采用 `at` 最新的一条，旧点击保留审计但不叠加。
 
 > 与 Worker 版唯一差异：请求体过大这里返回 `413`（Worker 版是 `400`）。前端只判断非 2xx，行为等价。
 
@@ -125,7 +125,7 @@ https://ai-daily-report-feedback.pages.dev
 
 ```bash
 curl https://ai-daily-report-feedback.pages.dev/health
-# {"ok":true,"version":"1.0.0"}
+# {"ok":true,"version":"1.1.0"}
 ```
 
 然后把该域名写进 `docs/assets/feedback-config.js` 的 `apiUrl`，提交并推送。之后各设备首次点击「加重/减轻」时输入一次反馈密钥即可（只存本机 localStorage）。
@@ -164,7 +164,7 @@ npm test
 ```
 
 覆盖：鉴权（缺密钥 / 错密钥 / 未配置密钥）、CORS（放行 / 拒绝 / 预检）、参数校验（领域 / delta / 日期 / eventId / JSON / 4KB）、
-`+1`/`-1`、幂等、clamp `±10`、事件 TTL、`GET /weights`、405/404、**写入被覆盖后的重试收敛**、
+`+1`/`-1`/条目级 `0` 清除、同一 itemId 最后一次选择覆盖、幂等、clamp `±10`、事件 TTL、`GET /weights`、405/404、**写入被覆盖后的重试收敛**、
 **持续冲突返回 409 且删除回执**、KV 异常 500 不泄漏栈、响应不泄漏密钥、路由文件布局与 `onRequest` 透传。
 
 ## 与其它后端的关系

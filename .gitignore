@@ -1,0 +1,62 @@
+# ---- 原始对话记录：内部资料，禁止进入公开仓库 ----
+查找开源项目-大模型自动收集信息-*.md
+查找开源项目-大模型自动收集信息-*.json
+
+# ---- 废弃项目：禁止作为技术底座，也不进入发布内容 ----
+agent-synergy/
+
+# ---- WorkBuddy 本地记忆、运行状态、发布回执 ----
+.workbuddy/
+state/
+
+# ---- 运行时配置与数据源配置（可能含真实 URL / 模型命令，不进公开仓库）----
+config/
+
+# 发布白名单之外的本地文件（日报源文件、脚本、非公开数据）不主动纳入版本控制；
+# 真实发布只允许 `git add -- docs README.md .gitignore`，禁止 `git add .`。
+# 注意：.gitignore 只防"误添加"，公开仓库里所有被 Git 跟踪的文件都能被看到。
+
+# ---- Cookie / 登录态 / 会话凭据 ----
+*cookie*
+*Cookie*
+*cookies*
+*login_state*
+*storage_state*
+*session*.json
+
+# ---- 密钥与凭据 ----
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+*secret*
+*Secret*
+*api_key*
+*apikey*
+*credential*
+*token*
+
+# ---- 原始采集数据（未整理，不进入公开站点）----
+raw/
+raw_*/
+data/raw/
+collected/
+crawl/
+*.jsonl
+*.har
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- 临时文件 ----
+*.log
+*.tmp
+*.temp
+*.bak
+*~
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

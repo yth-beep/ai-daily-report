@@ -1,0 +1,37 @@
+name: 权重反馈（加重 / 减轻）
+description: 提交对某个领域关注度的加重或减轻偏好，供本地采集/总结时调整权重。
+title: "[权重反馈] "
+labels: ["weight-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交后，请在本地运行 `python scripts/sync_feedback.py` 同步权重。
+        系统会校验领域、方向与日期，非法内容会被忽略。
+  - type: dropdown
+    id: domain
+    attributes:
+      label: 领域
+      description: 要调整的领域
+      options:
+        - ai-embedded
+    validations:
+      required: true
+  - type: dropdown
+    id: delta
+    attributes:
+      label: 调整方向
+      description: 加重表示更想看，减轻表示减少出现
+      options:
+        - "加重 (+1)"
+        - "减轻 (-1)"
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: 日期
+      description: 反馈对应的日期（YYYY-MM-DD）
+      placeholder: "2026-11-14"
+    validations:
+      required: true

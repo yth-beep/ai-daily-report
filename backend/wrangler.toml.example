@@ -1,0 +1,20 @@
+# Cloudflare Worker 配置示例。
+# 使用前复制为 wrangler.toml，并替换下面两个 KV namespace id 为你在
+# Cloudflare 控制台创建的真实 id。FEEDBACK_KEY 是 Secret，不要写在这个文件里，
+# 用 `npx wrangler secret put FEEDBACK_KEY` 设置。
+
+name = "ai-daily-report-feedback"
+main = "src/index.js"
+compatibility_date = "2026-11-14"
+
+# KV namespace：在 Cloudflare 控制台 Workers & Pages -> KV 里创建，
+# 把返回的 namespace id 填到 id 和 preview_id。
+[[kv_namespaces]]
+binding = "WEIGHTS_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# 允许反馈的领域 ID，逗号分隔。新增领域时改这里即可，无需改代码。
+# 必须与 config/topics.json 中 enabled 的领域 id 保持一致。
+[vars]
+ALLOWED_DOMAINS = "ai-embedded"

@@ -1,0 +1,12 @@
+{
+  "name": "ai-daily-report-feedback",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker backend for the daily-report weight feedback. No real credentials are stored here.",
+  "scripts": {
+    "test": "node --test test/index.test.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  }
+}

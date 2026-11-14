@@ -1,0 +1,7 @@
+# 真实 wrangler.toml 含 KV namespace id，不要提交到公开仓库。
+wrangler.toml
+
+# 本地依赖与产物
+node_modules/
+.dev.vars
+.wrangler/

@@ -1,0 +1,24 @@
+{
+  "tasks": {
+    "check": "deno check main.ts test.ts",
+    "test": "deno test test.ts",
+    "dev": "deno run --allow-net --allow-env --allow-read --allow-write main.ts",
+    "fmt": "deno fmt main.ts test.ts",
+    "lint": "deno lint main.ts test.ts"
+  },
+  "fmt": {
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "compilerOptions": {
+    "strict": true
+  },
+  "unstable": ["kv"]
+}

@@ -1,0 +1,6 @@
+# 本地构建/运行产物
+.wrangler/
+node_modules/
+
+# 本地开发变量（如需使用请自行创建，不要提交）
+.dev.vars

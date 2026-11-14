@@ -1,0 +1,21 @@
+# Cloudflare Pages project config (wrangler).
+#
+# This project serves ONLY the feedback API; the site itself stays on GitHub
+# Pages. `public/` holds a placeholder page so Pages has a build output dir.
+#
+# FEEDBACK_KEY is a SECRET and must never appear here:
+#   npx wrangler pages secret put FEEDBACK_KEY --project-name=ai-daily-report-feedback
+#
+# The KV namespace is the SAME one already used by the Worker backend, so
+# weight:<domain> and event:<eventId> keep working without migration.
+
+name = "ai-daily-report-feedback"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "./public"
+
+[[kv_namespaces]]
+binding = "WEIGHTS_KV"
+id = "23beae27ecf34a63b89899f0947cd320"
+
+[vars]
+ALLOWED_DOMAINS = "ai-embedded"

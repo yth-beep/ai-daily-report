@@ -1,8 +1,8 @@
 # AI × 嵌入式 信息日报（GitHub Pages 站点）
 
-> **阶段：上线前清理（第五阶段）+ 后端迁移（第六阶段）。** 站点名称「AI × 嵌入式 信息日报」，示例/占位页已从站点移除，`reports/` 为空，首页显示「日报将在首次采集后生成」。
-> **反馈主后端已改为 Deno Deploy + Deno KV**（`backend-deno/`），因为当前网络无法访问 `*.workers.dev`；Cloudflare Worker（`backend/`）保留为备用。
-> 本轮只做代码和本地测试：**没有** push、**没有**部署、**没有**创建账号、**没有**注册 Windows 定时任务、**没有**连接真实平台。
+> **阶段：上线前清理（第五阶段）+ 后端迁移（第六、七阶段）。** 站点名称「AI × 嵌入式 信息日报」，示例/占位页已从站点移除，`reports/` 为空，首页显示「日报将在首次采集后生成」。
+> **反馈主后端为 Cloudflare Pages Functions**（`cloudflare-pages/`，`*.pages.dev` 可访问，复用现有账号、KV 与 `FEEDBACK_KEY`）；Cloudflare Worker（`backend/`）为备用，Deno Deploy 版（`backend-deno/`）因官方停止注册并宣布 2027 年关闭，仅作历史备份。
+> 变更只做代码与本地测试：**没有** push、**没有**部署、**没有**创建账号、**没有**注册 Windows 定时任务、**没有**连接真实平台。
 > `agent-synergy/` 已废弃，本项目不引用、不复制、不修改其中任何代码，也不把它作为技术底座。
 
 站点面向 **AI 大模型 × 嵌入式** 交叉领域（端侧 AI、边缘推理、TinyML、AIoT、MCU/RTOS、NPU、模型量化与部署）。数据链路是：本地采集 → 结构化条目 → 分级日报 Markdown → 渲染成静态页面 → 走发布护栏提交到 Pages。原有的发布护栏与全部回归测试保持不变。
@@ -35,7 +35,16 @@ E:\大学\项目\
 │   ├── package.json               仅 wrangler 开发/部署命令说明
 │   ├── test/index.test.js         后端测试（KV mock，不连真实 Cloudflare）
 │   └── README.md                  部署与密钥配置步骤
-├── backend-deno/                  Deno Deploy 反馈后端（主后端，无 Secret，可公开）
+├── cloudflare-pages/              Cloudflare Pages Functions 反馈后端（主后端，无 Secret，可公开）
+│   ├── functions/_shared/handler.js  共享实现（鉴权/CORS/校验/KV 写入）
+│   ├── functions/health.js           GET  /health
+│   ├── functions/api/feedback.js     POST /api/feedback
+│   ├── functions/api/weights.js      GET  /api/weights
+│   ├── public/                       Pages 输出目录（说明页 + 404 页）
+│   ├── test/                         40 项测试（KV 内存替身）
+│   ├── wrangler.toml                 Pages 项目 + 现有 KV 绑定 + ALLOWED_DOMAINS
+│   └── README.md                     部署命令、并发边界、密钥设置
+├── backend-deno/                  Deno Deploy 反馈后端（历史备份，已停止注册）
 │   ├── main.ts                    Deno.serve 入口 + Deno KV 原子写
 │   ├── test.ts                    34 项测试（内存 KV mock）
 │   ├── deno.json                  tasks / 严格 TS / unstable kv 声明
@@ -351,7 +360,7 @@ python scripts/sync_feedback.py
 ### 12.5 哪些数据本地保存 / 哪些在云端
 
 - **本地保存**（`state/`，已被 `.gitignore` 排除）：采集 checkpoint、权重覆盖 `topics_override.json`、发布回执。
-- **云端公开仓库**：只发布 `docs/`、`README.md`、`.gitignore`、`.github/`、`backend/`、`backend-deno/`（白名单）。后端源码与前端配置可公开；**反馈密钥 `FEEDBACK_KEY` 永不发布**（只存在 Deno Deploy 的环境变量 / Cloudflare Secret 里）。
+- **云端公开仓库**：只发布 `docs/`、`README.md`、`.gitignore`、`.github/`、`backend/`、`backend-deno/`、`cloudflare-pages/`（白名单）。后端源码与前端配置可公开；**反馈密钥 `FEEDBACK_KEY` 永不发布**（只存在 Cloudflare Secret / Pages Secret 里）。
 - 浏览器的 `localStorage` 只存该设备的反馈密钥，不作为跨设备权威数据。
 
 ### 12.6 `sync_feedback.py` 退出码
@@ -364,71 +373,102 @@ python scripts/sync_feedback.py
 
 ---
 
-## 13. 后端部署（主：Deno Deploy + Deno KV）
+## 13. 后端部署（主：Cloudflare Pages Functions）
 
 **为什么必须有后端才能写数据**：GitHub Pages 是纯静态文件服务，前端无法把「点击加重」写回仓库，浏览器里也没有安全的地方存 GitHub Token；因此需要一个有状态的后端接收并保存权重，前端只发请求。
 
-**为什么主后端换成 Deno Deploy**：Cloudflare Worker 已经部署成功，但**当前网络无法访问 `*.workers.dev`**（公共 DNS 解析到异常地址、强制指定 Cloudflare IP 仍被连接重置，而 Cloudflare 主站与 GitHub 都正常），手机端无法可靠调用。`*.deno.dev` 在当前网络实测可访问，所以主后端改为 Deno Deploy + Deno KV。Cloudflare 版代码保留在 `backend/` 作为**备用**，不删除。
+**为什么主后端是 Cloudflare Pages Functions**：Worker 已经部署成功，但**当前网络无法访问 `*.workers.dev`**；Deno Deploy 已停止新账号注册并宣布 2027 年关闭，不能作为长期依赖。`*.pages.dev` 在当前网络实测可访问，并且能**复用已有的 Cloudflare 账号、已有的 KV namespace 和已有的 `FEEDBACK_KEY`**，不需要新账号、新域名或 GitHub 登录。因此主后端改为 Pages Functions，Worker 与 Deno 版代码都保留作备份，不删除。
 
-两个后端的路由、鉴权头、请求体、响应体与状态码语义完全一致，切换只需要改一处：`docs/assets/feedback-config.js` 的 `apiUrl`。前端和 `scripts/sync_feedback.py` 不需要区分后端类型。
+三种后端的路由、鉴权头、请求体、响应体与错误码语义一致，切换只改一处：`docs/assets/feedback-config.js` 的 `apiUrl`。前端和 `scripts/sync_feedback.py` 不需要区分后端类型。
 
-### 13.1 Deno 后端代码位置
+### 13.1 代码位置
 
 ```
-backend-deno/
-├── main.ts      Deno.serve 入口（/health、/api/feedback、/api/weights）+ KV 原子写
-├── test.ts      34 项测试（内存 KV mock，不联网）
-├── deno.json    tasks + 严格 TS + unstable kv 声明
-└── README.md    Deno Deploy 部署、环境变量与轮换密钥步骤
+cloudflare-pages/
+├── functions/
+│   ├── _shared/handler.js    共享实现（`_` 开头的目录不会被当成路由）
+│   ├── health.js             GET  /health
+│   └── api/feedback.js       POST /api/feedback
+│       api/weights.js        GET  /api/weights
+├── public/                   Pages 输出目录（说明页 + 404 页）
+├── test/                     40 项测试（KV 内存替身，不联网）
+├── wrangler.toml             Pages 项目 + KV 绑定 + 非敏感变量
+└── README.md                 部署、命令、并发边界说明
 ```
 
 ### 13.2 部署步骤（人工）
 
-1. 打开 <https://dash.deno.com/>，用 GitHub 登录 → `New Project`，项目名 `ai-daily-report-feedback`，入口文件 `backend-deno/main.ts`。
-2. `Settings → Environment Variables` 添加：
-   - `FEEDBACK_KEY` = 随机长串（32 位以上）
-   - `ALLOWED_DOMAINS` = `ai-embedded`
-3. 部署（CLI 或面板都可以）：
+1. 复用已有 Cloudflare 账号登录：`npx --yes wrangler@latest login`（浏览器授权由你本人完成）。
+2. 创建 Pages 项目（已存在可跳过）：
 
    ```bash
-   deno install -gArf jsr:@deno/deployctl   # 或 npm i -g deployctl
-   cd backend-deno
-   deployctl deploy --project=ai-daily-report-feedback --prod main.ts
+   cd cloudflare-pages
+   npx --yes wrangler@latest pages project create ai-daily-report-feedback --production-branch=main
    ```
 
-4. 拿到域名 `https://ai-daily-report-feedback.<你的-org>.deno.dev`，先用 `curl .../health` 验证返回 `{"ok":true,...}`。
-5. 把域名填进 `docs/assets/feedback-config.js` 的 `apiUrl`（**不带** `/api/...` 路径），提交并推送。
-6. 本机设置 `FEEDBACK_API_URL` / `FEEDBACK_KEY` 环境变量后，`run_boot.py`、`run_nightly.py` 会自动同步权重。
+3. 确认 `wrangler.toml` 里的 KV 绑定是现有 namespace（`23beae27ecf34a63b89899f0947cd320`），`ALLOWED_DOMAINS=ai-embedded`。
+4. 设置密钥（交互输入，**不写入任何文件**）：
 
-完整步骤（含密钥轮换、本机同步）见 `backend-deno/README.md`。
+   ```bash
+   npx --yes wrangler@latest pages secret put FEEDBACK_KEY --project-name=ai-daily-report-feedback
+   ```
 
-### 13.3 Deno 后端测试
+   可以直接填 Worker 里那个 `FEEDBACK_KEY`，这样本机环境变量和各设备已输入的密钥都不用改。
+5. 部署：
+
+   ```bash
+   npx --yes wrangler@latest pages deploy public --project-name=ai-daily-report-feedback
+   ```
+
+6. 得到 `https://ai-daily-report-feedback.pages.dev`，先 `curl .../health` 验证 `{"ok":true,...}`。
+7. 把该域名填进 `docs/assets/feedback-config.js` 的 `apiUrl`（**不带** `/api/...` 路径），提交并推送。
+8. 本机设置 `FEEDBACK_API_URL` / `FEEDBACK_KEY` 后，`run_boot.py`、`run_nightly.py` 会自动同步权重。
+
+完整命令与排错见 `cloudflare-pages/README.md`。
+
+### 13.3 本地开发
 
 ```bash
-cd backend-deno
-deno task check   # 类型检查 main.ts + test.ts
-deno task test    # 34 passed，全部内存 KV mock，不连真实 Deno Deploy
-deno task lint
+cd cloudflare-pages
+npx --yes wrangler@latest pages dev     # http://localhost:8788，本地模拟 KV
 ```
 
-覆盖：鉴权 401（缺密钥 / 错密钥 / 未配置密钥）、CORS（放行 / 拒绝 / 预检）、参数校验（领域 / delta / 日期 / eventId / JSON / 4KB）、+1/-1、幂等、**并发不同 eventId 不丢更新**、**并发同 eventId 只生效一次**、clamp ±10、事件 TTL、`GET /weights`、405/404、冲突重试耗尽 409、KV 异常 500 不泄漏异常栈、响应不泄漏密钥。
+`wrangler pages dev` 默认使用本地模拟 KV（`.wrangler/`，已 gitignore），不读写线上数据。`--remote` 才会连真实 KV，谨慎使用。
 
-### 13.4 本地启动
+### 13.4 后端测试
 
 ```bash
-cd backend-deno
-deno task dev     # http://localhost:8000
+cd cloudflare-pages
+npm test        # node --test，40 passed，不联网、不需要 wrangler
 ```
 
-`deno.json` 已声明 `"unstable": ["kv"]`（Deno 2.9 本地 `Deno.openKv()` 仍需该开关，Deno Deploy 运行时不需要）。权限只用 `--allow-net --allow-env --allow-read --allow-write`，不额外给文件或网络权限。
+覆盖：鉴权（缺密钥 / 错密钥 / 未配置密钥）、CORS（放行 / 拒绝 / 预检）、参数校验（领域 / delta / 日期 / eventId / JSON / 4KB）、`+1`/`-1`、幂等、clamp `±10`、事件 TTL、`GET /weights`、405/404、写入被覆盖后的重试收敛、持续冲突返回 409 且删除回执、KV 异常 500 不泄漏栈、路由文件布局与 `onRequest` 透传。
+
+### 13.5 并发边界（KV 没有 CAS）
+
+Pages 用的是 Workers KV，**没有 compare-and-swap**，本轮没有引入 Durable Object / D1，所以给的是「明确边界 + 尽量收敛」：
+
+- 先查 `event:<eventId>` 回执，命中直接返回 `idempotent`，**同一 eventId 不会重复计数**（双击、客户端重试、网络重发都走这条）。
+- **先写回执再写权重**：中途失败只会少记一次，不会重复计。
+- 写权重后**回读校验**，发现被旧值覆盖就基于新值重算，最多 3 次。
+- 仍收敛不了返回 `409` 并删掉刚写的回执，客户端可用同一 eventId 重试——**不假装成功**。
+- **无法保证**：两个不同 eventId 在同一毫秒、不同 colo 到达时仍可能丢一次增量。本站是单人日报，每天几次点击，可忽略；`GET /api/weights` 能看出实际值。
+
+要严格线性一致，可选 Durable Object 或 D1（`INSERT OR IGNORE` + `UPDATE ... SET weight = MAX(-10, MIN(10, weight + ?))`），需要新增绑定，本轮按「复用现有 KV」的要求未实施。
 
 ---
 
-## 14. Cloudflare 备用后端（Workers + Workers KV，已部署但当前网络不可达）
+## 14. Deno Deploy（历史备份，不再作为依赖）
 
-备用路径，代码与测试保持不变，配置步骤留档。
+`backend-deno/` 保留但不再使用：Deno Deploy 已停止新账号注册（`403 SIGNUP_UNAVAILABLE`）并宣布 2027 年 4 月关闭，不能作为长期后端。代码与 34 项测试仍在，需要时可参考其 `README.md` 重新启用。
 
-### 14.1 代码位置
+---
+
+## 15. Cloudflare Worker（备用后端）
+
+备用路径：`*.workers.dev` 在当前网络不可达，但代码与 19 项测试保持可用，配置步骤留档。
+
+### 15.1 代码位置
 
 ```
 backend/
@@ -439,7 +479,7 @@ backend/
 └── README.md              部署与密钥配置步骤
 ```
 
-### 14.2 部署步骤（人工）
+### 15.2 部署步骤（人工）
 
 1. 安装 wrangler：`npm install -g wrangler`，然后 `npx wrangler login`。
 2. 在 Cloudflare 控制台创建 **KV namespace**，记下 namespace id。
@@ -450,11 +490,11 @@ backend/
 7. 把 Worker 地址填入 `docs/assets/feedback-config.js` 的 `apiUrl`。
 8. 各设备首次点击「加重/减轻」时输入反馈密钥（同第 4 步设置的值）。
 
-### 14.3 轮换密钥
+### 15.3 轮换密钥
 
 `npx wrangler secret put FEEDBACK_KEY` 重新输入即可覆盖。轮换后各设备下次提交会被 401 拒绝并提示重新输入。
 
-### 14.4 后端 API 与安全（两个后端一致）
+### 15.4 后端 API 与安全（三个后端一致）
 
 | 端点 | 鉴权 | 说明 |
 |---|---|---|
@@ -466,7 +506,7 @@ backend/
 - CORS 仅允许 `https://yth-beep.github.io` 和本地开发地址；请求体限制 4 KB。
 - 密钥错误 401；参数错误 400；方法错误 405；未知路由 404；返回 JSON 不泄漏密钥或异常栈。
 
-### 14.5 Cloudflare 后端测试
+### 15.5 Worker 后端测试
 
 ```bash
 cd backend
@@ -475,7 +515,7 @@ npm test        # node --test，内存 KV mock，不连真实 Cloudflare
 
 覆盖鉴权、CORS、参数校验、+1/-1、幂等、权重 clamp 与 `GET /weights`。
 
-### 14.6 环境变量如何由计划任务继承
+### 15.6 环境变量如何由计划任务继承
 
 `run_boot.py` / `run_nightly.py` 通过环境变量 `FEEDBACK_API_URL` 和 `FEEDBACK_KEY` 访问后端。计划任务（`scripts/install_tasks.ps1` 只提供示例、默认不注册）需要让子进程继承这两个变量，推荐做法（三选一，**密钥不写入任务脚本或仓库**）：
 

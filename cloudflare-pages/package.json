@@ -1,0 +1,11 @@
+{
+  "name": "ai-daily-report-feedback-pages",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Pages Functions backend for the AI x embedded daily report feedback buttons",
+  "scripts": {
+    "test": "node --test test/handler.test.js test/routes.test.js",
+    "dev": "npx wrangler@latest pages dev public",
+    "deploy": "npx wrangler@latest pages deploy public --project-name=ai-daily-report-feedback"
+  }
+}

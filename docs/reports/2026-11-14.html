@@ -26,39 +26,48 @@
 <p>来源：bilibili · 作者：比特光锥_BightCone · 领域：AI大模型 + 嵌入式</p>
 <p>视频链接：<a href="https://www.bilibili.com/video/BV1dfnj6bEpz" rel="noopener noreferrer">https://www.bilibili.com/video/BV1dfnj6bEpz</a></p>
 <p>播放量：1.02 万 · 档位：值得看</p>
-<p>为什么值得看：命中领域关键词 LLM、ESP32、TFLite Micro</p>
-<p>关键要点（来自 DSH 插件报告原文，未做 AI 总结）：</p>
-<ul><li>为什么值得：按官方实测数据把 ESP32 / S3 / P4 三档的能力边界摊开讲：唤醒词、命令词、人脸、单目标检测、通用检测、微型 LLM 各自能到什么程度；再落到 ESP-DL、TFLite Micro + ESP-NN、ESP-SR / ESP-WHO 的选型，以及 PTQ / QAT 和板上 profiling 的完整流程。7 分半信息密度很高，不是泛泛的入门科普，做选型时可以直接对着看。评论区也在讨论“特征提取比模型本身还耗时”这类真实取舍。</li><li>一句话：一张“ESP32 能干什么、该把什么交给云端”的选型地图，省得自己一条条试。</li><li>命中关键词：LLM, ESP32, TFLite Micro</li></ul>
-<h2>其他相关</h2>
-<ul><li>不联网也能跑大模型？一块 RK3576 板子，NPU 双核吃满｜ytllm 开源（bilibili · 宇图瑞视）｜AI大模型 + 嵌入式：手上有瑞芯微板子的人值得照着搭一遍，没有板子就当工具备选记下。 <a href="https://www.bilibili.com/video/BV1gyWC6vEi7" rel="noopener noreferrer">视频链接</a></li><li>机器人的大小脑，能不能住一个屋檐下（bilibili · 问不出）｜AI大模型 + 嵌入式：一条行业动向，等有板级实测再深看。 <a href="https://www.bilibili.com/video/BV1P1Wq66EE3" rel="noopener noreferrer">视频链接</a></li><li>11倍提速+仅2%推理开销！MACaQ实现无跨层依赖的W4A4 MXFP4量化，大模型端到端速度超FP16三倍（bilibili · 熊二等兵）：重点不是“又快又准”的标题，而是“层局部化”这个能直接降低部署适配成本的设计。 <a href="https://www.bilibili.com/video/BV1FCWY6xEBr" rel="noopener noreferrer">视频链接</a></li><li>上海 AI Lab &amp; 西工大发布 OpenFlyV2：端侧1B模型让无人机听懂人话、自主导航（bilibili · 视觉语言导航VLN）：看端侧 VLA 现在能做到什么程度可以，离自己上手还有距离。 <a href="https://www.bilibili.com/video/BV1mXWo6iEXa" rel="noopener noreferrer">视频链接</a></li></ul>
-<blockquote>如需 AI 总结，请在 config/runtime.json 配置 summarizer.command。</blockquote>
-<section class="pref-section" id="pref-section">
-  <h2>偏好调整</h2>
-  <p class="meta">点击「加重」想看更多、「减轻」减少出现。反馈直接提交到后端，无需登录 GitHub。</p>
-  <div class="pref-buttons" data-report-date="2026-11-14">
-<div class="pref-row">
-  <span class="pref-name">AI大模型 + 嵌入式</span>
-  <button type="button" class="pref-btn pref-up" data-domain="ai-embedded" data-delta="1">加重</button>
-  <button type="button" class="pref-btn pref-down" data-domain="ai-embedded" data-delta="-1">减轻</button>
+<p><strong>核心问题</strong>：ESP32 上能跑什么 AI 模型？推理引擎、训练方法与开源示例（据标题）</p>
+<p><strong>关键方法 / 结论</strong>：按官方实测数据把 ESP32 / S3 / P4 三档的能力边界摊开讲：唤醒词、命令词、人脸、单目标检测、通用检测、微型 LLM 各自能到什么程度；再落到 ESP-DL、TFLite Micro + ESP-NN、ESP-SR / ESP-WHO 的选型，以及 PTQ / QAT 和板上 profiling 的完整流程。7 分半信息密度很高，不是泛泛的入门科普，做选型时可以直接对着看。评论区也在讨论“特征提取比模型本身还耗时”这类真实取舍。；一张“ESP32 能干什么、该把什么交给云端”的选型地图，省得自己一条条试。</p>
+<p><strong>适用场景</strong>：关注「LLM、ESP32、TFLite Micro」方向时参考；属于「AI大模型 + 嵌入式」。</p>
+<blockquote>说明：核心问题来自标题，「关键方法 / 结论」与场景线索来自 DSH 插件报告原文，本次未做 AI 提炼。</blockquote>
+<div class="item-fb" data-item-id="958a9b5f80d43ca708bf4e311bfd22bd6bc17a24" data-domain="ai-embedded" data-tags="LLM,ESP32,TFLite Micro" data-title="ESP32 上能跑什么 AI 模型？推理引擎、训练方法与开源示例" data-report-date="2026-11-14">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-label="这条减轻">这条减轻</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
+<h2>其他相关</h2>
+<ul><li>不联网也能跑大模型？一块 RK3576 板子，NPU 双核吃满｜ytllm 开源（bilibili · 宇图瑞视）｜AI大模型 + 嵌入式：手上有瑞芯微板子的人值得照着搭一遍，没有板子就当工具备选记下。 <a href="https://www.bilibili.com/video/BV1gyWC6vEi7" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ffd4cf066177de81c2b3eb4294e1da771546cc6d" data-domain="ai-embedded" data-tags="NPU" data-title="不联网也能跑大模型？一块 RK3576 板子，NPU 双核吃满｜ytllm 开源" data-report-date="2026-11-14">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-label="这条减轻">这条减轻</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>机器人的大小脑，能不能住一个屋檐下（bilibili · 问不出）｜AI大模型 + 嵌入式：一条行业动向，等有板级实测再深看。 <a href="https://www.bilibili.com/video/BV1P1Wq66EE3" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="e0abb46679aecfb0f115434158f92ecb7a08c2a1" data-domain="ai-embedded" data-tags="RTOS" data-title="机器人的大小脑，能不能住一个屋檐下" data-report-date="2026-11-14">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-label="这条减轻">这条减轻</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>11倍提速+仅2%推理开销！MACaQ实现无跨层依赖的W4A4 MXFP4量化，大模型端到端速度超FP16三倍（bilibili · 熊二等兵）：重点不是“又快又准”的标题，而是“层局部化”这个能直接降低部署适配成本的设计。 <a href="https://www.bilibili.com/video/BV1FCWY6xEBr" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="13f57986482a72136d64285474e171a747ff0bc3" data-domain="" data-tags="" data-title="11倍提速+仅2%推理开销！MACaQ实现无跨层依赖的W4A4 MXFP4量化，大模型端到端速度超FP16三倍" data-report-date="2026-11-14">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-label="这条减轻">这条减轻</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>上海 AI Lab &amp; 西工大发布 OpenFlyV2：端侧1B模型让无人机听懂人话、自主导航（bilibili · 视觉语言导航VLN）：看端侧 VLA 现在能做到什么程度可以，离自己上手还有距离。 <a href="https://www.bilibili.com/video/BV1mXWo6iEXa" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7715811133f8db341602cbe88f2af0bb6e3f1887" data-domain="" data-tags="" data-title="上海 AI Lab &amp; 西工大发布 OpenFlyV2：端侧1B模型让无人机听懂人话、自主导航" data-report-date="2026-11-14">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-label="这条减轻">这条减轻</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<blockquote>如需 AI 总结，请在 config/runtime.json 配置 summarizer.command。</blockquote>
+<div class="key-modal" id="key-modal" hidden>
+  <div class="key-modal-backdrop"></div>
+  <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <h3 id="key-modal-title">输入反馈密钥</h3>
+    <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
+    <form id="key-form" novalidate>
+      <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
+      <div class="key-modal-actions">
+        <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
+        <button type="submit" class="pref-btn pref-up">确定</button>
+      </div>
+    </form>
   </div>
-  <p class="pref-status meta" id="pref-status" role="status" aria-live="polite"></p>
-  <p class="meta">反馈密钥仅保存在本设备浏览器（localStorage），可清除。</p>
-  <div class="key-modal" id="key-modal" hidden>
-    <div class="key-modal-backdrop"></div>
-    <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
-      <h3 id="key-modal-title">输入反馈密钥</h3>
-      <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
-      <form id="key-form" novalidate>
-        <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
-        <div class="key-modal-actions">
-          <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
-          <button type="submit" class="pref-btn pref-up">确定</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</section>
+</div>
   </main>
   <footer class="site-footer">
     <p>时区 Asia/Shanghai · 内容由本地采集与汇总流程生成</p>

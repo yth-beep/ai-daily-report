@@ -139,28 +139,22 @@ pre code { background: none; color: inherit; padding: 0; }
   color: var(--muted);
 }
 
-/* 偏好反馈区域 */
-.pref-section {
-  margin-top: 28px;
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-}
-.pref-section h2 { font-size: 1.15rem; margin: 0 0 8px; }
-.pref-buttons { margin-top: 12px; }
-.pref-row {
+/* 逐条反馈：每条内容后面紧跟自己的两个按钮 + 独立状态 */
+.item-fb {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px dashed var(--line);
+  gap: 10px;
   flex-wrap: wrap;
+  margin: 12px 0 6px;
+  padding: 8px 0 0;
+  border-top: 1px dashed var(--line);
 }
-.pref-row:last-child { border-bottom: 0; }
-.pref-name { flex: 1 1 auto; font-weight: 600; min-width: 120px; }
+.item-fb .pref-btn { flex: 0 0 auto; }
+.item-fb-status { flex: 1 1 100%; min-height: 1.1em; font-size: .82rem; }
 .pref-btn {
   display: inline-block;
-  min-height: 36px;
-  padding: 6px 16px;
+  min-height: 44px;
+  padding: 10px 18px;
   border-radius: 8px;
   border: 1px solid var(--line);
   background: var(--surface);
@@ -183,7 +177,6 @@ pre code { background: none; color: inherit; padding: 0; }
 .pref-down { border-color: #fca5a5; background: #fef2f2; color: #991b1b; }
 .pref-up:hover:not(:disabled) { background: #dcfce7; }
 .pref-down:hover:not(:disabled) { background: #fee2e2; }
-.pref-status { margin-top: 10px; min-height: 1.2em; }
 .pref-status-ok { color: #166534; }
 .pref-status-err { color: #991b1b; }
 
@@ -233,9 +226,9 @@ pre code { background: none; color: inherit; padding: 0; }
 
 /* 手机端：按钮更大、易点击、不横向溢出 */
 @media (max-width: 480px) {
-  .pref-row { flex-wrap: wrap; }
-  .pref-name { flex: 1 1 100%; }
-  .pref-btn { flex: 1 1 auto; min-height: 44px; padding: 10px 14px; }
+  .item-fb { gap: 8px; }
+  .item-fb .pref-btn { flex: 1 1 0; min-width: 0; padding: 12px 8px; }
+  .report .item-fb-status { font-size: .8rem; }
   .key-modal-dialog { padding: 16px; }
   .key-modal-actions .pref-btn { min-height: 44px; }
   .report h3 { font-size: 1.02rem; }

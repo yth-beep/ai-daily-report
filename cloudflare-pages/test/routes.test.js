@@ -17,6 +17,7 @@ import { dirname, join, relative } from "node:path";
 import * as health from "../functions/health.js";
 import * as feedback from "../functions/api/feedback.js";
 import * as weights from "../functions/api/weights.js";
+import * as feedbackEvents from "../functions/api/feedback-events.js";
 import { MockKV } from "./kv-mock.js";
 
 const KEY = "pages-route-test-key";
@@ -149,7 +150,8 @@ test("适配器沿用同一套 CORS 与 404 逻辑", async () => {
 
 test("functions/ 下的路由布局与公开 API 一致", async () => {
   const files = await listFunctionRoutes(FUNCTIONS_DIR);
-  assert.deepEqual(files.sort(), ["api/feedback.js", "api/weights.js", "health.js"]);
+  assert.deepEqual(files.sort(),
+    ["api/feedback-events.js", "api/feedback.js", "api/weights.js", "health.js"]);
 });
 
 /** Recursively collect route files, skipping `_`-prefixed paths (Pages ignores them). */

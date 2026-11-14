@@ -354,3 +354,127 @@ test("ALLOWED_DOMAINS 生效：只返回配置内的领域", async () => {
   assert.equal(res.status, 200);
   assert.equal((await read(res)).weight, 1);
 });
+
+// ------------------------------------------- per-item extras + event listing
+
+test("POST 携带 itemId / tags / title 时接受并原样记录", async () => {
+  const kv = new MockKV();
+  const env = makeEnv(kv);
+  const eventId = uuid();
+  const res = await call(env, "POST", "/api/feedback", {
+    domain: DOMAIN,
+    delta: 1,
+    date: DAY,
+    eventId,
+    itemId: "0123456789abcdef0123456789abcdef01234567",
+    tags: ["GPIO", "系统d", "I2C"],
+    title: "嵌入式 Linux 上用 systemd 自启",
+  });
+  assert.equal(res.status, 200);
+  const body = await read(res);
+  assert.equal(body.itemLevel, false);
+  const record = JSON.parse(kv.peek(`fevent:${eventId}`));
+  assert.deepEqual(record.tags, ["GPIO", "系统d", "I2C"]);
+  assert.equal(record.itemId, "0123456789abcdef0123456789abcdef01234567");
+  assert.equal(record.title, "嵌入式 Linux 上用 systemd 自启");
+  assert.match(record.at, /^\d{4}-\d{2}-\d{2}T/);
+});
+
+test("旧请求（只有 domain/delta/date/eventId）仍然通过", async () => {
+  const env = makeEnv(new MockKV());
+  const res = await call(env, "POST", "/api/feedback", {
+    domain: DOMAIN, delta: -1, date: DAY, eventId: uuid(),
+  });
+  assert.equal(res.status, 200);
+  assert.equal((await read(res)).weight, -1);
+});
+
+test("无 domain 的条目级反馈：记录事件但不写领域权重", async () => {
+  const kv = new MockKV();
+  const env = makeEnv(kv);
+  const eventId = uuid();
+  const res = await call(env, "POST", "/api/feedback", {
+    delta: -1, date: DAY, eventId, itemId: "abcdef123456", tags: ["OTA"],
+  });
+  assert.equal(res.status, 200);
+  const body = await read(res);
+  assert.equal(body.itemLevel, true);
+  assert.equal(body.weight, null);
+  assert.equal(kv.keys().some((k) => k.startsWith("weight:")), false);
+  assert.equal(JSON.parse(kv.peek(`fevent:${eventId}`)).tags[0], "OTA");
+});
+
+test("非法 itemId 返回 400", async () => {
+  const env = makeEnv(new MockKV());
+  for (const itemId of ["x", "has space", "a".repeat(80), "<script>", 42]) {
+    const res = await call(env, "POST", "/api/feedback", payload({ itemId }));
+    assert.equal(res.status, 400, `itemId=${itemId}`);
+    assert.equal((await read(res)).error, "invalid itemId");
+  }
+});
+
+test("非法 tags 返回 400（非数组 / 超长 / 注入 / 超过 8 个）", async () => {
+  const env = makeEnv(new MockKV());
+  const bad = [
+    "<script>",
+    "a".repeat(33),
+    "<b>bold</b>",
+  ];
+  for (const tag of bad) {
+    const res = await call(env, "POST", "/api/feedback", payload({ tags: [tag] }));
+    assert.equal(res.status, 400, `tag=${tag}`);
+    assert.equal((await read(res)).error, "invalid tags");
+  }
+  const notArray = await call(env, "POST", "/api/feedback", payload({ tags: "GPIO" }));
+  assert.equal(notArray.status, 400);
+  const tooMany = await call(env, "POST", "/api/feedback",
+    payload({ tags: Array.from({ length: 9 }, (_, i) => `tag${i}`) }));
+  assert.equal(tooMany.status, 400);
+});
+
+test("title 含尖括号或过长返回 400", async () => {
+  const env = makeEnv(new MockKV());
+  const bad = ["<script>alert(1)</script>", "a".repeat(121), 123];
+  for (const title of bad) {
+    const res = await call(env, "POST", "/api/feedback", payload({ title }));
+    assert.equal(res.status, 400, `title=${String(title).slice(0, 12)}`);
+    assert.equal((await read(res)).error, "invalid title");
+  }
+});
+
+test("GET /api/feedback-events 需要密钥", async () => {
+  const env = makeEnv(new MockKV());
+  const res = await call(env, "GET", "/api/feedback-events", undefined, { key: null });
+  assert.equal(res.status, 401);
+});
+
+test("GET /api/feedback-events 返回结构化事件（按时间排序）", async () => {
+  const kv = new MockKV();
+  const env = makeEnv(kv);
+  const e1 = uuid();
+  const e2 = uuid();
+  await call(env, "POST", "/api/feedback", {
+    domain: DOMAIN, delta: 1, date: DAY, eventId: e1, tags: ["GPIO"], title: "A",
+  });
+  await call(env, "POST", "/api/feedback", {
+    delta: -1, date: DAY, eventId: e2, tags: ["OTA", "systemd"], title: "B",
+  });
+
+  const res = await call(env, "GET", "/api/feedback-events");
+  assert.equal(res.status, 200);
+  const body = await read(res);
+  assert.equal(body.ok, true);
+  assert.equal(body.count, 2);
+  const ids = body.events.map((e) => e.eventId);
+  assert.deepEqual(ids.sort(), [e1, e2].sort());
+  const itemLevel = body.events.find((e) => e.eventId === e2);
+  assert.deepEqual(itemLevel.tags, ["OTA", "systemd"]);
+  assert.equal(itemLevel.delta, -1);
+  assert.equal(itemLevel.domain, "");
+});
+
+test("POST /api/feedback-events 返回 405", async () => {
+  const env = makeEnv(new MockKV());
+  const res = await call(env, "POST", "/api/feedback-events", payload());
+  assert.equal(res.status, 405);
+});

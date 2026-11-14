@@ -1,8 +1,10 @@
 # AI × 嵌入式 信息日报（GitHub Pages 站点）
 
-> **阶段：上线前清理（第五阶段）+ 后端迁移（第六、七阶段）。** 站点名称「AI × 嵌入式 信息日报」，示例/占位页已从站点移除，`reports/` 为空，首页显示「日报将在首次采集后生成」。
+> **阶段：上线前清理（第五阶段）+ 后端迁移（第六、七阶段）+ 采集本地化（第八阶段）。** 站点名称「AI × 嵌入式 信息日报」，示例/占位页已从站点移除，`reports/` 只放真实日报。
 > **反馈主后端为 Cloudflare Pages Functions**（`cloudflare-pages/`，`*.pages.dev` 可访问，复用现有账号、KV 与 `FEEDBACK_KEY`）；Cloudflare Worker（`backend/`）为备用，Deno Deploy 版（`backend-deno/`）因官方停止注册并宣布 2027 年关闭，仅作历史备份。
-> 变更只做代码与本地测试：**没有** push、**没有**部署、**没有**创建账号、**没有**注册 Windows 定时任务、**没有**连接真实平台。
+> **B站采集已本地化**（第 17 节）：插件只提供登录态 + 只读 API，搜索/过滤/字幕/评分由本项目完成，不启动 DSH 模型、不产生 token 费用。
+> **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容单独「这条加重/减轻」，事件聚类成标签/标签对权重参与评分；`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
+> 变更只做代码与本地测试：**没有** push、**没有**部署、**没有**创建账号、**没有**注册 Windows 定时任务、**没有**点赞/评论/私信/收藏/投稿。
 > `agent-synergy/` 已废弃，本项目不引用、不复制、不修改其中任何代码，也不把它作为技术底座。
 
 站点面向 **AI 大模型 × 嵌入式** 交叉领域（端侧 AI、边缘推理、TinyML、AIoT、MCU/RTOS、NPU、模型量化与部署）。数据链路是：本地采集 → 结构化条目 → 分级日报 Markdown → 渲染成静态页面 → 走发布护栏提交到 Pages。原有的发布护栏与全部回归测试保持不变。
@@ -27,8 +29,8 @@ E:\大学\项目\
 │   └── fixtures/2026-11-12.md     示例日报（仅测试用，不参与站点渲染）
 ├── config/
 │   ├── runtime.json               时区、开机延迟、22:00、remote/branch、github、评分阈值、采集/总结器配置
-│   ├── sources.json               数据源列表（RSS/Atom、手工 JSONL 投递）
-│   └── topics.json                领域配置（id/name/enabled/weight/keywords/exclude_keywords）
+│   ├── sources.json               数据源列表（本地 B站、手工 JSONL、RSS 占位）
+│   └── topics.json                领域配置（id/name/enabled/priority/weight/keywords/exclude_keywords）
 ├── backend/                       Cloudflare Worker 反馈后端（备用，无 Secret，可公开）
 │   ├── src/index.js               Worker 入口（/health、/api/feedback、/api/weights）
 │   ├── wrangler.toml.example      配置示例（KV binding + 领域白名单占位）
@@ -40,8 +42,9 @@ E:\大学\项目\
 │   ├── functions/health.js           GET  /health
 │   ├── functions/api/feedback.js     POST /api/feedback
 │   ├── functions/api/weights.js      GET  /api/weights
+│   ├── functions/api/feedback-events.js  GET /api/feedback-events（逐条事件）
 │   ├── public/                       Pages 输出目录（说明页 + 404 页）
-│   ├── test/                         40 项测试（KV 内存替身）
+│   ├── test/                         49 项测试（KV 内存替身，含 list）
 │   ├── wrangler.toml                 Pages 项目 + 现有 KV 绑定 + ALLOWED_DOMAINS
 │   └── README.md                     部署命令、并发边界、密钥设置
 ├── backend-deno/                  Deno Deploy 反馈后端（历史备份，已停止注册）
@@ -60,8 +63,9 @@ E:\大学\项目\
 │   ├── runtime.py                 运行时配置加载 + 退出码约定
 │   ├── topics.py                  领域配置加载 + 本地权重覆盖（热更新）
 │   ├── scoring.py                 关键词命中 / 排除词过滤 / 权重排序 / 重要性分级
-│   ├── feedback.py                偏好区域 HTML（按钮）+ 旧 Issue 解析（历史兼容）
-│   ├── sync_feedback.py           从后端 GET /api/weights 拉权重（优先后端）
+│   ├── feedback.py                逐条反馈按钮 HTML + 标记解析（含旧 Issue 解析）
+│   ├── feedback_weights.py        逐条事件 → 标签/标签对权重的确定性聚类
+│   ├── sync_feedback.py           拉后端权重与事件（优先后端），写本地状态
 │   ├── collect_core.py            条目 schema、去重、逐条 checkpoint
 │   ├── adapters.py                数据源适配器（rss / jsonl）+ 扩展点
 │   ├── summarizer.py              汇总器接口（分级日报，默认「未AI总结」）
@@ -73,15 +77,21 @@ E:\大学\项目\
 │   ├── regression_test_stage3.py  第三阶段领域/评分/反馈回归测试
 │   ├── regression_test_stage4.py  第四阶段后端反馈/同步回归测试
 │   ├── regression_test_stage5.py  第五阶段生产入口自动同步回归测试
-│   ├── import_dsh_reports.py      DSH（B站/抖音）插件报告导入器
+│   ├── import_dsh_reports.py      DSH（B站/抖音）插件报告导入器（备用/历史兼容）
+│   ├── bilibili_local_worker.py   插件只读桥接器（在插件 venv 下运行，4 个只读 action）
+│   ├── collect_bilibili_local.py  本地 B站采集（搜索/过滤/字幕/确定性评分，不用模型）
 │   ├── regression_test_stage6.py  DSH 导入回归测试
+│   ├── regression_test_stage7.py  本地 B站采集回归测试（假插件，不联网）
+│   ├── regression_test_stage8.py  逐条反馈/聚类/领域优先级/电源门禁回归测试
+│   ├── power.py                   电源门禁（WMI BatteryStatus → Win32_Battery）
 │   └── install_tasks.ps1          Windows 定时任务示例（只提供，未注册）
 ├── state/                         运行时状态（已被 .gitignore 排除）
 │   ├── startup_last_run.json      开机检查的「今日已执行」日期标记
 │   ├── published/YYYY-MM-DD.json  push 成功后的发布回执（仅供审计）
 │   ├── collections/YYYY-MM-DD.<源>.jsonl  逐条采集 checkpoint（去重、续采）
 │   ├── inbox/                     手工投递目录（JSONL/JSON 采集器产出）
-│   ├── topics_override.json       本机权重覆盖（不破坏公共配置）
+│   ├── topics_override.json       本机领域权重覆盖（不破坏公共配置）
+│   ├── feedback_weights.json      标签/标签对权重（聚类产物，供评分使用）
 │   └── feedback_processed.json    旧 Issue 幂等记录（历史兼容）
 ├── .gitignore
 └── README.md
@@ -319,27 +329,28 @@ python scripts/regression_test.py
 
 - 每条内容保留：来源平台、标题、作者、发布时间、视频 URL、简介/字幕/OCR 摘要。
 - 重要性分数 = `领域有效权重 × 命中关键词数`；`score >= threshold`（`config/runtime.json` 的 `scoring.threshold`，默认 1.5）判为**重要**，其余为**次要**。
-- **重要条目**：详细段落，含标题、视频链接、来源、作者、为什么值得看（命中关键词）、2-4 个关键要点。
-- **次要条目**：一行概括 + 视频链接，避免日报膨胀。
+- **重要条目**：详细段落，含**核心问题**（据标题）、**关键方法 / 结论**（摘自字幕/简介原文）、**适用场景**（由命中关键词推断）、来源/作者/播放量与视频链接；内容不足时如实写「无法给出方法或结论（不编造）」。
+- **次要条目**：严格一行概括 + 视频链接，避免日报膨胀。
 - 命中排除词的内容被过滤掉，不进日报。
 - 页面明确标识「**AI 总结**」或「**未AI总结**」；没有模型时绝不假装已总结。
 
-### 12.3 网页上的「加重/减轻」反馈（专用后端，无需登录）
+### 12.3 逐条「这条加重 / 这条减轻」反馈（专用后端，无需登录）
 
-GitHub Pages 是纯静态站点，**不能写回仓库，也无法在浏览器里安全保存 GitHub Token**。为了手机和电脑点击「加重/减轻」都能直接提交、不跳 GitHub、不需要平台账号登录，反馈改走**Cloudflare Pages Functions + Workers KV**：
+GitHub Pages 是纯静态站点，**不能写回仓库，也无法在浏览器里安全保存 GitHub Token**。为了手机和电脑点击都能直接提交、不跳 GitHub、不需要平台账号登录，反馈走 **Cloudflare Pages Functions + Workers KV**：
 
-1. 日报末尾的「偏好调整」区域，对出现的领域显示「加重」「减轻」按钮。
-2. 点击后**直接调用后端** `POST /api/feedback`，不再跳转 GitHub。
-3. 首次点击弹出简洁设置框，让用户输入**反馈密钥**；密钥保存在该浏览器 `localStorage`，本设备之后不再重复输入（提示「本设备本地保存，可清除」）。
-4. 用 `crypto.randomUUID()` 生成 `eventId` 保证幂等。
-5. 成功显示「已加重/已减轻」；失败显示可读错误，不假装成功。
-6. API 地址未配置时按钮禁用并提示先部署后端。
+1. **每一条内容后面**（重要条目和「其他相关」里的每一条都算）紧跟一行按钮：`这条加重` / `这条减轻`，并有**自己的状态提示**（提交中 / 已加重这一条 / 失败原因）。
+2. 按钮携带 `data-item-id`（稳定内容哈希）、`data-report-date`、`data-domain`、`data-tags`（命中的领域关键词）、`data-title`。只带领域 ID 是不够的——聚类需要知道**是哪一条**被点了。
+3. 点击后**直接调用后端** `POST /api/feedback`，不跳转 GitHub。
+4. 首次点击弹出页面内自定义设定框（不是 `window.prompt`），输入**反馈密钥**；密钥只存在本设备 `localStorage`，可清除。
+5. 用 `crypto.randomUUID()` 生成 `eventId` 保证幂等。
+6. 成功显示「已加重这一条 / 已减轻这一条」；失败显示可读错误，**不假装成功**。
+7. API 地址未配置时按钮禁用，并逐条提示先部署后端。
 
-后端地址配置在 `docs/assets/feedback-config.js`（源码里 `apiUrl` 为空占位，**不写密钥**）。
+原来的「日报底部统一偏好调整区域」已**删除**。后端地址配置在 `docs/assets/feedback-config.js`（`apiUrl` 为空占位，**不写密钥**）。
 
 ### 12.4 本地同步（`scripts/sync_feedback.py`）
 
-优先后端模式，从 `GET /api/weights` 拉取累计权重，写入 `state/topics_override.json` 供下次采集/总结使用：
+优先后端模式：先 `GET /api/weights` 拉领域累计权重写入 `state/topics_override.json`，再 `GET /api/feedback-events` 拉逐条事件做**确定性聚类**写入 `state/feedback_weights.json`（详见第 18 节）：
 
 ```bash
 # 用环境变量传入后端地址和密钥（不写入仓库/配置文件）
@@ -503,6 +514,7 @@ backend/
 | `GET /health` | 无 | 返回 `{ok, version}` |
 | `POST /api/feedback` | `X-Feedback-Key` | 提交 `+1`/`-1`（`domain`/`delta`/`date`/`eventId`） |
 | `GET /api/weights` | `X-Feedback-Key` | 返回各领域累计权重 |
+| `GET /api/feedback-events` | `X-Feedback-Key` | 返回逐条反馈事件（含 itemId/tags/title） |
 
 - KV：`weight:<domain>` 存累计权重（`-10~+10`）+ `updatedAt`；`event:<eventId>` 幂等回执（TTL 30 天）。**不记录 IP/UA/Cookie/个人信息**。
 - CORS 仅允许 `https://yth-beep.github.io` 和本地开发地址；请求体限制 4 KB。
@@ -599,3 +611,214 @@ python scripts/import_dsh_reports.py --date 2026-11-14 \
 3. 按领域关键词打分分级：命中 ≥2 个关键词的进「重要内容」（含完整推荐理由），其余进「其他相关」（标题 + 作者 + 一句话 + 视频链接）。
 
 想提升某类内容的档位，改 `config/topics.json` 的 `keywords` 即可，不需要改代码。
+
+---
+
+## 17. 本地 B 站采集（不启动 DSH 模型，零 token 费用）
+
+采集能力已经本地化：B站插件（dsh-bili-scroll）只负责**登录态 + 只读 API**，搜索、过滤、字幕抓取、评分、写 JSONL 全部由本项目自己完成。**整个过程不启动 DSH 模型、不调用插件的 `/run` 值班接口，因此不产生 DSH token 费用。**
+
+### 17.1 两个脚本分工
+
+```
+scripts/bilibili_local_worker.py   跑在「插件 venv」里
+    stdin 一行 JSON -> 只允许 4 个只读 action -> stdout 一行 JSON
+    check_credential / search / video_info / subtitle   （写操作一个都没有）
+
+scripts/collect_bilibili_local.py  跑在「系统 Python」里（零依赖）
+    topics.json 取关键词 -> 调 worker 搜索/详情/字幕 -> 确定性过滤评分 -> 写 checkpoint
+```
+
+worker 的 action 白名单是硬编码的：`like`、`reply`、`upload_video`、`send_message`、`favorite` 之类一律返回退出码 2 并拒绝；代码里也没有任何写操作调用（`regression_test_stage7.py` 的 W1 会扫源码验证）。
+
+### 17.2 用法
+
+```bash
+# 默认：读 topics.json 的关键词，日期=今天
+python scripts/collect_bilibili_local.py
+
+# 小范围试跑（推荐第一次这么用）
+python scripts/collect_bilibili_local.py \
+  --keyword "ESP32" --per-keyword 3 --max-candidates 3 --recent-days 7 \
+  --interval 1 --dry-run
+
+# 只保留能确认发布时间的条目（严格模式，见 17.5）
+python scripts/collect_bilibili_local.py --drop-unknown-date
+
+# 输出机器可读报告（CI / 测试用）
+python scripts/collect_bilibili_local.py --json
+```
+
+写入 `state/collections/YYYY-MM-DD.bilibili-local.jsonl`，每条立即落盘，支持中断续采。
+
+字段：`title`、`url` / `video_url`（`https://www.bilibili.com/video/<BV>`）、`author`、`published`、`summary`（字幕摘要，按 `subtitle_char_budget` 截断）、`matched`（命中关键词）、`platform=bilibili`、`source_type=bilibili-local`，外加 `relevance`（0–1 确定性评分）、`play`、`bvid`、`topic_score`、`subtitle_truncated`、`published_unknown`。
+
+### 17.3 开关与配置
+
+`config/runtime.json`：
+
+```json
+"collectors": {
+  "bilibili_local": { "enabled": true },   // 本地 B 站采集（默认开）
+  "dsh_import":     { "enabled": true }    // DSH 报告导入（备用/历史兼容）
+}
+```
+
+`config/sources.json` 的 `bilibili-local` 源：
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `plugin_home` | `~/.dsh/bili-duty` | 插件家目录；也可用环境变量 `DSH_BILI_HOME` |
+| `worker_python` | `<plugin_home>/.venv/...` | 运行 worker 的解释器，留空则自动探测 |
+| `per_keyword_candidates` | 6 | 每个关键词搜多少条 |
+| `max_candidates` | 12 | 本轮最多处理多少条（抓详情/字幕） |
+| `max_keywords` | 12 | 最多搜多少个关键词（**不影响过滤用的词表**） |
+| `recent_days` | 7 | 只保留最近 N 天 |
+| `request_interval_seconds` | 2.0 | 每次 API 调用之间 sleep，避免触发风控 |
+| `subtitle_char_budget` | 1200 | 字幕字符预算，超出截断 |
+| `require_subtitle` | true | 没字幕就跳过（`--allow-no-subtitle` 可关） |
+| `unknown_date_policy` | `keep` | 发布时间未知时保留 / `drop` 丢弃 |
+| `order` | `pubdate` | 搜索排序，`pubdate` 让最新的先进候选 |
+
+**顺序**：`run_boot` → `collect.py` → 本地 B站采集；`run_nightly` 先本地采集，再导入 DSH 报告（备用），最后才做「有没有数据」的判断。所以即使完全停掉 DSH，日报仍能产出。
+
+### 17.4 退出码
+
+| 码 | 含义 | 处理 |
+|---|---|---|
+| 0 | 成功（可能 0 条：全被过滤/无字幕） | 继续 |
+| 1 | 配置错误（插件目录/venv 缺失、日期非法） | 检查 `plugin_home` / `worker_python` |
+| 3 | 登录失效 | 在插件里重新扫码登录，别绕过 |
+| 4 | 401/403/429/验证码/风控拦截 | 立即停止，不重试、不绕过 |
+| 5 | 采集错误（全部关键词失败、worker 输出不可解析） | 看日志 |
+
+单条视频失败（详情超时、字幕取不到）只跳过该条并计数，不丢整轮。
+
+### 17.5 成本对比与缺失能力
+
+**成本**：旧路径 = 插件刷一轮 → 启动 DSH 模型读候选 → 写报告，按上下文和字幕长度计 token。新路径 = 插件只出登录态和原始 JSON，筛选/评分是纯 Python，**模型 token 为 0**。日报本身仍是 `summarizer.mode=none`（标注「未AI总结」），不额外调用模型。
+
+**已知缺失（都是刻意留白，不是 bug）**：
+
+1. **拿不到精确发布时间**：插件只读函数 `bili_video_info` 的返回里**没有 `pubdate`**，所以真实环境里「最近 N 天」只能靠搜索按 `pubdate` 排序 + 顶多少量候选来近似。默认 `unknown_date_policy=keep`（保留并打 `published_unknown: true` 标记），要严格就加 `--drop-unknown-date`——代价是可能把新视频也丢掉。
+2. **没有字幕就跳过**：本地不跑 Whisper/ASR，只用 B站自带字幕。没字幕的视频默认丢弃（`--allow-no-subtitle` 可保留，摘要退化成简介）。
+3. **抖音没有本地化**：抖音仍只能靠插件产出的 Markdown 报告（第 16 节），本地采集尚未实现。
+4. **不做语义判断**："值不值得看" 仍由关键词命中和播放量决定，不理解内容；真正的摘要要等接上模型总结器。
+5. **依赖插件登录态**：cookie 过期就返回 3，需要人工扫码，无法自动续期。
+
+### 17.6 测试
+
+```bash
+python scripts/regression_test_stage7.py     # 62 项，全部用假插件，不联网
+```
+
+覆盖：worker action 白名单（含源码扫描无写操作）、坏 JSON/空 stdin/非法参数、登录失效→3、风控→4、普通异常→5、字幕截断、正常采集字段、排除词/无命中/无字幕/过旧/重复标题过滤、重复运行幂等、`--recent-days`、发布时间未知的 keep/drop 两种策略、403/429 立即停止、`run_nightly` 与 `run_boot` 调用链。
+
+---
+
+## 18. 逐条反馈、相似内容聚类、嵌入式 Linux 主线与电源门禁（2026-11-14）
+
+### 18.1 逐条反馈（替代原来的底部统一区域）
+
+每条内容（重要条目和「其他相关」里的每一条）后面都紧跟一行：
+
+```
+[这条加重] [这条减轻]   提交中… / 已加重这一条 / 失败原因
+```
+
+- 按钮自带 `data-item-id`（`collect_core.content_hash` 的稳定哈希）、`data-report-date`、`data-domain`、`data-tags`、`data-title`；页面只负责发请求，判定逻辑在后端与本地。
+- 每条一行**独立状态区**（`role="status" aria-live="polite"`），不会一条成功就整页变成"已提交"。
+- 移动端按钮 `min-height: 44px`，窄屏 `flex: 1 1 0` 平分宽度，不横向溢出。
+- 密钥弹窗全页只有一个，密钥只进本设备 `localStorage`。
+- 没有 `data-domain` 的条目（未命中任何领域）同样可以反馈：后端只记事件、不动领域权重，标签仍参与聚类。这一条很重要——**未分类但想看/不想看的内容不该被丢掉**。
+
+### 18.2 后端：可选字段 + 事件列表
+
+`POST /api/feedback` 的必填项仍是 `domain`/`delta`/`date`/`eventId`（旧请求完全兼容）；新版额外接受：
+
+| 字段 | 规则 | 缺省 |
+|---|---|---|
+| `itemId` | `[A-Za-z0-9_-]{6,64}` | 空 |
+| `tags` | 数组，≤8 个，每个 1–32 字符，字符集 `\p{L}\p{N} _+-.#/`，不允许 `<>` | `[]` |
+| `title` | 字符串，≤120 字，不允许 `<>` | 空 |
+| `domain` | 若提供必须在 `ALLOWED_DOMAINS` 内 | 可省略（条目级反馈） |
+
+违反规则一律 400，不做"部分信任"。事件同时写入 `fevent:<eventId>`（TTL 30 天，`{eventId, domain, delta, date, itemId, tags, title, at}`），供 `GET /api/feedback-events` 读取（需 `X-Feedback-Key`，最多 500 条，按 `at` 排序）。**不记录 IP / UA / Cookie。**
+
+`ALLOWED_DOMAINS` 已扩到 `ai-embedded,embedded-linux-foundation`（`wrangler.toml` 与 handler 默认值都改了）。**已部署的实例需要更新这个环境变量**，否则新领域的反馈会被 400 拒掉。
+
+### 18.3 本地聚类：标签 / 标签对权重（不调用模型）
+
+```bash
+python scripts/sync_feedback.py                # 生产入口会自动调用，一般不用手跑
+python scripts/sync_feedback.py --events-json events.json   # 离线/测试
+```
+
+流程（`scripts/feedback_weights.py`，纯确定性）：
+
+1. 从 `GET /api/feedback-events` 拉事件（后端没升级时 404：保留旧权重、只警告，不阻断）。
+2. 每条事件取标签，顺序是：**事件自带 `tags`** → 否则用 `itemId` 去 `state/collections/*.jsonl` 找回原条目，用 `config/topics.json` 的词表在标题+摘要里提标签。
+3. 标签必须在领域词表内（关键词或领域 id），否则丢弃并计入 `invalidTags`；不认识的标签不会污染权重。
+4. 分别统计加重组 / 减轻组的**标签计数**与**标签对（同一条里共现）计数**。
+5. 平滑权重：`w = K × (pos − neg) / (pos + neg + 2)`，标签 `K=3`、标签对 `K=1.5`；没人点过的标签权重为 0（= 不调整）。
+6. `eventId` 记进 `appliedEvents`，重复导入不重复累计。
+7. 写 `state/feedback_weights.json`：
+
+```json
+{
+  "updatedAt": "2026-11-14T21:10:00+08:00",
+  "totals": {"events": 6, "applied": 6, "up": 4, "down": 2, "unresolved": 0, "invalid": 0},
+  "counts": {"GPIO": {"pos": 3, "neg": 1}},
+  "pairs":  {"GPIO||systemd": {"pos": 2, "neg": 0}},
+  "weights": {"GPIO": 1.2},
+  "pairWeights": {"GPIO||systemd": 0.75},
+  "appliedEvents": {"<eventId>": "2026-11-14T20:59:00+08:00"}
+}
+```
+
+评分侧（`scoring.py`）把标签权重与共现标签对权重相加（总调整上限 ±4），叠加到 `领域权重 × 命中关键词数` 上：
+
+```
+score = base_score + adjustment
+      = 领域有效权重 × 命中关键词数 + Σ标签权重 + Σ标签对权重
+```
+
+没有 `feedback_weights.json` 时 adjustment 恒为 0，行为和以前完全一致。
+
+### 18.4 嵌入式 Linux 基础（当前主线，优先级更高）
+
+`config/topics.json` 新增 `embedded-linux-foundation`，`priority: 30`（`ai-embedded` 是 10）。选域规则改为**先比 priority，再比分数**，所以同时命中两域的内容会归到嵌入式 Linux 基础；纯粹的 AI 资讯仍归 `ai-embedded`。
+
+关键词：嵌入式Linux、Linux基础、Linux命令、文件系统、权限、进程管理、systemd、journalctl、C语言、GCC、Makefile、GDB、I2C、GPIO、UART、SPI、MQTT、断网重连、设备树、Linux驱动、交叉编译、Buildroot、Yocto、rootfs、watchdog、OTA。
+
+配置里还放了 `outline`（学习主线：VMware/Linux 安装与命令行 → 文件系统/权限/进程/服务/日志/网络 → C 周期采集 → systemd 自启与崩溃恢复 → 开发板 + GPIO/I2C 传感器 → MQTT 与断网重连 → 全链路手册 → 设备树/驱动/交叉编译/Buildroot/Yocto/watchdog/OTA）和 `summary_policy`（**保留学习留白，日报只给方向和场景，不直接给踩坑答案**）。这些字段只影响配置与写作口径，不参与渲染。
+
+热更新：改 JSON 即生效，不用改代码（新增第三个领域也一样）。
+
+### 18.5 电源门禁（只在采集前生效）
+
+| 检测 | 说明 |
+|---|---|
+| 首选 | `root\wmi` → `BatteryStatus.PowerOnline` / `Charging` |
+| 回退 | `Win32_Battery.BatteryStatus`（2/6/7/8/9/11 = 外接电源，其余 = 电池） |
+| 无电池 | 台式机：视为允许 |
+| 检测失败 / 非 Windows | `unknown`，默认放行（`power.allow_unknown`），避免 WMI 抽风就整天不采集 |
+
+- 采集入口（`collect.py`、本地 B 站采集器）开始前检查；不允许直接返回 **退出码 6**（`paused_on_battery`），不写任何内容。
+- 采集途中拔电：本地 B 站采集器在**每一条候选之前**（批次边界）再检查一次，命中就 `break`，已写入的 checkpoint 全部保留，下次从 checkpoint 续采。
+- **22:00 不受限**：`run_nightly.py` 只汇总已有数据、生成、渲染、走发布护栏，电池供电也照常出报。
+- 测试/临时绕过：`WB_POWER_OVERRIDE=ac|battery|no_battery|unknown`（只用于测试，生产别设）。
+
+配置在 `config/runtime.json`：
+
+```json
+"power": { "require_ac": true, "allow_unknown": true }
+```
+
+### 18.6 测试
+
+```bash
+python scripts/regression_test_stage8.py      # 90 项
+```
+
+覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变、正负冲突；聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/无旧区块/无标记泄漏/幂等）；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 49 项（含 `feedback-events`）。

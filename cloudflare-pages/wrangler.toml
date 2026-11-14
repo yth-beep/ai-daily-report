@@ -18,4 +18,4 @@ binding = "WEIGHTS_KV"
 id = "23beae27ecf34a63b89899f0947cd320"
 
 [vars]
-ALLOWED_DOMAINS = "ai-embedded"
+ALLOWED_DOMAINS = "ai-embedded,embedded-linux-foundation"

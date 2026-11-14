@@ -44,6 +44,15 @@ export class MockKV {
     this.#store.delete(key);
   }
 
+  /** Mirrors KV list({ prefix, limit }) closely enough for /api/feedback-events. */
+  async list({ prefix = "", limit = 1000 } = {}) {
+    const keys = [...this.#store.keys()]
+      .filter((k) => k.startsWith(prefix))
+      .slice(0, limit)
+      .map((name) => ({ name }));
+    return { keys, list_complete: true };
+  }
+
   /** Raw value for assertions. */
   peek(key) {
     return this.#store.has(key) ? this.#store.get(key) : null;

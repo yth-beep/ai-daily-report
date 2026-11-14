@@ -8,10 +8,17 @@
  *   GET  /health        -> { ok:true, version }            (no key)
  *   POST /api/feedback  -> apply one +1 / -1 delta         (X-Feedback-Key)
  *   GET  /api/weights   -> current cumulative weights       (X-Feedback-Key)
+ *   GET  /api/feedback-events -> structured per-item events (X-Feedback-Key)
+ *
+ * POST body: domain/delta/date/eventId are required (legacy contract);
+ * itemId/tags/title are OPTIONAL extras used by the per-item buttons. When
+ * domain is omitted the event is recorded as item-level only and no domain
+ * counter is touched.
  *
  * KV layout (namespace bound as WEIGHTS_KV, shared with the Worker):
  *   weight:<domain>  -> JSON { "weight": <int -10..10>, "updatedAt": "<ISO>" }
  *   event:<eventId>  -> "1"   (idempotency receipt, expirationTtl 30 days)
+ *   fevent:<eventId> -> JSON { domain, delta, date, itemId, tags, title, at }
  *
  * Concurrency boundary (important, KV has no compare-and-swap):
  *   - Same eventId is rejected before writing the weight, so a double click or
@@ -54,6 +61,14 @@ const ALLOWED_ORIGINS = [
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const ITEM_ID_RE = /^[A-Za-z0-9_-]{6,64}$/;
+// Letters/digits/space plus a few safe punctuation marks; CJK tags are expected.
+const TAG_RE = /^[\p{L}\p{N}][\p{L}\p{N} _+\-.#/]{0,31}$/u;
+export const MAX_TAGS = 8;
+export const MAX_TITLE_LEN = 120;
+export const MAX_EVENTS_RETURNED = 500;
+// Keep in sync with config/topics.json (enabled topic ids).
+export const DEFAULT_ALLOWED_DOMAINS = "ai-embedded,embedded-linux-foundation";
 
 // ------------------------------------------------------------------ helpers
 
@@ -74,11 +89,11 @@ function error(status, message, cors = {}) {
 
 export function allowedDomains(env) {
   const raw = String(env.ALLOWED_DOMAINS ?? "").trim();
-  const list = (raw === "" ? "ai-embedded" : raw)
+  const list = (raw === "" ? DEFAULT_ALLOWED_DOMAINS : raw)
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  return list.length > 0 ? list : ["ai-embedded"];
+  return list.length > 0 ? list : [DEFAULT_ALLOWED_DOMAINS];
 }
 
 export function corsHeaders(request) {
@@ -171,6 +186,43 @@ async function applyDelta(kv, weightKey, delta, nowIso) {
   return { ok: false, weight: last.weight };
 }
 
+function parseOptionalExtras(body) {
+  // itemId / tags / title are optional; when present they must be strictly
+  // valid, otherwise the whole request is rejected (no partial trust).
+  let itemId = "";
+  if (body.itemId !== undefined && body.itemId !== null && body.itemId !== "") {
+    if (typeof body.itemId !== "string" || !ITEM_ID_RE.test(body.itemId)) {
+      return { error: "invalid itemId" };
+    }
+    itemId = body.itemId;
+  }
+
+  let tags = [];
+  if (body.tags !== undefined && body.tags !== null) {
+    if (!Array.isArray(body.tags) || body.tags.length > MAX_TAGS) {
+      return { error: "invalid tags" };
+    }
+    for (const tag of body.tags) {
+      if (typeof tag !== "string" || !TAG_RE.test(tag)) {
+        return { error: "invalid tags" };
+      }
+      if (!tags.includes(tag)) tags.push(tag);
+    }
+  }
+
+  let title = "";
+  if (body.title !== undefined && body.title !== null) {
+    if (typeof body.title !== "string") return { error: "invalid title" };
+    if (body.title.length > MAX_TITLE_LEN) return { error: "invalid title" };
+    if (body.title.includes("<") || body.title.includes(">")) {
+      return { error: "invalid title" };
+    }
+    title = body.title.trim();
+  }
+
+  return { itemId, tags, title };
+}
+
 async function handleFeedback(request, env, cors) {
   const declared = Number(request.headers.get("Content-Length") ?? "0");
   if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
@@ -197,10 +249,14 @@ async function handleFeedback(request, env, cors) {
     return error(400, "invalid JSON", cors);
   }
 
-  const { domain, delta, date, eventId } = body;
-
-  if (typeof domain !== "string" || !allowedDomains(env).includes(domain)) {
-    return error(400, "invalid domain", cors);
+  const { delta, date, eventId } = body;
+  // domain is optional for item-level feedback, but if given it must be known.
+  const hasDomain = body.domain !== undefined && body.domain !== null && body.domain !== "";
+  const domain = hasDomain ? body.domain : "";
+  if (hasDomain) {
+    if (typeof domain !== "string" || !allowedDomains(env).includes(domain)) {
+      return error(400, "invalid domain", cors);
+    }
   }
   if (delta !== 1 && delta !== -1) {
     return error(400, "invalid delta", cors);
@@ -212,16 +268,31 @@ async function handleFeedback(request, env, cors) {
     return error(400, "invalid eventId", cors);
   }
 
+  const extras = parseOptionalExtras(body);
+  if (extras.error) return error(400, extras.error, cors);
+
   const kv = env.WEIGHTS_KV;
-  const weightKey = `weight:${domain}`;
+  const weightKey = domain ? `weight:${domain}` : null;
   const eventKey = `event:${eventId}`;
+  const recordKey = `fevent:${eventId}`;
+  const at = new Date().toISOString();
+  const record = {
+    eventId,
+    domain,
+    delta,
+    date,
+    itemId: extras.itemId,
+    tags: extras.tags,
+    title: extras.title,
+    at,
+  };
 
   // Idempotency first: a replayed eventId must never touch the counter.
   const existing = await kv.get(eventKey);
   if (existing !== null && existing !== undefined) {
-    const w = await readWeight(kv, weightKey);
+    const w = weightKey ? await readWeight(kv, weightKey) : { weight: null, updatedAt: null };
     return json(
-      { ok: true, idempotent: true, domain, weight: w.weight, updatedAt: w.updatedAt },
+      { ok: true, idempotent: true, domain: domain || null, weight: w.weight, updatedAt: w.updatedAt },
       200,
       cors,
     );
@@ -230,23 +301,56 @@ async function handleFeedback(request, env, cors) {
   // Receipt before counter: a crash between the two can only lose this delta,
   // never apply it twice.
   await kv.put(eventKey, "1", { expirationTtl: EVENT_TTL_SECONDS });
+  await kv.put(recordKey, JSON.stringify(record), { expirationTtl: EVENT_TTL_SECONDS });
 
-  const result = await applyDelta(kv, weightKey, delta, () => new Date().toISOString());
-  if (!result.ok) {
-    // Let the client retry with the same eventId.
-    try {
-      await kv.delete(eventKey);
-    } catch {
-      /* deleting the receipt is best effort */
+  let weight = null;
+  let updatedAt = at;
+  if (weightKey) {
+    const result = await applyDelta(kv, weightKey, delta, () => at);
+    if (!result.ok) {
+      // Let the client retry with the same eventId.
+      try {
+        await kv.delete(eventKey);
+        await kv.delete(recordKey);
+      } catch {
+        /* deleting the receipts is best effort */
+      }
+      return error(409, "conflict, please retry", cors);
     }
-    return error(409, "conflict, please retry", cors);
+    weight = result.weight;
+    updatedAt = result.updatedAt ?? at;
   }
 
   return json(
-    { ok: true, domain, delta, weight: result.weight, updatedAt: result.updatedAt },
+    {
+      ok: true,
+      domain: domain || null,
+      delta,
+      weight,
+      updatedAt,
+      itemLevel: weightKey === null,
+    },
     200,
     cors,
   );
+}
+
+async function handleEvents(env, cors) {
+  const kv = env.WEIGHTS_KV;
+  const events = [];
+  const listed = await kv.list({ prefix: "fevent:", limit: MAX_EVENTS_RETURNED });
+  for (const key of listed?.keys ?? []) {
+    const raw = await kv.get(key.name);
+    if (typeof raw !== "string") continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") events.push(parsed);
+    } catch {
+      /* skip unreadable record, never fail the whole list */
+    }
+  }
+  events.sort((a, b) => String(a.at ?? "").localeCompare(String(b.at ?? "")));
+  return json({ ok: true, count: events.length, events }, 200, cors);
 }
 
 async function handleWeights(env, cors) {
@@ -288,6 +392,12 @@ export async function handleRequest(request, env) {
       if (request.method !== "GET") return error(405, "method not allowed", cors);
       if (!authorized(request, env)) return error(401, "unauthorized", cors);
       return await handleWeights(env, cors);
+    }
+
+    if (path === "/api/feedback-events") {
+      if (request.method !== "GET") return error(405, "method not allowed", cors);
+      if (!authorized(request, env)) return error(401, "unauthorized", cors);
+      return await handleEvents(env, cors);
     }
 
     return error(404, "not found", cors);

@@ -73,6 +73,8 @@ E:\大学\项目\
 │   ├── regression_test_stage3.py  第三阶段领域/评分/反馈回归测试
 │   ├── regression_test_stage4.py  第四阶段后端反馈/同步回归测试
 │   ├── regression_test_stage5.py  第五阶段生产入口自动同步回归测试
+│   ├── import_dsh_reports.py      DSH（B站/抖音）插件报告导入器
+│   ├── regression_test_stage6.py  DSH 导入回归测试
 │   └── install_tasks.ps1          Windows 定时任务示例（只提供，未注册）
 ├── state/                         运行时状态（已被 .gitignore 排除）
 │   ├── startup_last_run.json      开机检查的「今日已执行」日期标记
@@ -526,3 +528,74 @@ npm test        # node --test，内存 KV mock，不连真实 Cloudflare
 **后端未配置 / 不可用时的行为**：见第 12.4 节表格——未配置打印「后端尚未配置，使用本地权重」继续；网络失败/401 保留上次本地权重继续，均不阻断采集与发布。
 
 **安全**：`FEEDBACK_KEY` 只能存在于 Cloudflare Secret 和本机环境变量，**不得**写入 `install_tasks.ps1`、任何脚本、`wrangler.toml` 或提交到仓库。
+
+---
+
+## 16. DSH 插件报告接入（B站 / 抖音，2026-11-14）
+
+采集由外部 DSH 插件完成（只读、不点赞/不评论/不私信/不投稿），本仓库只负责**导入**它们的 Markdown 报告。
+
+### 16.1 报告位置与格式
+
+```
+~/.dsh/bili-duty/out/YYYY-MM-DD.md
+~/.dsh/douyin-duty/out/YYYY-MM-DD.md
+```
+
+每个条目是一个 `###` 块，块内是 `- **字段**：值` 列表。支持的字段名：
+
+| 含义 | B站标签 | 抖音标签 | 其它别名 |
+|---|---|---|---|
+| 标题 | 标题 | 标题 | 视频标题 / title |
+| 作者 | UP | 作者 | UP主 / 上传者 / author |
+| 链接 | 链接 | 链接 | 视频链接 / 地址 / url |
+| 播放量 | 播放量 | 播放量 | 播放 / views |
+| 档位 | 档位 | 档位 | 评级 / 推荐度 |
+| 推荐理由 | 为什么值得 | 为什么值得 | 推荐理由 |
+| 一句话 | 一句话 | 画面 / 画面摘要 | 摘要 / summary |
+
+`summary` 由「为什么值得 + 一句话/画面摘要」拼成；`why`、`one_line`、`grade`、`views` 也会作为额外字段保存在 JSONL 里，供日报渲染使用。
+
+### 16.2 用法
+
+```bash
+# 导入当天（默认读 ~/.dsh 下的两个目录）
+python scripts/import_dsh_reports.py
+
+# 指定日期 / 目录（测试或多机同步时用）
+python scripts/import_dsh_reports.py --date 2026-11-14 \
+  --bili-dir tests/fixtures/dsh/bili --douyin-dir tests/fixtures/dsh/douyin \
+  --collection-dir /tmp/coll --dry-run
+```
+
+写入 `state/collections/YYYY-MM-DD.dsh-bilibili.jsonl` 与 `...dsh-douyin.jsonl`，每写一条立即落盘。
+
+可用环境变量覆盖默认目录：`DSH_BILI_DIR`、`DSH_DOUYIN_DIR`（`run_nightly.py` 会自动继承）。
+
+### 16.3 退出码
+
+| 码 | 含义 |
+|---|---|
+| 0 | 至少有一份报告导入成功（0 条新增也算成功） |
+| 1 | 参数/配置错误（日期格式不对等） |
+| 2 | 当天没有任何报告文件（B站与抖音都没有） |
+| 3 | 报告存在，但没有解析出合法条目（链接都不在白名单等） |
+
+`run_nightly.py` 在数据检查**之前**调用导入器：有报告就导入后继续，没有报告就打印提示并沿用既有数据；导入失败会打印原因但**不阻断**夜间流程，最终仍由「有没有数据」决定是否出报。
+
+### 16.4 安全与去重
+
+- **只接受 `bilibili.com` / `douyin.com` 及其子域的 http(s) 链接**；`javascript:`、`data:`、第三方域名、`b23.tv` 短链一律跳过并记录原因。
+- Markdown 里即使写了 HTML，也只当纯文本：标签会被剥掉，脚本不会执行。
+- 去重按 `URL + 标题 + 摘要` 的哈希（`collect_core.content_hash`），同一条视频重复导入只保留一份，重复运行导入器不新增条目。
+- 导入器是只读的：不登录、不点赞、不评论、不私信、不收藏、不投稿。
+
+### 16.5 与日报的关系
+
+`summarizer.mode=none` 时，日报会：
+
+1. 明确标注「**未AI总结**」；
+2. 说明「为什么值得 / 一句话」来自 DSH 插件报告原文，**本次没有再做额外的 AI 总结**；
+3. 按领域关键词打分分级：命中 ≥2 个关键词的进「重要内容」（含完整推荐理由），其余进「其他相关」（标题 + 作者 + 一句话 + 视频链接）。
+
+想提升某类内容的档位，改 `config/topics.json` 的 `keywords` 即可，不需要改代码。

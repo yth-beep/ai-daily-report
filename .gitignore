@@ -23,6 +23,10 @@ config/
 *login_state*
 *storage_state*
 *session*.json
+# DSH 插件在本机生成的登录二维码 / 登录密钥（work/ 目录），绝不入库
+*login-key*
+*login-qr*
+bili-login*
 
 # ---- 密钥与凭据 ----
 .env

@@ -751,6 +751,7 @@ python scripts/regression_test_stage7.py     # 62 项，全部用假插件，不
 - 按钮自带 `data-item-id`（`collect_core.content_hash` 的稳定哈希）、`data-report-date`、`data-domain`、`data-tags`、`data-title`；页面只负责发请求，判定逻辑在后端与本地。
 - 每条一行**独立状态区**（`role="status" aria-live="polite"`），不会一条成功就整页变成"已提交"。
 - 浏览器已有反馈密钥时，刷新会读取 `/api/feedback-events`，按 `itemId` 还原最后一次状态；三个按钮同时用 `aria-pressed` 显示当前选中项。
+- 成功提交后，浏览器还会按 `itemId + eventId + at` 保存一份本机状态；即使 Cloudflare KV 在刷新瞬间短暂返回旧值，本机较新的“清除”也不会被旧“加重”覆盖。其他设备若提交了更晚状态，服务器状态会正常接管。
 - **最后一次选择覆盖旧选择**：同一 `itemId` 多次提交时，后端和本地聚类只取 `at` 最新的一条。误按不会叠加；`delta=0` 表示清除。
 - 移动端按钮 `min-height: 44px`，窄屏 `flex: 1 1 0` 平分宽度，不横向溢出。
 - 密钥弹窗全页只有一个，密钥只进本设备 `localStorage`。

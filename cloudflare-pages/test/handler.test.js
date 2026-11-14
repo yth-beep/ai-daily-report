@@ -508,10 +508,13 @@ test("清除标记写入 delta=0，并撤销该内容当前权重", async () => 
     domain: DOMAIN, delta: 1, date: DAY, eventId: uuid(), itemId,
     tags: ["GPIO"], title: "先加重",
   });
-  await call(env, "POST", "/api/feedback", {
+  const clear = await call(env, "POST", "/api/feedback", {
     domain: DOMAIN, delta: 0, date: DAY, eventId: uuid(), itemId,
     tags: ["GPIO"], title: "再清除",
   });
+  const clearBody = await read(clear);
+  assert.equal(clearBody.itemState.delta, 0);
+  assert.equal(clearBody.itemState.itemId, itemId);
 
   const events = await read(await call(env, "GET", "/api/feedback-events"));
   assert.equal(events.count, 2);

@@ -32,7 +32,7 @@ cloudflare-pages/
 
 | 方法 | 路径 | 鉴权 | 说明 |
 |---|---|---|---|
-| GET | `/health` | 无 | `{ ok: true, version: "1.1.0" }` |
+| GET | `/health` | 无 | `{ ok: true, version: "1.1.1" }` |
 | POST | `/api/feedback` | `X-Feedback-Key` | 保存一次 `+1` / `-1`；条目级 `0` 表示清除 |
 | GET | `/api/weights` | `X-Feedback-Key` | 返回各领域累计权重 |
 
@@ -125,7 +125,7 @@ https://ai-daily-report-feedback.pages.dev
 
 ```bash
 curl https://ai-daily-report-feedback.pages.dev/health
-# {"ok":true,"version":"1.1.0"}
+# {"ok":true,"version":"1.1.1"}
 ```
 
 然后把该域名写进 `docs/assets/feedback-config.js` 的 `apiUrl`，提交并推送。之后各设备首次点击「加重/减轻」时输入一次反馈密钥即可（只存本机 localStorage）。

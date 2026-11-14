@@ -9,6 +9,7 @@
 
   var API_URL = (window.FEEDBACK_CONFIG && window.FEEDBACK_CONFIG.apiUrl) || "";
   var KEY_STORAGE = "wb-feedback-key";
+  var STATE_STORAGE = "wb-feedback-item-states-v1";
 
   var modal = document.getElementById("key-modal");
   var modalInput = document.getElementById("key-input");
@@ -57,6 +58,22 @@
   }
   function clearKey() {
     try { localStorage.removeItem(KEY_STORAGE); } catch (e) { /* ignore */ }
+  }
+  function loadLocalStates() {
+    try {
+      var data = JSON.parse(localStorage.getItem(STATE_STORAGE) || "{}");
+      return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveLocalState(state) {
+    if (!state || !state.itemId) return;
+    var states = loadLocalStates();
+    states[state.itemId] = state;
+    try {
+      localStorage.setItem(STATE_STORAGE, JSON.stringify(states));
+    } catch (e) { /* ignore */ }
   }
 
   // 页面内自定义弹窗（替代 window.prompt），适配手机和电脑。
@@ -121,6 +138,26 @@
     return latest;
   }
 
+  function mergeStates(remoteStates) {
+    var merged = {};
+    var localStates = loadLocalStates();
+    var sources = [remoteStates || {}, localStates];
+    for (var s = 0; s < sources.length; s++) {
+      var states = sources[s];
+      for (var itemId in states) {
+        if (!Object.prototype.hasOwnProperty.call(states, itemId)) continue;
+        var incoming = states[itemId];
+        var previous = merged[itemId];
+        var incomingKey = String(incoming.at || "") + "\u0000" + String(incoming.eventId || "");
+        var previousKey = previous
+          ? String(previous.at || "") + "\u0000" + String(previous.eventId || "")
+          : "";
+        if (!previous || incomingKey >= previousKey) merged[itemId] = incoming;
+      }
+    }
+    return merged;
+  }
+
   function applySavedStates(itemStates) {
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
@@ -155,7 +192,7 @@
         var states = r.data && r.data.itemStates && typeof r.data.itemStates === "object"
           ? r.data.itemStates
           : latestByItem((r.data && r.data.events) || []);
-        applySavedStates(states);
+        applySavedStates(mergeStates(states));
       })
       .catch(function () { /* 保留未标记状态，不遮挡日报正文 */ });
   }
@@ -201,6 +238,16 @@
         .then(function (r) {
           setRowDisabled(row, false);
           if (r.ok) {
+            var itemState = r.data && r.data.itemState;
+            if (!itemState) {
+              itemState = {
+                eventId: payload.eventId,
+                itemId: itemId,
+                delta: delta,
+                at: r.data && r.data.updatedAt ? r.data.updatedAt : new Date().toISOString(),
+              };
+            }
+            saveLocalState(itemState);
             setChoice(row, delta === 1 || delta === -1 ? delta : null);
             return;
           }
@@ -233,5 +280,6 @@
     })(rows[i]);
   }
 
+  applySavedStates(mergeStates({}));
   loadSavedStates();
 })();

@@ -41,7 +41,7 @@
  *   ALLOWED_DOMAINS  comma-separated enabled topic ids, default "ai-embedded"
  */
 
-export const VERSION = "1.1.0";
+export const VERSION = "1.1.1";
 export const MAX_BODY_BYTES = 4096;
 export const WEIGHT_MIN = -10;
 export const WEIGHT_MAX = 10;
@@ -366,8 +366,22 @@ async function handleFeedback(request, env, cors) {
   const existing = await kv.get(eventKey);
   if (existing !== null && existing !== undefined) {
     const w = weightKey ? await readWeight(kv, weightKey) : { weight: null, updatedAt: null };
+    let itemState = null;
+    if (itemLevel) {
+      const saved = await kv.get(recordKey);
+      if (typeof saved === "string") {
+        try { itemState = JSON.parse(saved); } catch { /* ignore malformed receipt */ }
+      }
+    }
     return json(
-      { ok: true, idempotent: true, domain: domain || null, weight: w.weight, updatedAt: w.updatedAt },
+      {
+        ok: true,
+        idempotent: true,
+        domain: domain || null,
+        weight: w.weight,
+        updatedAt: w.updatedAt,
+        itemState,
+      },
       200,
       cors,
     );
@@ -409,6 +423,7 @@ async function handleFeedback(request, env, cors) {
       weight,
       updatedAt,
       itemLevel,
+      itemState: itemLevel ? record : null,
     },
     200,
     cors,

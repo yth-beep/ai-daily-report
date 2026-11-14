@@ -324,7 +324,7 @@ python scripts/regression_test.py
 
 ### 12.3 网页上的「加重/减轻」反馈（专用后端，无需登录）
 
-GitHub Pages 是纯静态站点，**不能写回仓库，也无法在浏览器里安全保存 GitHub Token**。为了手机和电脑点击「加重/减轻」都能直接提交、不跳 GitHub、不需要平台账号登录，反馈改走**自建后端**（Cloudflare Worker + Workers KV）：
+GitHub Pages 是纯静态站点，**不能写回仓库，也无法在浏览器里安全保存 GitHub Token**。为了手机和电脑点击「加重/减轻」都能直接提交、不跳 GitHub、不需要平台账号登录，反馈改走**Cloudflare Pages Functions + Workers KV**：
 
 1. 日报末尾的「偏好调整」区域，对出现的领域显示「加重」「减轻」按钮。
 2. 点击后**直接调用后端** `POST /api/feedback`，不再跳转 GitHub。
@@ -341,7 +341,7 @@ GitHub Pages 是纯静态站点，**不能写回仓库，也无法在浏览器�
 
 ```bash
 # 用环境变量传入后端地址和密钥（不写入仓库/配置文件）
-export FEEDBACK_API_URL="https://你的-worker.workers.dev"
+export FEEDBACK_API_URL="https://ai-daily-report-feedback.pages.dev"
 export FEEDBACK_KEY="你的反馈密钥"
 python scripts/sync_feedback.py
 ```

@@ -5,12 +5,14 @@
 > **B站采集已本地化**（第 17 节）：插件只提供登录态 + 只读 API，搜索/过滤/字幕/评分由本项目完成，不启动 DSH 模型、不产生 token 费用。
 > **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容单独「这条加重/减轻」，事件聚类成标签/标签对权重参与评分；`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
 > **抖音采集也已本地化**（第 19 节）：复用插件的独立浏览器 profile/CDP/本机 OCR，只走 8 个只读动作，不启动 DSH 模型、不调插件 `/run`、不产生 token 费用；B站与抖音各自独立采集，一个平台失败不影响另一个平台出报。
-> 变更只做代码与本地测试：**没有** push、**没有**部署、**没有**创建账号、**没有**注册 Windows 定时任务、**没有**点赞/评论/私信/收藏/投稿。
+> 生产流程已部署：GitHub Pages 已上线，Windows 开机与 22:00 任务已注册；采集仍只执行公开只读动作，不点赞、不评论、不私信、不收藏、不投稿。
 > `agent-synergy/` 已废弃，本项目不引用、不复制、不修改其中任何代码，也不把它作为技术底座。
 
 站点面向 **AI 大模型 × 嵌入式** 交叉领域（端侧 AI、边缘推理、TinyML、AIoT、MCU/RTOS、NPU、模型量化与部署）。数据链路是：本地采集 → 结构化条目 → 分级日报 Markdown → 渲染成静态页面 → 走发布护栏提交到 Pages。原有的发布护栏与全部回归测试保持不变。
 
 工作区已存在 `.git`。默认模式下脚本**不执行任何写 Git 操作**；`--publish` 是唯一能触发真实提交推送的开关，且带有源文件、remote、退出码三重护栏。所有发布相关测试都在临时目录 + 本地 bare 仓库完成，从不连接真实 GitHub。
+
+手机稳定入口：<https://yth-beep.github.io/ai-daily-report/reports/latest.html>。`/reports/` 也会自动跳到它；页面始终显示最新一期，每日 22:00 发布后打开或刷新即可看到当天内容，打开状态下每 5 分钟检查一次内容哈希并在新一期出现时自动刷新。
 
 ---
 
@@ -20,11 +22,14 @@
 E:\大学\项目\
 ├── docs/                          GitHub Pages 站点目录（Pages 只渲染这里）
 │   ├── index.html                 站点首页，列表区块由脚本全量重建
+│   ├── today.html                 跳到最新日报的稳定短入口
 │   ├── .nojekyll                  跳过 Jekyll 处理，保证静态资源原样发布
 │   ├── assets/styles.css          浅色响应式样式，手机端可读
 │   ├── assets/feedback-config.js  反馈后端地址配置（apiUrl 占位，不写密钥）
 │   ├── assets/feedback.js         加重/减轻按钮调用后端的前端逻辑
-│   └── reports/YYYY-MM-DD.html    生成的每日网页（当前为空，首次采集后生成）
+│   ├── reports/YYYY-MM-DD.html    每日历史网页（固定日期归档）
+│   ├── reports/latest.html        最新日报稳定页（每日覆盖）
+│   └── reports/index.html         /reports/ 稳定入口，自动跳到 latest.html
 ├── reports/YYYY-MM-DD.md          本地权威日报源文件（不进入公开仓库；当前为空）
 ├── tests/
 │   └── fixtures/2026-11-12.md     示例日报（仅测试用，不参与站点渲染）

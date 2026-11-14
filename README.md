@@ -5,7 +5,8 @@
 > **B站采集已本地化**（第 17 节）：插件只提供登录态 + 只读 API，搜索/过滤/字幕/评分由本项目完成，不启动 DSH 模型、不产生 token 费用。
 > **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容单独「这条加重/减轻」，事件聚类成标签/标签对权重参与评分；`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
 > **抖音采集也已本地化**（第 19 节）：复用插件的独立浏览器 profile/CDP/本机 OCR，只走 8 个只读动作，不启动 DSH 模型、不调插件 `/run`、不产生 token 费用；B站与抖音各自独立采集，一个平台失败不影响另一个平台出报。
-> 生产流程已部署：GitHub Pages 已上线，Windows 开机与 22:00 任务已注册；采集仍只执行公开只读动作，不点赞、不评论、不私信、不收藏、不投稿。
+> **日报 AI 总结已接到 WorkBuddy**（第 20 节）：20:30 本地采集并生成输入，21:30 WorkBuddy 使用 `DeepSeek-V4.1-Flash` 总结、分级和推荐，22:00 Windows 任务校验并发布。DSH 模型与插件 `/run` 均不参与日常流程。
+> 生产流程已部署：GitHub Pages 已上线，Windows 开机、20:30 采集和 22:00 发布任务均已注册；采集仍只执行公开只读动作，不点赞、不评论、不私信、不收藏、不投稿。
 > `agent-synergy/` 已废弃，本项目不引用、不复制、不修改其中任何代码，也不把它作为技术底座。
 
 站点面向 **AI 大模型 × 嵌入式** 交叉领域（端侧 AI、边缘推理、TinyML、AIoT、MCU/RTOS、NPU、模型量化与部署）。数据链路是：本地采集 → 结构化条目 → 分级日报 Markdown → 渲染成静态页面 → 走发布护栏提交到 Pages。原有的发布护栏与全部回归测试保持不变。
@@ -74,10 +75,12 @@ E:\大学\项目\
 │   ├── sync_feedback.py           拉后端权重与事件（优先后端），写本地状态
 │   ├── collect_core.py            条目 schema、去重、逐条 checkpoint
 │   ├── adapters.py                数据源适配器（rss / jsonl）+ 扩展点
-│   ├── summarizer.py              汇总器接口（分级日报，默认「未AI总结」）
+│   ├── build_ai_summary_input.py  生成 WorkBuddy 的紧凑 AI 输入
+│   ├── validate_ai_report.py      发布前校验 WorkBuddy 结构化草稿
+│   ├── summarizer.py              合并 WorkBuddy AI 草稿；缺失时确定性降级
 │   ├── collect.py                 采集运行器（跑所有启用的适配器）
 │   ├── run_boot.py                开机入口：查昨天发布 -> 补发或采集
-│   ├── run_nightly.py             22:00 入口：缺数据失败 -> 汇总 -> 渲染 -> 发布准备
+│   ├── run_nightly.py             22:00 入口：缺数据失败 -> 用 AI 草稿汇总 -> 渲染 -> 发布
 │   ├── regression_test.py         发布链路回归测试（临时目录 + 本地 bare repo）
 │   ├── regression_test_stage2.py  第二阶段采集/汇总回归测试
 │   ├── regression_test_stage3.py  第三阶段领域/评分/反馈回归测试
@@ -169,7 +172,7 @@ Pages 配置（**本轮未做任何线上操作**）：仓库推送后，在 **S
 ## 5. 22:00 更新原理
 
 ```
-每天 22:00（示例任务，尚未注册）
+每天 22:00（已注册）
   → prepare_publish.py
   → 硬门禁：reports/<今天>.md 不存在 ⇒ 立即返回 2，不渲染、不 git add/commit/push
   → 有源文件：render_all() 生成网页，rebuild_index() 全量重建首页（幂等）
@@ -185,7 +188,7 @@ Pages 配置（**本轮未做任何线上操作**）：仓库推送后，在 **S
 ## 6. 开机检查与远端发布确认
 
 ```
-开机登录后延迟 5 分钟（示例任务，尚未注册）
+开机登录后延迟 5 分钟（已注册）
   → startup_check.py
   → 日期标记：今天已成功过(start_collection) ⇒ skipped_already_run；
               今天上次未完成 ⇒ 继续重试补齐
@@ -206,7 +209,7 @@ Pages 配置（**本轮未做任何线上操作**）：仓库推送后，在 **S
 `scripts/install_tasks.ps1` 默认只打印，加 `-Apply` 才会注册：
 
 - **使用绝对路径**：Python、Git、项目目录和任务包装器都由脚本显式解析，不依赖任务计划程序的 PATH。
-- **正式任务**：`DailyReport-Boot` 在登录后延迟 5 分钟运行，`DailyReport-Nightly` 每天 22:00 运行。
+- **正式任务**：`DailyReport-Boot` 在登录后延迟 5 分钟运行；`DailyReport-Collect` 每天 20:30 采集并生成 WorkBuddy 输入；`DailyReport-Nightly` 每天 22:00 校验 AI 草稿、渲染并发布。WorkBuddy 自己的定时任务在 21:30 运行总结。
 - **发布开关**：加 `-EnablePublish` 才会把 `--publish` 传给两个入口；默认不带该开关时只生成本地内容。
 - **可诊断日志**：`run_task.ps1` 把每次运行的 stdout/stderr 写入 `state/logs/`，并在 `last-boot.json` / `last-nightly.json` 记录退出码和日志路径。
 
@@ -229,12 +232,12 @@ python scripts/regression_test.py
 
 ## 10. 已知限制 / 后续再做
 
-- **没有真实 GitHub 仓库、remote 与凭据**；`--publish` 只在本地 bare repo 回归测试中验证过，未对真实 GitHub 执行。首次真实发布需人工确认 remote URL、分支 `main`、凭据与 Pages 设置。
-- **没有注册任何 Windows 定时任务**；当前示例任务都是 dry-run，不会自动更新 GitHub。
-- **没有真实采集流程**；`reports/` 目前为空（首次采集后才会出现 `YYYY-MM-DD.md`），缺当天源文件时 22:00 脚本直接失败退出（非 0），这是有意的告警设计，不会编造内容。
+- 真实 GitHub 仓库、`origin/main` 与 GitHub Pages 已配置；发布凭据或 remote 变更后需要重新核对。
+- Windows 的 `DailyReport-Boot`、`DailyReport-Collect`、`DailyReport-Nightly` 均已注册；WorkBuddy 的 `AI日报·每日AI总结` 也已启用。
+- 真实采集由本地 B站/抖音只读采集器完成；缺当天源文件时 22:00 脚本直接失败退出（非 0），不会编造内容。
 - `remote_publish_status()` 依赖本地能读到远端 HEAD 对应的 commit 对象；若远端由他人推送、本地没有该对象，会返回 `unverified`（保守不开始采集），需要 `git fetch` 后再检查。
 - 渲染器是零依赖简化实现，不支持表格；行内代码内不要混用粗体/链接。
-- `docs/reports/` 当前为空；只有本地跑过「缺失补发」测试时才会出现带「缺失占位」徽章的页面，那不代表真实日报，删除后重跑 `python scripts/render.py` 即可。
+- `docs/reports/` 只保留真实日报与稳定入口；测试用页面不会进入正式发布白名单。
 
 ---
 
@@ -246,6 +249,10 @@ python scripts/regression_test.py
 1. 检查昨天是否已确认发布（复用 `startup_check.py` 的远端核对）。
 2. 未发布 → 尝试补发/准备；补发失败则**明确失败退出，不开始采集**。
 3. 已发布 → 启动当天采集（`collect.py`）。
+
+**20:30（`DailyReport-Collect`）**：运行本地 B站/抖音采集，生成 `state/ai-input/YYYY-MM-DD.json`。
+
+**21:30（WorkBuddy）**：读取当天 AI 输入，用 `DeepSeek-V4.1-Flash` 生成并校验 `state/ai-reports/YYYY-MM-DD.json`；禁止操作浏览器和调用 DSH 模型。
 
 **22:00（`run_nightly.py`）**：
 1. 检查当天采集结果；无数据 → 失败退出，不发布。
@@ -277,7 +284,7 @@ python scripts/regression_test.py
 
 ### 11.4 汇总器接口（`summarizer.py`）
 
-- 默认 `mode = "none"`：**不调用任何模型**，生成明确标注「**未AI总结**」的基础清单（诚实降级，不假装已由大模型总结）。
+- 默认 `mode = "workbuddy-json"`：使用 WorkBuddy 生成的 AI 草稿；草稿缺失或损坏时回退到明确标注「**未AI总结**」的基础清单，不假装已完成大模型总结。
 - `mode = "command"`：可配置本地模型调用命令（`summarizer.command`），条目以 JSON 走 stdin，stdout 作为正文；命令失败会抛错并让夜间入口非零退出。**密钥从不写死**，命令由 `config/runtime.json` 提供。
 
 ### 11.5 两个生产入口的退出码
@@ -294,12 +301,13 @@ python scripts/regression_test.py
 
 ### 11.6 定时任务（`install_tasks.ps1`）
 
-两个任务指向生产入口：
+三个 Windows 任务指向生产入口：
 
 - `DailyReport-Boot`：登录 + 5 分钟 → `run_boot.py`
+- `DailyReport-Collect`：每天 20:30 → `collect.py`，采集后生成 WorkBuddy AI 输入
 - `DailyReport-Nightly`：每天 22:00 → `run_nightly.py`
 
-脚本解析绝对 Python/Git 路径；`-Apply` 注册任务，`-EnablePublish` 才允许真实提交推送。任务包装器会记录日志并显式使用 Git 路径，避免非交互任务环境找不到 Git。
+WorkBuddy 自己的定时任务在每天 21:30 读取输入并生成 AI 结构化草稿。脚本解析绝对 Python/Git 路径；`-Apply` 注册任务，`-EnablePublish` 才允许真实提交推送。任务包装器会记录日志并显式使用 Git 路径，避免非交互任务环境找不到 Git。
 
 ### 11.7 机器相关配置与可选增强
 
@@ -307,7 +315,7 @@ python scripts/regression_test.py
 - **Windows 定时任务**：由 `install_tasks.ps1 -EnablePublish -Apply` 注册。
 - **B站 / 抖音登录态**：分别来自两个 DSH 插件的独立 profile；登录过期后需本人重新扫码。
 - **网络代理**：GitHub Git 访问可在项目本地配置中指定本机代理；代理端口变化时需同步更新。
-- **真实模型总结器**：仍可选；配置 `summarizer.command` 后启用，默认使用确定性模板并明确标注“未 AI 总结”。
+- **日报 AI 总结**：默认由 WorkBuddy 使用 `DeepSeek-V4.1-Flash` 生成结构化草稿；草稿不可用时确定性模板明确标注“未 AI 总结”。
 - **额外公开 RSS/Atom 源**：示例源默认关闭，需要时在 `config/sources.json` 启用。
 
 ---
@@ -615,7 +623,7 @@ python scripts/import_dsh_reports.py --date 2026-11-14 \
 
 ### 16.5 与日报的关系
 
-`summarizer.mode=none` 时，日报会：
+WorkBuddy 草稿不可用、需要确定性降级时，日报会：
 
 1. 明确标注「**未AI总结**」；
 2. 说明「为什么值得 / 一句话」来自 DSH 插件报告原文，**本次没有再做额外的 AI 总结**；
@@ -709,7 +717,7 @@ python scripts/collect_bilibili_local.py --json
 
 ### 17.5 成本对比与缺失能力
 
-**成本**：旧路径 = 插件刷一轮 → 启动 DSH 模型读候选 → 写报告，按上下文和字幕长度计 token。新路径 = 插件只出登录态和原始 JSON，筛选/评分是纯 Python，**模型 token 为 0**。日报本身仍是 `summarizer.mode=none`（标注「未AI总结」），不额外调用模型。
+**成本**：旧路径 = 插件刷一轮 → 启动 DSH 模型读候选 → 写报告，按上下文和字幕长度计 token。新路径 = 插件只出登录态和原始 JSON，筛选/评分是纯 Python，**DSH token 为 0**。日报总结由 WorkBuddy 的低价模型 `DeepSeek-V4.1-Flash` 完成，只有这一段产生少量模型费用。
 
 **已知缺失（都是刻意留白，不是 bug）**：
 
@@ -977,9 +985,47 @@ python scripts/regression_test_stage9.py     # 107 项
 
 ### 19.9 已知缺失（刻意留白）
 
-1. **当前未登录抖音**：本轮只实现代码与 mock 测试，没有扫码登录、没有真实采集。要跑真实数据，先在插件设置页登录，再执行 19.7 的 `--dry-run` 看候选质量。
+1. **抖音登录已完成**：当前账号已人工扫码登录；后续若登录态失效会返回退出码 3，需要在插件设置页重新扫码。
 2. **没有字幕接口**：抖音本来就只靠画面文字，所以 OCR 是主要信息来源；画面无字时只剩作品文案，摘要会很短（`summary_source=desc`）。
 3. **推荐流不支持**：只读白名单不含 `feed`，配置写 `true` 也只打印"已忽略"。
 4. **相关性仍是启发式**：关键词命中 + 播放量对数，不理解内容；真正的摘要要等接上模型总结器。
 5. **登录态会过期**：过期就 `exit 3`，需要人工在插件里重新扫码，无法自动续期。
-6. **浏览器是常驻的**：worker 不主动关浏览器（下次复用更快），它由插件那套 detached 进程管；要彻底清掉就在插件面板里停止或手动关窗口。
+6. **电脑操控按需开启**：采集使用插件的隐藏浏览器通道；Codex 的电脑操控只在配置 WorkBuddy 或人工排障时开启，动作完成即停止。
+
+---
+
+## 20. WorkBuddy 每日 AI 总结（2026-11-14）
+
+### 20.1 固定时间线
+
+| 时间 | 执行者 | 动作 |
+|---|---|---|
+| 开机后 5 分钟 | `DailyReport-Boot` | 检查昨天是否已发布；未发布先补发，已发布则开始当天采集 |
+| 每天 20:30 | `DailyReport-Collect` | B站 + 抖音只读采集；成功后生成 `state/ai-input/YYYY-MM-DD.json` |
+| 每天 21:30 | WorkBuddy | 用 `DeepSeek-V4.1-Flash` 总结、分级、推荐；写入并校验 `state/ai-reports/YYYY-MM-DD.json` |
+| 每天 22:00 | `DailyReport-Nightly` | 读取当天数据与 AI 草稿，生成网页，校验后 `git commit + git push`，GitHub Pages 自动更新 |
+
+WorkBuddy 只处理已经采集到本地的公开内容。它不启动 DSH 模型，不调用插件 `/run`，不打开或操作 B站/抖音浏览器，也不执行 Git 发布。采集和发布始终由 Windows 的任务与项目脚本负责。
+
+### 20.2 AI 输入与草稿
+
+输入文件是项目脚本生成的紧凑 JSON，包含每个条目的可信 ID、标题、字幕/OCR/简介、平台、作者、链接、领域、命中词和反馈权重。WorkBuddy 不自行修改 ID 或链接。
+
+草稿必须覆盖输入中的每个 `id` 恰好一次；`important` 最多 3 条，必须写明核心问题、关键方法/结论、推荐理由和适用场景；其余 `minor` 条目各写一句概括。发布前执行：
+
+```bash
+python scripts/validate_ai_report.py --date YYYY-MM-DD
+```
+
+校验失败时 WorkBuddy 只修正草稿。22:00 的本地汇总器会再次校验并合并视频元数据与逐条反馈标记；草稿缺失或损坏时退回确定性模板并明确标注「未AI总结」，不会伪造 AI 结论。
+
+### 20.3 成本边界
+
+| 环节 | 日常费用 |
+|---|---|
+| B站/抖音本地采集、OCR、筛选、评分 | 0 模型费用 |
+| Windows 汇总、网页渲染、Git 发布 | 0 模型费用 |
+| WorkBuddy 每日总结 | 只有 `DeepSeek-V4.1-Flash` 的少量积分/费用 |
+| GitHub Pages 静态站 | 公开仓库使用 GitHub Pages，无新增托管费；自定义域名、超出平台限额或变更套餐除外 |
+
+日常运行不依赖 DSH 模型；主要持续性成本是本机电费、平台风控概率、WorkBuddy 当前模型用量，以及 GitHub/Cloudflare 的免费额度边界。

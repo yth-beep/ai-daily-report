@@ -1,129 +1,94 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-latest-report="2026-11-14" data-latest-hash="22bac2790846eea4">
+<html lang="zh-CN" data-latest-report="2026-11-15" data-latest-hash="004dc866fe824b35">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="report-kind" content="normal">
-<title>2026-11-14 日报 - AI × 嵌入式 信息日报</title>
+<title>2026-11-15 日报 - AI × 嵌入式 信息日报</title>
 <link rel="stylesheet" href="../assets/styles.css?v=20261115-list-fix">
 <script src="../assets/feedback-config.js?v=20261115-list-fix"></script>
 <script src="../assets/feedback.js?v=20261115-list-fix" defer></script>
-<meta name="report-latest-date" content="2026-11-14">
+<meta name="report-latest-date" content="2026-11-15">
 <meta name="report-latest-stable" content="true">
 </head>
 <body>
 <div class="wrap">
-  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-14 日报 · 每日 22:00 自动更新</div>
+  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-15 日报 · 每日 22:00 自动更新</div>
   <header class="site-header">
     <a class="brand" href="../index.html">AI × 嵌入式 信息日报</a>
-    <span class="date-badge">2026-11-14</span>
+    <span class="date-badge">2026-11-15</span>
   </header>
 
   <main class="report">
-<h1>2026-11-14 信息日报</h1>
+<h1>2026-11-15 信息日报</h1>
 <blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
 <blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
-<blockquote>采集 15 条。</blockquote>
+<blockquote>采集 8 条。</blockquote>
 <h2>重要内容</h2>
-<h3>27届嵌入式linux方向秋招薪资汇总！嵌入式开发/Linux内核/应用开发/驱动项目/八股文/操作系统/I2C/中断/C语言/系统编程/开发板/学习路线</h3>
-<p>bilibili · 嵌入式自学DeepMeet · 嵌入式 Linux 基础（当前主线）</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1bRWi61Enx" rel="noopener noreferrer">https://www.bilibili.com/video/BV1bRWi61Enx</a></p>
+<h3>【嵌入式Linux入门教程 19】RK3506 开发环境搭建与交叉编译｜从 sysroot、工具链配置到 Hello World 上板运行</h3>
+<p>bilibili · WwuSama · 嵌入式 Linux 基础（当前主线）</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1HFsE6pERR" rel="noopener noreferrer">https://www.bilibili.com/video/BV1HFsE6pERR</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：板子能跑 Hello World 之前，主机侧那套交叉编译环境到底由哪几块组成、库和头文件从哪来，即 sysroot 是什么、怎么接进工具链。</p>
+<p><strong>关键方法 / 结论</strong>：思路是先拿 sysroot 再配工具链：Buildroot 编译 SDK 时除了产出烧到板上的 rootfs，还会在 output 下产出一份 host 侧 sysroot（arm-buildroot-linux-gnu 目录），里面的 /usr 下就是板子实际带的头文件与 .so/.a 库，Qt、cURL 等已默认编进去。因为该路径很长、且重新编译 Buildroot 后内容会变，视频不直接拷贝而是用软链接指过去，这样库更新后无需重新搬一遍。后面再讲工具链如何指向这个 sysroot、以及编出 Hello World 上板运行。</p>
+<p><strong>为什么推荐</strong>：交叉编译是从“会敲 Linux 命令”跨到“能给开发板做东西”的第一道门槛，而 sysroot 正是最容易卡住的地方——库找不到、头文件版本不匹配、链接时报 undefined reference，多数根因都在这里。这条把 sysroot 的来源和软链接做法讲清楚了，正好接在你当前的嵌入式 Linux 主线上。</p>
+<p><strong>适用场景</strong>：拿到开发板、SDK 已编译完成、准备第一次写自己的程序上板时看最合适；也可当作后面往 rootfs 里加第三方库（MQTT、TFLite 之类）的前置知识。</p>
+<div class="item-fb" data-item-id="54eaa8a4a5955399c2f56dc09ba7ecadb0d47dd3" data-domain="embedded-linux-foundation" data-tags="嵌入式Linux,文件系统,交叉编译" data-title="【嵌入式Linux入门教程 19】RK3506 开发环境搭建与交叉编译｜从 sysroot、工具链配置到 Hello World 上板运行" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>Linux 运维实战 EP05：systemd 服务起不来，别急着 restart，先留现场</h3>
+<p>bilibili · Vicky_DW · 嵌入式 Linux 基础（当前主线）</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1uHu66XEE3" rel="noopener noreferrer">https://www.bilibili.com/video/BV1uHu66XEE3</a></p>
 <p><strong>推荐等级</strong>：推荐</p>
-<p><strong>核心问题</strong>：27 届嵌入式 Linux 方向秋招的真实薪资分布是什么样，普通背景的人卡在哪一环、该补什么。</p>
-<p><strong>关键方法 / 结论</strong>：视频把一手 offer 按学历分档：普通本科月薪约 12–16K，双非硕士 15–18K，211 硕士年薪约 25W 起步，个别双非硕士进大厂核心部门能到 30–38W。作者给的归因是普通背景主要卡在 C 语言基础和项目实战薄弱，并强调现在缺的不是会基础语法的人，而是中高端、能用 AI 提效的人。可以把它当成一面镜子，对照自己的学历档位和当前能力，反推还差哪一块。</p>
-<p><strong>为什么推荐</strong>：它回答的是“学到什么程度对应什么价位”，并把 C 基础、项目实战、AI 辅助开发这三项列为可主动补的短板，正好校正你当前嵌入式 Linux 主线的时间分配，避免只在命令层面打转。</p>
-<p><strong>适用场景</strong>：适合学习路线规划期，以及投实习或秋招前做自我评估；用来自查“有没有一个能讲完整的项目”和“C 语言是否过关”，不适合当技术教程看。</p>
-<div class="item-fb" data-item-id="7cc434a143b911572f3c62843677c6f1ef96bfa3" data-domain="embedded-linux-foundation" data-tags="嵌入式Linux,C语言,I2C" data-title="27届嵌入式linux方向秋招薪资汇总！嵌入式开发/Linux内核/应用开发/驱动项目/八股文/操作系统/I2C/中断/C语言/系统编程/开发板/学习路线" data-report-date="2026-11-14">
+<p><strong>核心问题</strong>：systemd 服务启动失败时，为什么不该连着 restart，以及按什么顺序把“现场”留住再去重启验证。</p>
+<p><strong>关键方法 / 结论</strong>：核心是先取证再动手：连续 restart 会让每次失败的时间线互相叠加，原始退出码和第一次失败的现场反而被噪声盖住。要留的是三样——主进程退出码、失败发生的时间点、以及失败前最后几行日志；日志窗口要缩到故障前后十几分钟，只看最后一行常会漏掉更早的配置错误、权限问题或资源不足。再确认 systemd 实际加载的是哪份 unit 和 drop-in 覆盖配置（刚改的文件不一定就是生效的那份），若日志指向端口占用或依赖服务，就顺着那个对象继续查。最后才重启，让重启成为有依据的验证而不是碰运气。</p>
+<p><strong>为什么推荐</strong>：这条给的不是某个命令，而是一套排障顺序，属于能反复复用的方法论。嵌入式设备上服务起不来极常见，且板子往往没法随时重刷，学会先留现场能省下大量瞎试时间；它和你正在看的 journalctl、systemd 内容正好串成一条线。</p>
+<p><strong>适用场景</strong>：第一次给开发板写自启服务、或调试开机后某个守护进程没起来时直接用；也适合作为日常运维排障的检查清单。</p>
+<div class="item-fb" data-item-id="3c3ddefa5f87ab0ed9808afa2f3e1f44c02b027e" data-domain="embedded-linux-foundation" data-tags="权限,systemd" data-title="Linux 运维实战 EP05：systemd 服务起不来，别急着 restart，先留现场" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
-<h3>ESP32 上能跑什么 AI 模型？推理引擎、训练方法与开源示例</h3>
-<p>bilibili · 比特光锥_BightCone · AI大模型 + 嵌入式</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1dfnj6bEpz" rel="noopener noreferrer">https://www.bilibili.com/video/BV1dfnj6bEpz</a></p>
-<p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：ESP32、S3、P4 三档芯片分别能跑哪类 AI 模型，哪些任务该留在端上、哪些该交给云端。</p>
-<p><strong>关键方法 / 结论</strong>：按官方实测把能力边界逐项摊开：唤醒词、命令词、人脸、单目标检测、通用检测、微型 LLM 各自能做到什么程度，据此形成一张选型地图。落地路径分三套栈——ESP-DL 走瑞芯微自家算子、TFLite Micro 加 ESP-NN 走通用小模型、ESP-SR / ESP-WHO 直接给语音与人脸现成方案；模型侧流程是 PTQ 或 QAT 量化，再到板子上做 profiling 实测。评论区补充的真实取舍是特征提取有时比模型推理本身更耗时。</p>
-<p><strong>为什么推荐</strong>：这是“AI 大模型 + 嵌入式”最典型的落地形态，一端接你的 C 与外设基础，另一端接端侧推理；有了这张边界表，选模型时不用一个个试，也更容易判断毕设课题是否可行。</p>
-<p><strong>适用场景</strong>：适合端侧 AI 入门选型期，或做小项目要决定“端侧算还是上云”时直接对照；前置条件是手上有 ESP32 一类开发板和基本外设实验经验。</p>
-<div class="item-fb" data-item-id="958a9b5f80d43ca708bf4e311bfd22bd6bc17a24" data-domain="ai-embedded" data-tags="LLM,ESP32,TFLite Micro" data-title="ESP32 上能跑什么 AI 模型？推理引擎、训练方法与开源示例" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div>
-<h3>Linux命令精讲之dmesg/journalctl（系统日志）</h3>
-<p>bilibili · 全栈二把刀 · 嵌入式 Linux 基础（当前主线）</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1Pq8B64ExD" rel="noopener noreferrer">https://www.bilibili.com/video/BV1Pq8B64ExD</a></p>
-<p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：板子起不来、驱动加载失败、服务自启不了时，先看哪份日志、用哪几个命令把范围缩到具体一行。</p>
-<p><strong>关键方法 / 结论</strong>：先把两层日志分开：dmesg 读的是内核环形缓冲区，开机时的 CPU 检测、内存初始化、PCI 扫描、磁盘识别、驱动 probe 都在这里，缓冲区满会覆盖旧消息；journalctl 读的是 systemd 统一日志库，按时间索引、可持久化。定位套路是先用 dmesg | grep 关键词 抓内核侧线索，再用 journalctl -u 服务名 看单个服务、-k 只看内核、-b 只看本次启动、--since/--until 卡时间窗、-f 实时跟、-x/-e 看详细上下文；要长期留存得开 Storage=persistent，空间不够用 --vacuum 清旧日志。</p>
-<p><strong>为什么推荐</strong>：嵌入式 Linux 上板的第一阶段就是“串口 + 日志”定位问题，这条把内核层与系统服务层两条线一次打通，是后面调驱动、调自启动服务共用的底座能力，比零散的单个命令视频更成体系。</p>
-<p><strong>适用场景</strong>：适合从“会敲命令”过渡到“能独立排障”的阶段；板子卡在启动、驱动没 probe 上、服务开机不自启时，按内核层到服务层的顺序查。</p>
-<div class="item-fb" data-item-id="93fb1cc92992eae659c017886b596d161c5a7494" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="Linux命令精讲之dmesg/journalctl（系统日志）" data-report-date="2026-11-14">
+<h3>应付公司检查，清理穿帮日志，十多年的Linux老用户被迫学习journalctl</h3>
+<p>bilibili · 飞蚊话 · 嵌入式 Linux 基础（当前主线）</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV17Lsp6ZEaW" rel="noopener noreferrer">https://www.bilibili.com/video/BV17Lsp6ZEaW</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：journalctl 到底是不是“记日志的程序”，日志究竟由谁写入、来源有哪些、又该怎么限制它占用的空间和保留时间。</p>
+<p><strong>关键方法 / 结论</strong>：关键区分是分工：真正接收并保存日志的是 systemd-journald 服务，journalctl 只是读取和查询已存日志的前端，所以它本身不产生日志。日志来源比想象的多——内核通过 kmsg 机制进来的硬件初始化与驱动加载消息（-k 看到的就是这批）、各 systemd 服务的标准输出与标准错误、syslog 接口的传统来源，以及 audit 子系统的审计记录，因此不带参数直接跑才会又全又乱。相较 /var/log 下每个程序各写各的 .log 文本，journal 是集中且带结构化字段的。视频后半段接着讲只保留一定时间该怎么设置，这部分留作动手时再看。</p>
+<p><strong>为什么推荐</strong>：把“谁写、谁读、从哪来”理清之后，前面的 -k、-u、-b 这些参数就不再是死记，而是能推出来该往哪查。嵌入式场景里日志默认多在内存、重启即丢，理解 journald 的存储与保留策略直接关系到板子 Flash 空间和掉电后还能不能查到故障。</p>
+<p><strong>适用场景</strong>：在已经会用 journalctl 基本参数之后看，用来补底层模型；等要配置日志持久化、限制 journal 体积或排查掉电后日志丢失时，再回来看保留时间的设置部分。</p>
+<div class="item-fb" data-item-id="ed59461f03cb3b0fa1ace468a84d75acf327044b" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="应付公司检查，清理穿帮日志，十多年的Linux老用户被迫学习journalctl" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
 <h2>其他相关</h2>
-<ul><li>60秒掌握Linux命令（64）journalctl（bilibili · 安的0扇区 · 嵌入式 Linux 基础（当前主线））：[推荐] 60 秒只讲 -u 定位服务、-f 实时跟踪、-p 筛级别、--since 卡时间这四个参数，适合当查日志的速记卡片，成体系的部分看 dmesg/journalctl 精讲那条。 <a href="https://www.bilibili.com/video/BV1RQQdB1E5C" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="f18796fee685a2c0f1468ddefb739744dfea09bf" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="60秒掌握Linux命令（64）journalctl" data-report-date="2026-11-14">
+<ul><li>Linux命令精讲之dmesg/journalctl（系统日志）（bilibili · 全栈二把刀 · 嵌入式 Linux 基础（当前主线））：[可略读] dmesg 管内核环形缓冲区（硬件检测、驱动加载、磁盘识别），journalctl 管 systemd 统一日志，含 -k、--since/--until、-f、--vacuum 等参数——昨天已按 important 精读过，今天可当参数速查表复核一遍。 <a href="https://www.bilibili.com/video/BV1Pq8B64ExD" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="93fb1cc92992eae659c017886b596d161c5a7494" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="Linux命令精讲之dmesg/journalctl（系统日志）" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>Linux命令之journalctl（bilibili · 全栈二把刀 · 嵌入式 Linux 基础（当前主线））：[可略读] 用侦探查案的比喻讲 journalctl，覆盖 -k 看内核、-b 看本次启动、-u 看单个服务的基本用法，入门听着轻松但参数密度不如精讲类。 <a href="https://www.bilibili.com/video/BV1KHEt6qEgw" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c81cc9d4fa45407f0c821bd78ca2f77a828306d5" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="Linux命令之journalctl" data-report-date="2026-11-14">
+</div></li><li>Linux命令之journalctl（bilibili · 全栈二把刀 · 嵌入式 Linux 基础（当前主线））：[可略读] 用侦探查案的比喻讲 journalctl 的由来（从分散的 messages/secure 到 systemd 统一日志数据库）和 -k、-b、-u 的基本用法，入门友好但参数密度低，昨天已收录。 <a href="https://www.bilibili.com/video/BV1KHEt6qEgw" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c81cc9d4fa45407f0c821bd78ca2f77a828306d5" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="Linux命令之journalctl" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>我希望有人能这样给我解释 SystemD（bilibili · myfreax · 嵌入式 Linux 基础（当前主线））：[推荐] 从 init 是 PID 1 讲起，说明 systemd 如何管守护进程、开机自启和状态监控，帮你建立“服务为什么没起来”的底层认识。 <a href="https://www.bilibili.com/video/BV1mwso6vE36" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ea3069ac082b56b18878faee8a9a7012d2ad22da" data-domain="embedded-linux-foundation" data-tags="systemd" data-title="我希望有人能这样给我解释 SystemD" data-report-date="2026-11-14">
+</div></li><li>60秒掌握Linux命令（64）journalctl（bilibili · 安的0扇区 · 嵌入式 Linux 基础（当前主线））：[可略读] 60 秒只讲四个最常用参数：-u 盯单个服务、-f 实时跟踪、-p 按级别筛错误、--since 卡时间窗，适合存成查日志的速记卡片。 <a href="https://www.bilibili.com/video/BV1RQQdB1E5C" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="f18796fee685a2c0f1468ddefb739744dfea09bf" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="60秒掌握Linux命令（64）journalctl" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>我决定2026年11月15日取消99给终生权限吧（bilibili · 余胜军说java编程 · 嵌入式 Linux 基础（当前主线））：[一般相关] 纯课程促销视频（会员 99 元涨价通知），只借用了“权限”一词命中关键词，没有任何技术内容，可跳过。 <a href="https://www.bilibili.com/video/BV1XfWk6KEbc" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="58218124a58119f0dfaca94f592155ab93c0bc1a" data-domain="embedded-linux-foundation" data-tags="权限" data-title="我决定2026年11月15日取消99给终生权限吧" data-report-date="2026-11-14">
+</div></li><li>我希望有人能这样给我解释 SystemD（bilibili · myfreax · 嵌入式 Linux 基础（当前主线））：[推荐] 从 init 是 PID 1 讲起，说明 systemd 如何接管守护进程的启动停止、开机自启与状态监控，并提到 OpenRC、runit 等替代方案，是理解“服务为什么没起来”的概念底子。 <a href="https://www.bilibili.com/video/BV1mwso6vE36" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ea3069ac082b56b18878faee8a9a7012d2ad22da" data-domain="embedded-linux-foundation" data-tags="systemd" data-title="我希望有人能这样给我解释 SystemD" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>不联网也能跑大模型？一块 RK3576 板子，NPU 双核吃满｜ytllm 开源（bilibili · 宇图瑞视 · AI大模型 + 嵌入式）：[推荐] ytllm 是跑在 RK3576/RK3588 上的开源端侧大模型平台，RKLLM + RKNN 双运行时，网页可看各 NPU 核负载、一键起 OpenAI 兼容服务，手上有瑞芯微板子可照搭。 <a href="https://www.bilibili.com/video/BV1gyWC6vEi7" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ffd4cf066177de81c2b3eb4294e1da771546cc6d" data-domain="ai-embedded" data-tags="NPU" data-title="不联网也能跑大模型？一块 RK3576 板子，NPU 双核吃满｜ytllm 开源" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>机器人的大小脑，能不能住一个屋檐下（bilibili · 问不出 · AI大模型 + 嵌入式）：[可略读] RT-Thread 提出用虚拟化在同一颗芯片上划出 AI 域与实时域，大模型推理和电机伺服隔离互不抢占，属行业动向、暂无实测数据。 <a href="https://www.bilibili.com/video/BV1P1Wq66EE3" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="e0abb46679aecfb0f115434158f92ecb7a08c2a1" data-domain="ai-embedded" data-tags="RTOS" data-title="机器人的大小脑，能不能住一个屋檐下" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>面试答不上这几条Linux命令，HR当场就知道你没摸过机器#Linux #运维面试 #服务器运维 #智算运维 #运维工程师（douyin · AI智算运维-周豪 · 嵌入式 Linux 基础（当前主线））：[一般相关] 只有“运维面试常考 Linux 命令”这一句标题，正文与画面都没有可提取内容，判断不了具体考点，暂无法利用。 <a href="https://www.douyin.com/video/7706013114554273058" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="b4b535b3969054392d286d8ac7cee71eb8fe4753" data-domain="embedded-linux-foundation" data-tags="Linux命令" data-title="面试答不上这几条Linux命令，HR当场就知道你没摸过机器#Linux #运维面试 #服务器运维 #智算运维 #运维工程师" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>嚯嘏叶占辨丝盈叭传诱时隋圊、|一键获取权限权限的工具箱来了#dirtyfrag下载教程、dirtyfrag最新版、dirtyfrag怎么下载、dirtyfrag下载网址、dirty……版本过低，升级后可展示全部信息（douyin · 7320 · 嵌入式 Linux 基础（当前主线））：[一般相关] 标题乱码的“一键获取权限工具箱”推广，内容无法核验且属提权类工具，不建议下载或运行。 <a href="https://www.douyin.com/video/7707599152822024954" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="1780659db3033da87d24cc1ee9b2261e0b34912c" data-domain="embedded-linux-foundation" data-tags="权限" data-title="嚯嘏叶占辨丝盈叭传诱时隋圊、|一键获取权限权限的工具箱来了#dirtyfrag下载教程、dirtyfrag最新版、dirtyfrag怎么下载、dirtyfrag下载网址、dirty……版本过低，升级后可展示全部信息" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>11倍提速+仅2%推理开销！MACaQ实现无跨层依赖的W4A4 MXFP4量化，大模型端到端速度超FP16三倍（bilibili · 熊二等兵）：[可略读] 把缩放与 Hadamard 变换限制在单层内在线执行、去掉跨层依赖，换来量化提速 11 倍、端到端解码仅多约 2.3% 开销，属量化落地工程思路。 <a href="https://www.bilibili.com/video/BV1FCWY6xEBr" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="13f57986482a72136d64285474e171a747ff0bc3" data-domain="" data-tags="" data-title="11倍提速+仅2%推理开销！MACaQ实现无跨层依赖的W4A4 MXFP4量化，大模型端到端速度超FP16三倍" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>上海 AI Lab &amp; 西工大发布 OpenFlyV2：端侧1B模型让无人机听懂人话、自主导航（bilibili · 视觉语言导航VLN）：[可略读] 1B 机载 VLA 在 Jetson Orin NX 上跑到 10Hz，靠运动自适应记忆与运动结构先验把单步去噪从 80ms 压到 20ms，偏研究向、暂难复用。 <a href="https://www.bilibili.com/video/BV1mXWo6iEXa" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7715811133f8db341602cbe88f2af0bb6e3f1887" data-domain="" data-tags="" data-title="上海 AI Lab &amp; 西工大发布 OpenFlyV2：端侧1B模型让无人机听懂人话、自主导航" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>AJ也想解说S16比赛，找灰灰姐要二路权限被拒，只看可能太低俗了（bilibili · 风月221 · 嵌入式 Linux 基础（当前主线））：[一般相关] 今晚能直播讲解比赛吗 我也想申请二路诶 我跟慧慧姐就是我我装逼 慧慧姐 我是见过超威这么牛逼 申请二路二路应该没什么问题吧 她跟我说不行哦 对标他都没招了 哎没招 三点开始真没招啊 之前可能太低俗了吧 他不行 他们两个不知道我的过去 可能之… <a href="https://www.bilibili.com/video/BV1Tzs36kEW8" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="5a409ffe15a501dd9f71301a69597c083d47a05b" data-domain="embedded-linux-foundation" data-tags="权限" data-title="AJ也想解说S16比赛，找灰灰姐要二路权限被拒，只看可能太低俗了" data-report-date="2026-11-14">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>嚯嘏叶占辨丝盈叭传诱时隋圊、|一键获取权限权限的工具箱来了#dirtyfrag下载教程、dirtyfrag最新版、dirtyfrag怎么下载、dirtyfrag下载网址、dirty……版本过低，升级后可展示全部信息（douyin · 喵喵喵 · 嵌入式 Linux 基础（当前主线））：[一般相关] 嚯嘏叶占辨丝盈叭传诱时隋圊、|一键获取权限权限的工具箱来了#dirtyfrag下载教程、dirtyfrag最新版、dirtyfrag怎么下载、dirtyfrag下载网址、dirty……版本过低，升级后可展示全部信息 <a href="https://www.douyin.com/video/7707619415509293019" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="fae04db02c21976cfd377324631a4d6030e5b152" data-domain="embedded-linux-foundation" data-tags="权限" data-title="嚯嘏叶占辨丝盈叭传诱时隋圊、|一键获取权限权限的工具箱来了#dirtyfrag下载教程、dirtyfrag最新版、dirtyfrag怎么下载、dirtyfrag下载网址、dirty……版本过低，升级后可展示全部信息" data-report-date="2026-11-14">
+</div></li><li>【桌面运维助手】维修人员专用 硬盘检测、CPU/显卡/内存检测、系统修复、启动管理、进程管理等，还内置了Everything文件搜索和卸载程序等。（bilibili · 光隐资源库 · 嵌入式 Linux 基础（当前主线））：[一般相关] 面向 Windows 电脑维修的本地工具箱（硬盘/CPU/内存检测、系统修复、启动与进程管理、内置 Everything），只是“进程管理”一词命中关键词，与嵌入式 Linux 主线无关，可跳过。 <a href="https://www.bilibili.com/video/BV1JpWu6QEM5" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="27122a1f4328614743ece75c2795d5fcbe200f96" data-domain="embedded-linux-foundation" data-tags="进程管理" data-title="【桌面运维助手】维修人员专用 硬盘检测、CPU/显卡/内存检测、系统修复、启动管理、进程管理等，还内置了Everything文件搜索和卸载程序等。" data-report-date="2026-11-15">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>

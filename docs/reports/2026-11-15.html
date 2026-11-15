@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="report-kind" content="normal">
+<title>2026-11-15 日报 - AI × 嵌入式 信息日报</title>
+<link rel="stylesheet" href="../assets/styles.css?v=20261115-list-fix">
+<script src="../assets/feedback-config.js?v=20261115-list-fix"></script>
+<script src="../assets/feedback.js?v=20261115-list-fix" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="../index.html">AI × 嵌入式 信息日报</a>
+    <span class="date-badge">2026-11-15</span>
+  </header>
+
+  <main class="report">
+<h1>2026-11-15 信息日报</h1>
+<blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
+<blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
+<blockquote>采集 8 条。</blockquote>
+<h2>重要内容</h2>
+<h3>【嵌入式Linux入门教程 19】RK3506 开发环境搭建与交叉编译｜从 sysroot、工具链配置到 Hello World 上板运行</h3>
+<p>bilibili · WwuSama · 嵌入式 Linux 基础（当前主线）</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1HFsE6pERR" rel="noopener noreferrer">https://www.bilibili.com/video/BV1HFsE6pERR</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：板子能跑 Hello World 之前，主机侧那套交叉编译环境到底由哪几块组成、库和头文件从哪来，即 sysroot 是什么、怎么接进工具链。</p>
+<p><strong>关键方法 / 结论</strong>：思路是先拿 sysroot 再配工具链：Buildroot 编译 SDK 时除了产出烧到板上的 rootfs，还会在 output 下产出一份 host 侧 sysroot（arm-buildroot-linux-gnu 目录），里面的 /usr 下就是板子实际带的头文件与 .so/.a 库，Qt、cURL 等已默认编进去。因为该路径很长、且重新编译 Buildroot 后内容会变，视频不直接拷贝而是用软链接指过去，这样库更新后无需重新搬一遍。后面再讲工具链如何指向这个 sysroot、以及编出 Hello World 上板运行。</p>
+<p><strong>为什么推荐</strong>：交叉编译是从“会敲 Linux 命令”跨到“能给开发板做东西”的第一道门槛，而 sysroot 正是最容易卡住的地方——库找不到、头文件版本不匹配、链接时报 undefined reference，多数根因都在这里。这条把 sysroot 的来源和软链接做法讲清楚了，正好接在你当前的嵌入式 Linux 主线上。</p>
+<p><strong>适用场景</strong>：拿到开发板、SDK 已编译完成、准备第一次写自己的程序上板时看最合适；也可当作后面往 rootfs 里加第三方库（MQTT、TFLite 之类）的前置知识。</p>
+<div class="item-fb" data-item-id="54eaa8a4a5955399c2f56dc09ba7ecadb0d47dd3" data-domain="embedded-linux-foundation" data-tags="嵌入式Linux,文件系统,交叉编译" data-title="【嵌入式Linux入门教程 19】RK3506 开发环境搭建与交叉编译｜从 sysroot、工具链配置到 Hello World 上板运行" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>Linux 运维实战 EP05：systemd 服务起不来，别急着 restart，先留现场</h3>
+<p>bilibili · Vicky_DW · 嵌入式 Linux 基础（当前主线）</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1uHu66XEE3" rel="noopener noreferrer">https://www.bilibili.com/video/BV1uHu66XEE3</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：systemd 服务启动失败时，为什么不该连着 restart，以及按什么顺序把“现场”留住再去重启验证。</p>
+<p><strong>关键方法 / 结论</strong>：核心是先取证再动手：连续 restart 会让每次失败的时间线互相叠加，原始退出码和第一次失败的现场反而被噪声盖住。要留的是三样——主进程退出码、失败发生的时间点、以及失败前最后几行日志；日志窗口要缩到故障前后十几分钟，只看最后一行常会漏掉更早的配置错误、权限问题或资源不足。再确认 systemd 实际加载的是哪份 unit 和 drop-in 覆盖配置（刚改的文件不一定就是生效的那份），若日志指向端口占用或依赖服务，就顺着那个对象继续查。最后才重启，让重启成为有依据的验证而不是碰运气。</p>
+<p><strong>为什么推荐</strong>：这条给的不是某个命令，而是一套排障顺序，属于能反复复用的方法论。嵌入式设备上服务起不来极常见，且板子往往没法随时重刷，学会先留现场能省下大量瞎试时间；它和你正在看的 journalctl、systemd 内容正好串成一条线。</p>
+<p><strong>适用场景</strong>：第一次给开发板写自启服务、或调试开机后某个守护进程没起来时直接用；也适合作为日常运维排障的检查清单。</p>
+<div class="item-fb" data-item-id="3c3ddefa5f87ab0ed9808afa2f3e1f44c02b027e" data-domain="embedded-linux-foundation" data-tags="权限,systemd" data-title="Linux 运维实战 EP05：systemd 服务起不来，别急着 restart，先留现场" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>应付公司检查，清理穿帮日志，十多年的Linux老用户被迫学习journalctl</h3>
+<p>bilibili · 飞蚊话 · 嵌入式 Linux 基础（当前主线）</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV17Lsp6ZEaW" rel="noopener noreferrer">https://www.bilibili.com/video/BV17Lsp6ZEaW</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：journalctl 到底是不是“记日志的程序”，日志究竟由谁写入、来源有哪些、又该怎么限制它占用的空间和保留时间。</p>
+<p><strong>关键方法 / 结论</strong>：关键区分是分工：真正接收并保存日志的是 systemd-journald 服务，journalctl 只是读取和查询已存日志的前端，所以它本身不产生日志。日志来源比想象的多——内核通过 kmsg 机制进来的硬件初始化与驱动加载消息（-k 看到的就是这批）、各 systemd 服务的标准输出与标准错误、syslog 接口的传统来源，以及 audit 子系统的审计记录，因此不带参数直接跑才会又全又乱。相较 /var/log 下每个程序各写各的 .log 文本，journal 是集中且带结构化字段的。视频后半段接着讲只保留一定时间该怎么设置，这部分留作动手时再看。</p>
+<p><strong>为什么推荐</strong>：把“谁写、谁读、从哪来”理清之后，前面的 -k、-u、-b 这些参数就不再是死记，而是能推出来该往哪查。嵌入式场景里日志默认多在内存、重启即丢，理解 journald 的存储与保留策略直接关系到板子 Flash 空间和掉电后还能不能查到故障。</p>
+<p><strong>适用场景</strong>：在已经会用 journalctl 基本参数之后看，用来补底层模型；等要配置日志持久化、限制 journal 体积或排查掉电后日志丢失时，再回来看保留时间的设置部分。</p>
+<div class="item-fb" data-item-id="ed59461f03cb3b0fa1ace468a84d75acf327044b" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="应付公司检查，清理穿帮日志，十多年的Linux老用户被迫学习journalctl" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h2>其他相关</h2>
+<ul><li>Linux命令精讲之dmesg/journalctl（系统日志）（bilibili · 全栈二把刀 · 嵌入式 Linux 基础（当前主线））：[可略读] dmesg 管内核环形缓冲区（硬件检测、驱动加载、磁盘识别），journalctl 管 systemd 统一日志，含 -k、--since/--until、-f、--vacuum 等参数——昨天已按 important 精读过，今天可当参数速查表复核一遍。 <a href="https://www.bilibili.com/video/BV1Pq8B64ExD" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="93fb1cc92992eae659c017886b596d161c5a7494" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="Linux命令精讲之dmesg/journalctl（系统日志）" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>Linux命令之journalctl（bilibili · 全栈二把刀 · 嵌入式 Linux 基础（当前主线））：[可略读] 用侦探查案的比喻讲 journalctl 的由来（从分散的 messages/secure 到 systemd 统一日志数据库）和 -k、-b、-u 的基本用法，入门友好但参数密度低，昨天已收录。 <a href="https://www.bilibili.com/video/BV1KHEt6qEgw" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c81cc9d4fa45407f0c821bd78ca2f77a828306d5" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="Linux命令之journalctl" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>60秒掌握Linux命令（64）journalctl（bilibili · 安的0扇区 · 嵌入式 Linux 基础（当前主线））：[可略读] 60 秒只讲四个最常用参数：-u 盯单个服务、-f 实时跟踪、-p 按级别筛错误、--since 卡时间窗，适合存成查日志的速记卡片。 <a href="https://www.bilibili.com/video/BV1RQQdB1E5C" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="f18796fee685a2c0f1468ddefb739744dfea09bf" data-domain="embedded-linux-foundation" data-tags="Linux命令,journalctl" data-title="60秒掌握Linux命令（64）journalctl" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>我希望有人能这样给我解释 SystemD（bilibili · myfreax · 嵌入式 Linux 基础（当前主线））：[推荐] 从 init 是 PID 1 讲起，说明 systemd 如何接管守护进程的启动停止、开机自启与状态监控，并提到 OpenRC、runit 等替代方案，是理解“服务为什么没起来”的概念底子。 <a href="https://www.bilibili.com/video/BV1mwso6vE36" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ea3069ac082b56b18878faee8a9a7012d2ad22da" data-domain="embedded-linux-foundation" data-tags="systemd" data-title="我希望有人能这样给我解释 SystemD" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>【桌面运维助手】维修人员专用 硬盘检测、CPU/显卡/内存检测、系统修复、启动管理、进程管理等，还内置了Everything文件搜索和卸载程序等。（bilibili · 光隐资源库 · 嵌入式 Linux 基础（当前主线））：[一般相关] 面向 Windows 电脑维修的本地工具箱（硬盘/CPU/内存检测、系统修复、启动与进程管理、内置 Everything），只是“进程管理”一词命中关键词，与嵌入式 Linux 主线无关，可跳过。 <a href="https://www.bilibili.com/video/BV1JpWu6QEM5" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="27122a1f4328614743ece75c2795d5fcbe200f96" data-domain="embedded-linux-foundation" data-tags="进程管理" data-title="【桌面运维助手】维修人员专用 硬盘检测、CPU/显卡/内存检测、系统修复、启动管理、进程管理等，还内置了Everything文件搜索和卸载程序等。" data-report-date="2026-11-15">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<blockquote>AI 结论仅用于选题和分级；视频事实请以原视频为准。</blockquote>
+<div class="key-modal" id="key-modal" hidden>
+  <div class="key-modal-backdrop"></div>
+  <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <h3 id="key-modal-title">输入反馈密钥</h3>
+    <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
+    <form id="key-form" novalidate>
+      <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
+      <div class="key-modal-actions">
+        <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
+        <button type="submit" class="pref-btn pref-up">确定</button>
+      </div>
+    </form>
+  </div>
+</div>
+  </main>
+  <footer class="site-footer">
+    <p>时区 Asia/Shanghai · 内容由本地采集与汇总流程生成</p>
+  </footer>
+</div>
+</body>
+</html>

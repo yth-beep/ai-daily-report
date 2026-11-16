@@ -1037,6 +1037,13 @@ python scripts/validate_ai_report.py --date YYYY-MM-DD
 
 日常运行不依赖 DSH 模型；主要持续性成本是本机电费、平台风控概率、WorkBuddy 当前模型用量，以及 GitHub/Cloudflare 的免费额度边界。
 
+### 20.4 发布失败自动恢复
+
+- `run_task.ps1` 每次运行会读取 Clash Verge 当前的 `mixed-port`，只有该本机端口实际可连接时才设置 `HTTP_PROXY / HTTPS_PROXY / ALL_PROXY`；避免任务继承已经失效的旧代理端口。
+- 状态文件 `state/logs/last-*.json` 会记录本次使用 `direct` 还是具体本机代理。
+- 三个 Windows 计划任务均配置为失败后每 5 分钟重试，最多 3 次。重跑只读取已生成草稿和本地数据，不会重新调用 WorkBuddy 模型。
+- 2026-11-16 的实际故障是 Clash 在 22:00 尚未恢复，导致本地 commit 已生成而 `git push` 失败；任务现具备等待代理恢复的能力，并已用真实 task wrapper 验证第三次补跑经 `127.0.0.1:7897` 发布成功。
+
 ---
 
 ## 21. 最近 7 天滚动去重与 AI 主题配额（2026-11-16）

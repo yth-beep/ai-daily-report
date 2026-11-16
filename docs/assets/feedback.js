@@ -172,6 +172,15 @@
     }
   }
 
+  function applyChoiceToItem(itemId, delta) {
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if ((row.getAttribute("data-item-id") || "") === itemId) {
+        setChoice(row, delta === 1 || delta === -1 ? delta : null);
+      }
+    }
+  }
+
   function loadSavedStates() {
     var key = getKey();
     if (!key) return;
@@ -248,7 +257,7 @@
               };
             }
             saveLocalState(itemState);
-            setChoice(row, delta === 1 || delta === -1 ? delta : null);
+            applyChoiceToItem(itemId, delta);
             return;
           }
           if (r.status === 401) {

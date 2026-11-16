@@ -29,6 +29,7 @@ E:\大学\项目\
 │   ├── assets/styles.css          浅色响应式样式，手机端可读
 │   ├── assets/feedback-config.js  反馈后端地址配置（apiUrl 占位，不写密钥）
 │   ├── assets/feedback.js         加重/减轻/清除、状态恢复与后端调用
+│   ├── assets/table-view.js       桌面表格视图（手机继续使用原文本布局）
 │   ├── reports/YYYY-MM-DD.html    每日历史网页（固定日期归档）
 │   ├── reports/latest.html        最新日报稳定页（每日覆盖）
 │   └── reports/index.html         /reports/ 稳定入口，自动跳到 latest.html
@@ -302,11 +303,12 @@ python scripts/regression_test.py
 
 ### 11.6 定时任务（`install_tasks.ps1`）
 
-三个 Windows 任务指向生产入口：
+四个 Windows 任务负责生产入口与代理守护：
 
 - `DailyReport-Boot`：登录 + 5 分钟 → `run_boot.py`
 - `DailyReport-Collect`：每天 20:30 → `collect.py`，采集后生成 WorkBuddy AI 输入
 - `DailyReport-Nightly`：每天 22:00 → `run_nightly.py`
+- `DailyReport-Proxy`：登录 + 1 分钟、每天 21:45 → 确保 Clash Verge 的 `mixed-port` 已监听
 
 WorkBuddy 自己的定时任务在每天 21:30 读取输入并生成 AI 结构化草稿。脚本解析绝对 Python/Git 路径；`-Apply` 注册任务，`-EnablePublish` 才允许真实提交推送。任务包装器会记录日志并显式使用 Git 路径，避免非交互任务环境找不到 Git。
 
@@ -849,7 +851,7 @@ score = base_score + adjustment
 python scripts/regression_test_stage8.py      # 90 项
 ```
 
-覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变；同一内容只按最后一次选择、清除标记、历史保留、聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/清除按钮/状态恢复/多行列表续行/无标记泄漏/幂等）；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 51 项（含 `feedback-events`、last-wins 与 clear）。当前 stage8 为 104 项。
+覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变；同一内容只按最后一次选择、清除标记、历史保留、聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/清除按钮/状态恢复/多行列表续行/无标记泄漏/幂等）；桌面表格与手机文本双布局；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 51 项（含 `feedback-events`、last-wins 与 clear）。当前 stage8 为 107 项。
 
 ---
 
@@ -1041,8 +1043,15 @@ python scripts/validate_ai_report.py --date YYYY-MM-DD
 
 - `run_task.ps1` 每次运行会读取 Clash Verge 当前的 `mixed-port`，只有该本机端口实际可连接时才设置 `HTTP_PROXY / HTTPS_PROXY / ALL_PROXY`；避免任务继承已经失效的旧代理端口。
 - 状态文件 `state/logs/last-*.json` 会记录本次使用 `direct` 还是具体本机代理。
-- 三个 Windows 计划任务均配置为失败后每 5 分钟重试，最多 3 次。重跑只读取已生成草稿和本地数据，不会重新调用 WorkBuddy 模型。
+- `DailyReport-Proxy` 在登录后 1 分钟和每天 21:45 检查 Clash；端口未启动时会启动已安装的 Clash Verge 并等待最多 90 秒。
+- Boot/Collect/Nightly 失败后每 5 分钟重试，最多 3 次；Proxy 自身失败后每 1 分钟重试，最多 3 次。重跑只读取已生成草稿和本地数据，不会重新调用 WorkBuddy 模型。
 - 2026-11-16 的实际故障是 Clash 在 22:00 尚未恢复，导致本地 commit 已生成而 `git push` 失败；任务现具备等待代理恢复的能力，并已用真实 task wrapper 验证第三次补跑经 `127.0.0.1:7897` 发布成功。
+
+### 20.5 桌面表格 / 手机文本双布局
+
+- 浏览器宽度 `>= 900px` 时显示桌面表格：级别、标题与来源、推荐、核心内容、视频、我的调整六列；长结论可展开。
+- 浏览器宽度 `< 900px` 时继续显示原来的长文本日报，不改变手机保存入口和逐条反馈操作。
+- 两种布局从同一份报表 DOM 生成，不增加接口请求、不复制后端逻辑；桌面提交反馈会同步更新同一内容的隐藏手机行，刷新后状态仍由后端恢复。
 
 ---
 

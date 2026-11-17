@@ -303,12 +303,11 @@ python scripts/regression_test.py
 
 ### 11.6 定时任务（`install_tasks.ps1`）
 
-四个 Windows 任务负责生产入口与代理守护：
+三个 Windows 任务负责生产入口：
 
 - `DailyReport-Boot`：登录 + 5 分钟 → `run_boot.py`
 - `DailyReport-Collect`：每天 20:30 → `collect.py`，采集后生成 WorkBuddy AI 输入
 - `DailyReport-Nightly`：每天 22:00 → `run_nightly.py`
-- `DailyReport-Proxy`：登录 + 1 分钟、每天 21:45 → 确保 Clash Verge 的 `mixed-port` 已监听
 
 WorkBuddy 自己的定时任务在每天 21:30 读取输入并生成 AI 结构化草稿。脚本解析绝对 Python/Git 路径；`-Apply` 注册任务，`-EnablePublish` 才允许真实提交推送。任务包装器会记录日志并显式使用 Git 路径，避免非交互任务环境找不到 Git。
 
@@ -1039,13 +1038,10 @@ python scripts/validate_ai_report.py --date YYYY-MM-DD
 
 日常运行不依赖 DSH 模型；主要持续性成本是本机电费、平台风控概率、WorkBuddy 当前模型用量，以及 GitHub/Cloudflare 的免费额度边界。
 
-### 20.4 发布失败自动恢复
+### 20.4 发布失败重试
 
-- `run_task.ps1` 每次运行会读取 Clash Verge 当前的 `mixed-port`，只有该本机端口实际可连接时才设置 `HTTP_PROXY / HTTPS_PROXY / ALL_PROXY`；避免任务继承已经失效的旧代理端口。
-- 状态文件 `state/logs/last-*.json` 会记录本次使用 `direct` 还是具体本机代理。
-- `DailyReport-Proxy` 在登录后 1 分钟和每天 21:45 检查 Clash；端口未启动时会启动已安装的 Clash Verge 并等待最多 90 秒。
-- Boot/Collect/Nightly 失败后每 5 分钟重试，最多 3 次；Proxy 自身失败后每 1 分钟重试，最多 3 次。重跑只读取已生成草稿和本地数据，不会重新调用 WorkBuddy 模型。
-- 2026-11-16 的实际故障是 Clash 在 22:00 尚未恢复，导致本地 commit 已生成而 `git push` 失败；任务现具备等待代理恢复的能力，并已用真实 task wrapper 验证第三次补跑经 `127.0.0.1:7897` 发布成功。
+- Boot/Collect/Nightly 失败后每 5 分钟重试，最多 3 次。重跑只读取已生成草稿和本地数据，不会重新调用 WorkBuddy 模型。
+- Clash/代理由用户自行管理，本项目的脚本和计划任务不会启动、停止或修改代理软件，也不会主动读取代理端口配置。
 
 ### 20.5 桌面表格 / 手机文本双布局
 

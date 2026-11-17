@@ -1,110 +1,71 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-latest-report="2026-11-16" data-latest-hash="c5373da9d7054902">
+<html lang="zh-CN" data-latest-report="2026-11-17" data-latest-hash="1a13837f94d34d03">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="report-kind" content="normal">
-<title>2026-11-16 日报 - AI × 嵌入式 信息日报</title>
+<title>2026-11-17 日报 - AI × 嵌入式 信息日报</title>
 <link rel="stylesheet" href="../assets/styles.css?v=20261116-desktop-table">
 <script src="../assets/feedback-config.js?v=20261116-desktop-table"></script>
 <script src="../assets/table-view.js?v=20261116-desktop-table" defer></script>
 <script src="../assets/feedback.js?v=20261116-desktop-table" defer></script>
-<meta name="report-latest-date" content="2026-11-16">
+<meta name="report-latest-date" content="2026-11-17">
 <meta name="report-latest-stable" content="true">
 </head>
 <body>
 <div class="wrap">
-  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-16 日报 · 每日 22:00 自动更新</div>
+  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-17 日报 · 每日 22:00 自动更新</div>
   <header class="site-header">
     <a class="brand" href="../index.html">AI × 嵌入式 信息日报</a>
-    <span class="date-badge">2026-11-16</span>
+    <span class="date-badge">2026-11-17</span>
   </header>
 
   <main class="report">
-<h1>2026-11-16 信息日报</h1>
+<h1>2026-11-17 信息日报</h1>
 <blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
 <blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
-<blockquote>采集 11 条。</blockquote>
+<blockquote>采集 5 条（另过滤 1 条不相关内容）。</blockquote>
 <h2>重要内容</h2>
-<h3>01_端侧AI、边缘AI、嵌入式AI和TinyML到底有什么区别</h3>
-<p>bilibili · 端侧AI贺老师 · AI大模型 + 嵌入式</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1kGH76CEnJ" rel="noopener noreferrer">https://www.bilibili.com/video/BV1kGH76CEnJ</a></p>
-<p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：同一块设备被不同文章分别叫成端侧 AI、边缘 AI、嵌入式 AI、TinyML，到底按什么标准判断它其实属于哪一类。</p>
-<p><strong>关键方法 / 结论</strong>：判断依据是三个维度：部署位置（模型真正执行计算的那颗芯片在哪）、硬件资源（可用存储、内存、算力与功耗预算）、应用边界（它负责哪一步、哪些功能要别的设备协作）。关键动作是追踪“真正跑模型计算的位置”，而不是看设备离人有多近——设备在手里、模型在云端，那仍算云端推理。视频用一条产线把四个概念串起来：传感器旁的 STM32 做异常初筛属于端侧 AI；因为它集成进监测产品、受产品硬件与运行条件约束，同时属于嵌入式 AI；若按小内存低功耗实现，就落进 TinyML 的讨论范围；网关汇总多台设备数据、在现场做分析，体现的是边缘 AI 的“靠近数据产生处”。后面才进入模型训练与单片机部署。</p>
-<p><strong>为什么推荐</strong>：这四个词在招聘 JD、芯片选型和课程大纲里被混用得很厉害，先立起这套判断框架，后面看任何端侧部署方案都能立刻分清“它说的边缘是指网络位置还是算力档位”，也才知道自己项目该按哪一类的资源约束去设计。对“AI大模型+嵌入式”方向来说，这是最省后续返工的一块地基，比直接抄一份部署教程更值。</p>
-<p><strong>适用场景</strong>：现在就能看，属于入门第一课。适合放在准备端侧项目选型（要不要上 NPU、模型压到多少参数、算法放设备还是放网关）之前；也适合在读开发板与芯片宣传页时用来做交叉验证。</p>
-<div class="item-fb" data-item-id="7339dbc800c3e84bc32f06083bb8fea80f5cfc66" data-domain="ai-embedded" data-tags="端侧AI,边缘AI,TinyML,嵌入式AI,单片机,STM32" data-title="01_端侧AI、边缘AI、嵌入式AI和TinyML到底有什么区别" data-url="https://www.bilibili.com/video/BV1kGH76CEnJ" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div>
-<h3>03_TinyML不是用来替代所有传统算法的</h3>
-<p>bilibili · 端侧AI贺老师 · AI大模型 + 嵌入式</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1RBpE6BE6X" rel="noopener noreferrer">https://www.bilibili.com/video/BV1RBpE6BE6X</a></p>
-<p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：单片机能跑模型之后，原来的阈值判断、状态机、PID 到底还要不要留，哪些任务该交给规则、哪些才值得上小模型。</p>
-<p><strong>关键方法 / 结论</strong>：按任务性质分工，而不是按“新旧”取舍。判断依据能写清楚的（温度超上限报警、限位开关触发停机）用比较加状态记录就够，其中“上限与恢复阈值之间留一段间隔”的迟滞设计，可以避免被测量在边界附近波动时反复切换；控制目标明确的（转速跟随设定值）交给 PID，没必要为了用 AI 把已经满足要求的成熟控制环整体换掉；只有“听声音判断有没有异常摩擦”这类复杂模式识别，才是小模型的候选任务。方法演进顺序是单阈值 → 多条件规则 → 人工特征（如频谱特定频段的能量或峰值）→ TinyML 模型，这是可选的复杂度阶梯，不要求每个项目都走到最后一格。模型输出还要再经一层逻辑映射才能变成系统事件，最后用项目评审清单比较实际效果、资源占用与维护成本，再决定引入模型有没有收益。</p>
-<p><strong>为什么推荐</strong>：这条纠正的是端侧 AI 最常见的误用——以为上了模型就该替掉所有规则。工程上规则的可解释、可测试、执行时间与资源可控是不可替代的优势，模型只该啃规则啃不动的部分。你之后做电机监测、传感器异常判断这类题目时，这套分工能直接避免做出“黑盒且不稳、出了问题说不清”的方案。</p>
-<p><strong>适用场景</strong>：在已经跑通一次单片机推理、开始设计真实项目的判断逻辑时看最有价值；也可作为方案评审或毕设开题时的对照清单，逐项问“这一段现有规则在哪些真实输入上会失败”。</p>
-<div class="item-fb" data-item-id="c7040d197c3837c33ca970259172f6b342cb1917" data-domain="ai-embedded" data-tags="TinyML,单片机" data-title="03_TinyML不是用来替代所有传统算法的" data-url="https://www.bilibili.com/video/BV1RBpE6BE6X" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div>
-<h3>单片机项目ADC乱飙你还限幅滤波？</h3>
-<p>bilibili · 单片机编程六哥 · AI大模型 + 嵌入式</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1eBWe6mEug" rel="noopener noreferrer">https://www.bilibili.com/video/BV1eBWe6mEug</a></p>
+<h3>架上一个 ESP32 摄像头，识别猫咪去了哪个猫砂盆</h3>
+<p>bilibili · 电磁波Studio · AI大模型 + 嵌入式</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1gtsr6aEgR" rel="noopener noreferrer">https://www.bilibili.com/video/BV1gtsr6aEgR</a></p>
 <p><strong>推荐等级</strong>：推荐</p>
-<p><strong>核心问题</strong>：单片机 ADC 读数乱跳时，为什么上手就加限幅滤波是错的，正确的排查顺序是什么。</p>
-<p><strong>关键方法 / 结论</strong>：把动作排成“先查硬件、再谈算法”。第一步用示波器看 VDDA 供电与 VREF 基准的实际纹波，确认基准源和调理电路本身的噪声水平，而不是相信手册标称值；第二步做阻抗匹配，按信号源输出阻抗与 ADC 采样保持网络的匹配关系去定采样时间与采样周期，采样时间选短了读数必然飘；第三步才进软件——用定时器触发采样拿到等间隔的高速数据，做过采样与抽取把有效位数抬上去；最后按噪声特征选滤波器，工频干扰用陷波、偶发尖峰用中值、随机噪声才轮到卡尔曼，而不是一律“求平均+限幅”。归纳成三条硬要求就是：基准与供电必须实测、过采样与抽取要会、滤波器要按噪声类型分工。具体参数需按自己的板子实测决定，视频没有直接给数值。</p>
-<p><strong>为什么推荐</strong>：这是少数把“硬件先行”讲明白的实操内容，而 ADC 是端侧设备拿数据的入口——采样不可靠，后面模型再好也是在喂噪声。你主线虽然在 Linux 侧，但传感器数据从 ADC、I2C 进来这一段绕不开，这套排查顺序可以原样迁移到任何采集链路上，属于学会一次到处能用。</p>
-<p><strong>适用场景</strong>：做传感器采集、电压电流监测，或调试“读数抖动、偶发野值、滤波后仍有毛刺”时直接照这个顺序走；也适合当作硬件调试检查表存档，接在 I2C 外设调试之后。</p>
-<div class="item-fb" data-item-id="89cb7e7a18f2f6149f4d91a0ce5a1eaa6d8a1031" data-domain="ai-embedded" data-tags="单片机" data-title="单片机项目ADC乱飙你还限幅滤波？" data-url="https://www.bilibili.com/video/BV1eBWe6mEug" data-report-date="2026-11-16">
+<p><strong>核心问题</strong>：想让设备“看懂”画面里的行为（哪只猫用了哪个盆、待了多久），端侧摄像头这一层该承担多少计算，视觉模型究竟放在哪一头。</p>
+<p><strong>关键方法 / 结论</strong>：架构是分层而不是“把大模型塞进 MCU”。ESP32 摄像头只负责采集与推流，实测 15~16 fps，日常观看足够流畅；旁边一块 ESP32 小屏当取景框方便调角度，桌面屏显示实时画面与统计结果。真正的“理解行为”交给 MiniCPM-V 4.7 这类 35B 总参 / 3B 激活的视觉理解模型，由它判断画面里有没有猫、在哪只盆前逗留多久，再按天汇总成“哪只猫、去了几次、哪个盆”的表。关键判断点就在模型体量上——35B 级的 MoE 视觉模型不可能跑在 ESP32 上，所以这条链路本质是“端侧采集 + 侧端/云侧推理”的端云协同，不是纯端侧推理；作者把代码开源在 letterbox vision 仓库。</p>
+<p><strong>为什么推荐</strong>：这是当天唯一一条走完整闭环的真实项目：采集 → 传输 → 视觉理解 → 结构化统计，正好回答你方向里最容易含糊的问题——大模型和单片机各自该干什么。把链路拆开就能得到一个可复用模板：MCU 管时序与采集，语义理解放在有算力的那一端，中间只传必要数据。</p>
+<p><strong>适用场景</strong>：做摄像头类、行为识别类端侧项目（毕设、智能家居、宠物或老人看护）时当架构参考；也可以拿它来校自己的算力预算：先估模型要多少内存与算力，再决定推理放板上还是放网关或服务器。</p>
+<div class="item-fb" data-item-id="8491de5bf5af75c2023b148fc65e6881bdea8097" data-domain="ai-embedded" data-tags="ESP32" data-title="架上一个 ESP32 摄像头，识别猫咪去了哪个猫砂盆" data-url="https://www.bilibili.com/video/BV1gtsr6aEgR" data-report-date="2026-11-17">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>还在纠结选 ESP32 还是 STM32？</h3>
+<p>bilibili · 软妹不能玩单片机吗 · AI大模型 + 嵌入式</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1cbsg6hEpg" rel="noopener noreferrer">https://www.bilibili.com/video/BV1cbsg6hEpg</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：入门阶段在 ESP32 和 STM32 之间怎么选，才不会学到一半才发现方向错了，或者先被前期的门槛劝退。</p>
+<p><strong>关键方法 / 结论</strong>：作者把两者讲成两条互补的路而不是对立的两派，并给出可操作的三条选择标准。ESP32 自带 WiFi 与蓝牙，Arduino、MicroPython、ESP-IDF 三套开发方式都能用，一周内就能做出可演示的东西，代价是运行功耗偏高、实时性只够基础控制，精密电机控制别硬上；STM32 外设丰富（多路定时器、USB OTG 等）、中断响应快、实时性强，是电机控制、机器人、工业现场的主场，也有专门的超低功耗系列，但多数型号不带无线、需外接模块，HAL 库与寄存器这一关是主要劝退点。标准是：想先拿到成就感、项目主线要联网上云、编程底子薄想先用 Python 跑起来 → 选 ESP32；想把底层（时钟树、中断、外设）吃透、目标岗位写的就是车载/工控/电机驱动、毕设偏控制类且时序严格 → 选 STM32。另有一句值得记住：带 PSRAM 与向量指令的 ESP32-S3 已能做摄像头、离线语音、轻量模型部署，是通向 AIoT 最近的一条路。</p>
+<p><strong>为什么推荐</strong>：你现在正处在“先啃哪块板子”的决策点上，这条把两者的能力边界和劝退点都摆到明面，能避开“学两周灯都没点亮就放弃”的常见坑。对你 AI大模型+嵌入式的方向更有用的是后半段——它把 ESP32-S3 标成端侧轻量模型的低成本入口，STM32 线通向电机与工控，这正好是选端侧项目载体时要做的取舍。</p>
+<p><strong>适用场景</strong>：现在就能看，属于买板子、定学习顺序之前的选型参考。适合用来给自己排一个“先用 ESP32 出成果、再回头补 STM32 底层”的顺序；毕设选题偏控制类时，也用它判断该不该直接上 STM32。</p>
+<div class="item-fb" data-item-id="ed78de9f4f05f80218141751eac307051c3bec9d" data-domain="ai-embedded" data-tags="ESP32,STM32,模型部署" data-title="还在纠结选 ESP32 还是 STM32？" data-url="https://www.bilibili.com/video/BV1cbsg6hEpg" data-report-date="2026-11-17">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
 <h2>其他相关</h2>
-<ul><li>不联网，STM32也能AI对话，还能用自然语言控制硬件！（bilibili · 端侧AI贺老师 · AI大模型 + 嵌入式）：[推荐] STM32H743 上跑约 300 万参数的 transformer 做本地对话与自然语言控硬件（开关 LED、蜂鸣器响三次、开摄像头、读六轴），电脑只做串口收发不参与计算、全程无云端调用——可当作“端侧 LLM 到底能小到什么程度”的事实锚点，注意本质是开发板课程导流，看演示别急着下单。 <a href="https://www.bilibili.com/video/BV1cfsL6LEX2" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="3dbab4f3428bddec06adf53f03506e98c4e0ba15" data-domain="ai-embedded" data-tags="LLM,端侧AI,单片机,ESP32,STM32" data-title="不联网，STM32也能AI对话，还能用自然语言控制硬件！" data-url="https://www.bilibili.com/video/BV1cfsL6LEX2" data-report-date="2026-11-16">
+<ul><li>学Linux命令老写错怎么办（bilibili · 运维凯哥-面试陪跑 · 嵌入式 Linux 基础（当前主线））：[推荐] 一个很典型的 cd 打错现场：进网卡配置目录时漏了空格、sysconfig 少写一个 o、scripts 少写一个 p，解决办法是全程用 Tab 自动补全而不是手敲全称——对当前 Linux 基础主线是顺手就能改掉的习惯，深度有限，两分钟看完即可。 <a href="https://www.bilibili.com/video/BV1CEsM6bEqJ" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7c10da8ca6aaf35d523330e2b5d209c09b65c65b" data-domain="embedded-linux-foundation" data-tags="Linux命令" data-title="学Linux命令老写错怎么办" data-url="https://www.bilibili.com/video/BV1CEsM6bEqJ" data-report-date="2026-11-17">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>嵌入式 Linux 和单片机有什么区别？#Linux#单片机#嵌入式开发#干货#核心板（bilibili · 武汉万象奥科 · AI大模型 + 嵌入式）：[一般相关] 140 字把选型差异说清：单片机裸机或 RTOS 跑单程序、资源小功耗低响应快、适合简单控制；嵌入式 Linux 能跑完整操作系统、支持多任务与文件系统、适合要联网和复杂逻辑的设备，结论是“按项目需求选，不是哪个更好”——观点对但极浅，结尾为核心板厂商导流，记这一句结论即可。 <a href="https://www.bilibili.com/video/BV15ssp6QEpX" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ece072187d8aa4014df5b86f0e470c5d42175af9" data-domain="ai-embedded" data-tags="嵌入式Linux,文件系统,单片机,RTOS" data-title="嵌入式 Linux 和单片机有什么区别？#Linux#单片机#嵌入式开发#干货#核心板" data-url="https://www.bilibili.com/video/BV15ssp6QEpX" data-report-date="2026-11-16">
+</div></li><li>【嵌入式】从零开始学“嵌入式”全套教程（2026新手入门实用版）纯干货无废话！从C语言编程»C51»STM32»RTOS»Linux»项目实战！带你少走弯路！（bilibili · 完转嵌入式 · AI大模型 + 嵌入式）：[一般相关] 13 个月打磨的“嵌入式全套教程”宣传片：真正有用的只有一张路线图（C语言 → C51 → STM32/RTOS → Linux 系统编程与驱动 → C++/数据库/Qt，配智能温控风扇、机器狗、物联网环境监测网关、车载中控等实战），没有任何具体知识点，结尾是“评论扣 666 领几十 G 资料”的导流——阶段的先后顺序可以当目录参考，内容本身不值得花时间。 <a href="https://www.bilibili.com/video/BV1wnsK6nEQH" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="d0b0882218573b14b1587813836cf352567711ba" data-domain="ai-embedded" data-tags="Linux基础,C语言,MCU,单片机,RTOS,STM32" data-title="【嵌入式】从零开始学“嵌入式”全套教程（2026新手入门实用版）纯干货无废话！从C语言编程»C51»STM32»RTOS»Linux»项目实战！带你少走弯路！" data-url="https://www.bilibili.com/video/BV1wnsK6nEQH" data-report-date="2026-11-17">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>STM32单片机汽车雨刮器（雨刷）控制毕业设计：Proteus仿真+源程序（bilibili · 学霸单片机 · AI大模型 + 嵌入式）：[可略读] STM32 + LCD1602 + ULN2003 驱动步进电机的雨刮器 Proteus 仿真，低/中/高三档转速与停止状态切换，代码为 C（GPIO 初始化、按键扫描、延时、步进电机正反转码值），属典型毕设演示，与当前 Linux 主线无关，将来需要 Proteus 仿真套路时可回来翻。 <a href="https://www.bilibili.com/video/BV1z5sp6bE48" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c0c24e4386a400081eac39075cabb3169ea51523" data-domain="ai-embedded" data-tags="GPIO,单片机,STM32" data-title="STM32单片机汽车雨刮器（雨刷）控制毕业设计：Proteus仿真+源程序" data-url="https://www.bilibili.com/video/BV1z5sp6bE48" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>【2027单片机毕设】基于STM32的智能药盒 定时吃药提醒 定时杀菌 无线通信 app控制  esp8266 wifi 物联网毕设（bilibili · 单片机软硬件定制 · AI大模型 + 嵌入式）：[可略读] ESP8266 + STM32 智能药盒实物演示：温湿度与称重阈值判断、定时语音提醒、杀菌灯与风扇继电器控制、App 远程改阈值并切自动模式，功能覆盖广但技术栈停在“模块拼接+阈值报警”，可当毕设功能清单参考，与端侧 AI 无实质关系。 <a href="https://www.bilibili.com/video/BV1mNsP6QEqm" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="000f0c0212480f800b5a1f82b9c1598d7491501c" data-domain="ai-embedded" data-tags="单片机,STM32" data-title="【2027单片机毕设】基于STM32的智能药盒 定时吃药提醒 定时杀菌 无线通信 app控制 esp8266 wifi 物联网毕设" data-url="https://www.bilibili.com/video/BV1mNsP6QEqm" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>你他妈管刷个系统叫学嵌入式Linux？（bilibili · 单片机开发-六哥 · 嵌入式 Linux 基础（当前主线））：[一般相关] 通篇情绪化输出，实质只留下三个方向性关键词——GPIO 子系统、platform 设备树绑定、驱动 probe 流程，一个都没展开，实际价值接近一份待查清单；可按需只取这三个词去搜正经资料，视频本身不必看。 <a href="https://www.bilibili.com/video/BV1sfWe6PEnM" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="0b2043b74c5ccb06d7019fb5605e783257cb1261" data-domain="embedded-linux-foundation" data-tags="嵌入式Linux,C语言,GPIO" data-title="你他妈管刷个系统叫学嵌入式Linux？" data-url="https://www.bilibili.com/video/BV1sfWe6PEnM" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>Linux命令与Windows PowerShell命令同时使用（bilibili · DiscoveryJourney · 嵌入式 Linux 基础（当前主线））：[可略读] Linux 与 PowerShell 命令的概念对照课（ls 对 dir、pwd 对 Get-Location、hostname/ipconfig 之类），但主体是课程导言和“为什么该学命令行”的动员，真正的命令对照密度很低；已在用 Git Bash 或 WSL 的话可跳过，需要 Windows 侧速查时再回来看。 <a href="https://www.bilibili.com/video/BV1LQxR67E9i" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="2e331ac69749292aaa3e0c7e7a451c69babab1f8" data-domain="embedded-linux-foundation" data-tags="Linux命令" data-title="Linux命令与Windows PowerShell命令同时使用" data-url="https://www.bilibili.com/video/BV1LQxR67E9i" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>H32基于51单片机四路电压采集报警器proteus设计，keil程序，c语言，AT89C51，课题设计，设计报告（bilibili · Proteus单片机 · 嵌入式 Linux 基础（当前主线））：[一般相关] 51 单片机四路电压采集加四伏超限报警的 Proteus 仿真，按键切通道、数码管显示对应通道电压、超阈值点亮报警灯，规模很小，属入门课设演示，与当前主线关系弱。 <a href="https://www.bilibili.com/video/BV14ysw67EPM" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="32ba22a40c805ded625c4fba061e55ea15a4415f" data-domain="embedded-linux-foundation" data-tags="C语言,单片机" data-title="H32基于51单片机四路电压采集报警器proteus设计，keil程序，c语言，AT89C51，课题设计，设计报告" data-url="https://www.bilibili.com/video/BV14ysw67EPM" data-report-date="2026-11-16">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>云计算与分布式系统-番外篇：Linux基础操作（bilibili · 程序员熊老师 · 嵌入式 Linux 基础（当前主线））：[可略读] 把 Linux 从“终端到底是什么”讲起：目录为何是树形、文件分文本与二进制、GCC 编译后 Linux 下可执行文件不靠后缀、再往下到查找、权限、进程；脉络完整但每点都很浅，且是云计算课临时插的番外，适合零基础时一次性扫盲，现在看性价比一般。 <a href="https://www.bilibili.com/video/BV1aYsw6RE5q" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7ff31b870666d5eea3be6cc42742c36fcce60bfe" data-domain="embedded-linux-foundation" data-tags="Linux基础,权限,C语言,GCC" data-title="云计算与分布式系统-番外篇：Linux基础操作" data-url="https://www.bilibili.com/video/BV1aYsw6RE5q" data-report-date="2026-11-16">
+</div></li><li>26届应届生在深圳上班的第四十天#嵌入式#单片机#linux#26届应届生（bilibili · DIY机器人工房 · AI大模型 + 嵌入式）：[一般相关] 26 届应届生在深圳上班第四十天的 vlog，字幕只有歌词、没有任何技术信息，只能确认作者在深圳做嵌入式/单片机方向——当行业情绪参考看一眼即可，无学习价值。 <a href="https://www.bilibili.com/video/BV1vusA6cEWb" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="eb834d90ef838e45c8addb4d7c8cbcc9a868a3c3" data-domain="ai-embedded" data-tags="单片机" data-title="26届应届生在深圳上班的第四十天#嵌入式#单片机#linux#26届应届生" data-url="https://www.bilibili.com/video/BV1vusA6cEWb" data-report-date="2026-11-17">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>

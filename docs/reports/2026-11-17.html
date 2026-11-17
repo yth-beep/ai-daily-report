@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="report-kind" content="normal">
+<title>2026-11-17 日报 - AI × 嵌入式 信息日报</title>
+<link rel="stylesheet" href="../assets/styles.css?v=20261116-desktop-table">
+<script src="../assets/feedback-config.js?v=20261116-desktop-table"></script>
+<script src="../assets/table-view.js?v=20261116-desktop-table" defer></script>
+<script src="../assets/feedback.js?v=20261116-desktop-table" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="../index.html">AI × 嵌入式 信息日报</a>
+    <span class="date-badge">2026-11-17</span>
+  </header>
+
+  <main class="report">
+<h1>2026-11-17 信息日报</h1>
+<blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
+<blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
+<blockquote>采集 5 条（另过滤 1 条不相关内容）。</blockquote>
+<h2>重要内容</h2>
+<h3>架上一个 ESP32 摄像头，识别猫咪去了哪个猫砂盆</h3>
+<p>bilibili · 电磁波Studio · AI大模型 + 嵌入式</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1gtsr6aEgR" rel="noopener noreferrer">https://www.bilibili.com/video/BV1gtsr6aEgR</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：想让设备“看懂”画面里的行为（哪只猫用了哪个盆、待了多久），端侧摄像头这一层该承担多少计算，视觉模型究竟放在哪一头。</p>
+<p><strong>关键方法 / 结论</strong>：架构是分层而不是“把大模型塞进 MCU”。ESP32 摄像头只负责采集与推流，实测 15~16 fps，日常观看足够流畅；旁边一块 ESP32 小屏当取景框方便调角度，桌面屏显示实时画面与统计结果。真正的“理解行为”交给 MiniCPM-V 4.7 这类 35B 总参 / 3B 激活的视觉理解模型，由它判断画面里有没有猫、在哪只盆前逗留多久，再按天汇总成“哪只猫、去了几次、哪个盆”的表。关键判断点就在模型体量上——35B 级的 MoE 视觉模型不可能跑在 ESP32 上，所以这条链路本质是“端侧采集 + 侧端/云侧推理”的端云协同，不是纯端侧推理；作者把代码开源在 letterbox vision 仓库。</p>
+<p><strong>为什么推荐</strong>：这是当天唯一一条走完整闭环的真实项目：采集 → 传输 → 视觉理解 → 结构化统计，正好回答你方向里最容易含糊的问题——大模型和单片机各自该干什么。把链路拆开就能得到一个可复用模板：MCU 管时序与采集，语义理解放在有算力的那一端，中间只传必要数据。</p>
+<p><strong>适用场景</strong>：做摄像头类、行为识别类端侧项目（毕设、智能家居、宠物或老人看护）时当架构参考；也可以拿它来校自己的算力预算：先估模型要多少内存与算力，再决定推理放板上还是放网关或服务器。</p>
+<div class="item-fb" data-item-id="8491de5bf5af75c2023b148fc65e6881bdea8097" data-domain="ai-embedded" data-tags="ESP32" data-title="架上一个 ESP32 摄像头，识别猫咪去了哪个猫砂盆" data-url="https://www.bilibili.com/video/BV1gtsr6aEgR" data-report-date="2026-11-17">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>还在纠结选 ESP32 还是 STM32？</h3>
+<p>bilibili · 软妹不能玩单片机吗 · AI大模型 + 嵌入式</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1cbsg6hEpg" rel="noopener noreferrer">https://www.bilibili.com/video/BV1cbsg6hEpg</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：入门阶段在 ESP32 和 STM32 之间怎么选，才不会学到一半才发现方向错了，或者先被前期的门槛劝退。</p>
+<p><strong>关键方法 / 结论</strong>：作者把两者讲成两条互补的路而不是对立的两派，并给出可操作的三条选择标准。ESP32 自带 WiFi 与蓝牙，Arduino、MicroPython、ESP-IDF 三套开发方式都能用，一周内就能做出可演示的东西，代价是运行功耗偏高、实时性只够基础控制，精密电机控制别硬上；STM32 外设丰富（多路定时器、USB OTG 等）、中断响应快、实时性强，是电机控制、机器人、工业现场的主场，也有专门的超低功耗系列，但多数型号不带无线、需外接模块，HAL 库与寄存器这一关是主要劝退点。标准是：想先拿到成就感、项目主线要联网上云、编程底子薄想先用 Python 跑起来 → 选 ESP32；想把底层（时钟树、中断、外设）吃透、目标岗位写的就是车载/工控/电机驱动、毕设偏控制类且时序严格 → 选 STM32。另有一句值得记住：带 PSRAM 与向量指令的 ESP32-S3 已能做摄像头、离线语音、轻量模型部署，是通向 AIoT 最近的一条路。</p>
+<p><strong>为什么推荐</strong>：你现在正处在“先啃哪块板子”的决策点上，这条把两者的能力边界和劝退点都摆到明面，能避开“学两周灯都没点亮就放弃”的常见坑。对你 AI大模型+嵌入式的方向更有用的是后半段——它把 ESP32-S3 标成端侧轻量模型的低成本入口，STM32 线通向电机与工控，这正好是选端侧项目载体时要做的取舍。</p>
+<p><strong>适用场景</strong>：现在就能看，属于买板子、定学习顺序之前的选型参考。适合用来给自己排一个“先用 ESP32 出成果、再回头补 STM32 底层”的顺序；毕设选题偏控制类时，也用它判断该不该直接上 STM32。</p>
+<div class="item-fb" data-item-id="ed78de9f4f05f80218141751eac307051c3bec9d" data-domain="ai-embedded" data-tags="ESP32,STM32,模型部署" data-title="还在纠结选 ESP32 还是 STM32？" data-url="https://www.bilibili.com/video/BV1cbsg6hEpg" data-report-date="2026-11-17">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h2>其他相关</h2>
+<ul><li>学Linux命令老写错怎么办（bilibili · 运维凯哥-面试陪跑 · 嵌入式 Linux 基础（当前主线））：[推荐] 一个很典型的 cd 打错现场：进网卡配置目录时漏了空格、sysconfig 少写一个 o、scripts 少写一个 p，解决办法是全程用 Tab 自动补全而不是手敲全称——对当前 Linux 基础主线是顺手就能改掉的习惯，深度有限，两分钟看完即可。 <a href="https://www.bilibili.com/video/BV1CEsM6bEqJ" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7c10da8ca6aaf35d523330e2b5d209c09b65c65b" data-domain="embedded-linux-foundation" data-tags="Linux命令" data-title="学Linux命令老写错怎么办" data-url="https://www.bilibili.com/video/BV1CEsM6bEqJ" data-report-date="2026-11-17">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>【嵌入式】从零开始学“嵌入式”全套教程（2026新手入门实用版）纯干货无废话！从C语言编程»C51»STM32»RTOS»Linux»项目实战！带你少走弯路！（bilibili · 完转嵌入式 · AI大模型 + 嵌入式）：[一般相关] 13 个月打磨的“嵌入式全套教程”宣传片：真正有用的只有一张路线图（C语言 → C51 → STM32/RTOS → Linux 系统编程与驱动 → C++/数据库/Qt，配智能温控风扇、机器狗、物联网环境监测网关、车载中控等实战），没有任何具体知识点，结尾是“评论扣 666 领几十 G 资料”的导流——阶段的先后顺序可以当目录参考，内容本身不值得花时间。 <a href="https://www.bilibili.com/video/BV1wnsK6nEQH" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="d0b0882218573b14b1587813836cf352567711ba" data-domain="ai-embedded" data-tags="Linux基础,C语言,MCU,单片机,RTOS,STM32" data-title="【嵌入式】从零开始学“嵌入式”全套教程（2026新手入门实用版）纯干货无废话！从C语言编程»C51»STM32»RTOS»Linux»项目实战！带你少走弯路！" data-url="https://www.bilibili.com/video/BV1wnsK6nEQH" data-report-date="2026-11-17">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>26届应届生在深圳上班的第四十天#嵌入式#单片机#linux#26届应届生（bilibili · DIY机器人工房 · AI大模型 + 嵌入式）：[一般相关] 26 届应届生在深圳上班第四十天的 vlog，字幕只有歌词、没有任何技术信息，只能确认作者在深圳做嵌入式/单片机方向——当行业情绪参考看一眼即可，无学习价值。 <a href="https://www.bilibili.com/video/BV1vusA6cEWb" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="eb834d90ef838e45c8addb4d7c8cbcc9a868a3c3" data-domain="ai-embedded" data-tags="单片机" data-title="26届应届生在深圳上班的第四十天#嵌入式#单片机#linux#26届应届生" data-url="https://www.bilibili.com/video/BV1vusA6cEWb" data-report-date="2026-11-17">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<blockquote>AI 结论仅用于选题和分级；视频事实请以原视频为准。</blockquote>
+<div class="key-modal" id="key-modal" hidden>
+  <div class="key-modal-backdrop"></div>
+  <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <h3 id="key-modal-title">输入反馈密钥</h3>
+    <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
+    <form id="key-form" novalidate>
+      <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
+      <div class="key-modal-actions">
+        <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
+        <button type="submit" class="pref-btn pref-up">确定</button>
+      </div>
+    </form>
+  </div>
+</div>
+  </main>
+  <footer class="site-footer">
+    <p>时区 Asia/Shanghai · 内容由本地采集与汇总流程生成</p>
+  </footer>
+</div>
+</body>
+</html>

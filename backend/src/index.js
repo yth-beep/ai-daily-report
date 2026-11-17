@@ -47,7 +47,7 @@ function error(status, message) {
 }
 
 function allowedDomains(env) {
-  const raw = (env.ALLOWED_DOMAINS || "ai-embedded").trim();
+  const raw = (env.ALLOWED_DOMAINS || "ai-models,ai-embedded,embedded-linux-foundation").trim();
   return raw.split(",").map((s) => s.trim()).filter(Boolean);
 }
 

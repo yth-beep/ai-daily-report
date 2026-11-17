@@ -72,6 +72,8 @@
       out.push({
         itemId: fb.getAttribute("data-item-id") || "",
         grade: "重要内容",
+        domain: fb.getAttribute("data-topic-name")
+          || (metadata.split(" · ").length ? metadata.split(" · ").slice(-1)[0] : ""),
         title: clean(heading.textContent),
         metadata: metadata,
         recommendation: findLabel(nodes, "推荐等级") || "推荐",
@@ -87,52 +89,44 @@
 
   function otherItems() {
     var out = [];
-    var headings = report.querySelectorAll("h2");
-    for (var h = 0; h < headings.length; h++) {
-      if (clean(headings[h].textContent).indexOf("其他相关") < 0) continue;
-      var node = headings[h].nextElementSibling;
-      while (node && node.tagName !== "H2") {
-        if (node.tagName === "UL" || node.tagName === "OL") {
-          var rows = node.querySelectorAll("li");
-          for (var i = 0; i < rows.length; i++) {
-            var fb = rows[i].querySelector(".item-fb");
-            if (!fb) continue;
-            var raw = withoutFeedback(rows[i]);
-            var title = raw;
-            var metadata = "";
-            var recommendation = "一般相关";
-            var summary = raw;
-            var open = raw.indexOf("（");
-            var close = raw.indexOf("）：", open + 1);
-            if (open >= 0 && close > open) {
-              title = clean(raw.slice(0, open));
-              metadata = clean(raw.slice(open + 1, close));
-              var rest = clean(raw.slice(close + 2));
-              var rec = rest.match(/^\[([^\]]+)\]\s*(.*)$/);
-              if (rec) {
-                recommendation = rec[1];
-                summary = rec[2];
-              } else {
-                summary = rest;
-              }
-            }
-            var link = rows[i].querySelector("a[href]");
-            out.push({
-              itemId: fb.getAttribute("data-item-id") || "",
-              grade: "其他相关",
-              title: title,
-              metadata: metadata,
-              recommendation: recommendation,
-              coreQuestion: "",
-              keyMethod: "",
-              summary: summary,
-              url: link ? link.href : (fb.getAttribute("data-url") || ""),
-              feedback: fb,
-            });
-          }
+    var rows = report.querySelectorAll("li");
+    for (var i = 0; i < rows.length; i++) {
+      var fb = rows[i].querySelector(".item-fb");
+      if (!fb) continue;
+      var raw = withoutFeedback(rows[i]);
+      var title = raw;
+      var metadata = "";
+      var recommendation = "一般相关";
+      var summary = raw;
+      var open = raw.indexOf("（");
+      var close = raw.indexOf("）：", open + 1);
+      if (open >= 0 && close > open) {
+        title = clean(raw.slice(0, open));
+        metadata = clean(raw.slice(open + 1, close));
+        var rest = clean(raw.slice(close + 2));
+        var rec = rest.match(/^\[([^\]]+)\]\s*(.*)$/);
+        if (rec) {
+          recommendation = rec[1];
+          summary = rec[2];
+        } else {
+          summary = rest;
         }
-        node = node.nextElementSibling;
       }
+      var link = rows[i].querySelector("a[href]");
+      out.push({
+        itemId: fb.getAttribute("data-item-id") || "",
+        grade: "其他相关",
+        domain: fb.getAttribute("data-topic-name")
+          || (metadata.split(" · ").length ? metadata.split(" · ").slice(-1)[0] : ""),
+        title: title,
+        metadata: metadata,
+        recommendation: recommendation,
+        coreQuestion: "",
+        keyMethod: "",
+        summary: summary,
+        url: link ? link.href : (fb.getAttribute("data-url") || ""),
+        feedback: fb,
+      });
     }
     return out;
   }
@@ -154,6 +148,7 @@
     items.push({
       itemId: itemId,
       grade: "相关内容",
+      domain: row.getAttribute("data-topic-name") || row.getAttribute("data-domain") || "",
       title: row.getAttribute("data-title") || "（无标题）",
       metadata: [row.getAttribute("data-domain") || "", row.getAttribute("data-tags") || ""]
         .filter(Boolean).join(" · "),
@@ -167,6 +162,15 @@
   }
 
   if (!items.length) return;
+  var domainOrder = { "AI 大模型": 0, "嵌入式 Linux": 1, "未分类": 2 };
+  items.sort(function (a, b) {
+    var da = Object.prototype.hasOwnProperty.call(domainOrder, a.domain) ? domainOrder[a.domain] : 2;
+    var db = Object.prototype.hasOwnProperty.call(domainOrder, b.domain) ? domainOrder[b.domain] : 2;
+    if (da !== db) return da - db;
+    var ga = a.grade === "重要内容" ? 0 : 1;
+    var gb = b.grade === "重要内容" ? 0 : 1;
+    return ga - gb;
+  });
 
   function cell(row, className) {
     var td = document.createElement("td");
@@ -199,14 +203,25 @@
   table.className = "desktop-report-table";
   table.innerHTML = (
     "<thead><tr>"
-    + "<th>级别</th><th>标题与来源</th><th>推荐</th>"
+    + "<th>级别</th><th>领域</th><th>标题与来源</th><th>推荐</th>"
     + "<th>核心内容</th><th>视频</th><th>我的调整</th>"
     + "</tr></thead><tbody></tbody>"
   );
   var tbody = table.querySelector("tbody");
+  var currentDomain = "";
 
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
+    if (item.domain !== currentDomain) {
+      currentDomain = item.domain || "未分类";
+      var groupRow = document.createElement("tr");
+      groupRow.className = "domain-group-row";
+      var groupCell = document.createElement("td");
+      groupCell.colSpan = 7;
+      groupCell.textContent = currentDomain;
+      groupRow.appendChild(groupCell);
+      tbody.appendChild(groupRow);
+    }
     var tr = document.createElement("tr");
     tr.setAttribute("data-item-id", item.itemId);
 
@@ -216,14 +231,20 @@
     badge.textContent = item.grade;
     grade.appendChild(badge);
 
+    var domain = cell(tr, "table-domain");
+    domain.textContent = item.domain || "未分类";
+
     var title = cell(tr, "table-title");
     var strong = document.createElement("strong");
     strong.textContent = item.title || "（无标题）";
     title.appendChild(strong);
-    if (item.metadata) {
+    var cleanMetadata = item.metadata === item.domain
+      ? ""
+      : item.metadata.replace(" · " + item.domain, "").replace(item.domain + " · ", "");
+    if (cleanMetadata) {
       var meta = document.createElement("div");
       meta.className = "meta";
-      meta.textContent = item.metadata;
+      meta.textContent = cleanMetadata;
       title.appendChild(meta);
     }
 

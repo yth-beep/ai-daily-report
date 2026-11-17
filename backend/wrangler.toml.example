@@ -17,4 +17,4 @@ preview_id = "REPLACE_WITH_KV_NAMESPACE_ID"
 # 允许反馈的领域 ID，逗号分隔。新增领域时改这里即可，无需改代码。
 # 必须与 config/topics.json 中 enabled 的领域 id 保持一致。
 [vars]
-ALLOWED_DOMAINS = "ai-embedded"
+ALLOWED_DOMAINS = "ai-models,ai-embedded,embedded-linux-foundation"

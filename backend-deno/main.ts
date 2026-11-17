@@ -140,11 +140,11 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 function parseAllowedDomains(raw: string | undefined): string[] {
-  const list = (raw ?? "ai-embedded")
+  const list = (raw ?? "ai-models,ai-embedded,embedded-linux-foundation")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  return list.length > 0 ? list : ["ai-embedded"];
+  return list.length > 0 ? list : ["ai-models", "ai-embedded", "embedded-linux-foundation"];
 }
 
 const UUID_RE =

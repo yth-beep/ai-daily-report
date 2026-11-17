@@ -1,16 +1,16 @@
-# AI × 嵌入式 信息日报（GitHub Pages 站点）
+# AI 与嵌入式 Linux 双领域信息日报（GitHub Pages 站点）
 
-> **阶段：上线前清理（第五阶段）+ 后端迁移（第六、七阶段）+ 采集本地化（第八阶段）。** 站点名称「AI × 嵌入式 信息日报」，示例/占位页已从站点移除，`reports/` 只放真实日报。
+> **阶段：上线前清理（第五阶段）+ 后端迁移（第六、七阶段）+ 采集本地化（第八阶段）。** 站点名称「AI 与嵌入式 Linux 双领域信息日报」，示例/占位页已从站点移除，`reports/` 只放真实日报。
 > **反馈主后端为 Cloudflare Pages Functions**（`cloudflare-pages/`，`*.pages.dev` 可访问，复用现有账号、KV 与 `FEEDBACK_KEY`）；Cloudflare Worker（`backend/`）为备用，Deno Deploy 版（`backend-deno/`）因官方停止注册并宣布 2027 年关闭，仅作历史备份。
 > **B站采集已本地化**（第 17 节）：插件只提供登录态 + 只读 API，搜索/过滤/字幕/评分由本项目完成，不启动 DSH 模型、不产生 token 费用。
-> **逐条反馈 + 聚类权重 + 嵌入式 Linux 主线 + 电源门禁**（第 18 节）：每条内容可「加重 / 减轻 / 清除标记」，同一内容只认最后一次选择；前端刷新后仍显示当前状态，历史点击保留审计但不会重复累计。`embedded-linux-foundation` 优先级高于泛 AI 资讯；采集前必须接外接电源，22:00 汇总不受限。
+> **逐条反馈 + 聚类权重 + 双领域 + 电源门禁**（第 18、22 节）：每条内容可「加重 / 减轻 / 清除标记」，同一内容只认最后一次选择；前端刷新后仍显示当前状态，历史点击保留审计但不会重复累计。AI 大模型与嵌入式 Linux 独立搜索、归属和展示；采集前必须接外接电源，22:00 汇总不受限。
 > **抖音采集也已本地化**（第 19 节）：复用插件的独立浏览器 profile/CDP/本机 OCR，只走 8 个只读动作，不启动 DSH 模型、不调插件 `/run`、不产生 token 费用；B站与抖音各自独立采集，一个平台失败不影响另一个平台出报。
 > **日报 AI 总结已接到 WorkBuddy**（第 20 节）：20:30 本地采集并生成输入，21:30 WorkBuddy 使用 `DeepSeek-V4.1-Flash` 总结、分级和推荐，22:00 Windows 任务校验并发布。DSH 模型与插件 `/run` 均不参与日常流程。
 > **滚动去重与主题均衡**（第 21 节）：同一视频在最近 7 个自然日内不重复进入 WorkBuddy 或日报；索引只保留紧凑指纹，不扫描全部历史。B站/抖音按领域轮询高命中搜索词，避免嵌入式关键词占满搜索配额。
 > 生产流程已部署：GitHub Pages 已上线，Windows 开机、20:30 采集和 22:00 发布任务均已注册；采集仍只执行公开只读动作，不点赞、不评论、不私信、不收藏、不投稿。
 > `agent-synergy/` 已废弃，本项目不引用、不复制、不修改其中任何代码，也不把它作为技术底座。
 
-站点面向 **AI 大模型 × 嵌入式** 交叉领域（端侧 AI、边缘推理、TinyML、AIoT、MCU/RTOS、NPU、模型量化与部署）。数据链路是：本地采集 → 结构化条目 → 分级日报 Markdown → 渲染成静态页面 → 走发布护栏提交到 Pages。原有的发布护栏与全部回归测试保持不变。
+站点同时维护 **AI 大模型** 与 **嵌入式 Linux** 两个独立领域：前者关注模型与 AI 产品生态，后者关注 Linux、开发板、MCU/RTOS、外设和端侧部署。数据链路是：本地采集 → 结构化条目 → 分领域分级日报 Markdown → 渲染成静态页面 → 走发布护栏提交到 Pages。
 
 工作区已存在 `.git`。默认模式下脚本**不执行任何写 Git 操作**；`--publish` 是唯一能触发真实提交推送的开关，且带有源文件、remote、退出码三重护栏。所有发布相关测试都在临时目录 + 本地 bare 仓库完成，从不连接真实 GitHub。
 
@@ -328,7 +328,7 @@ WorkBuddy 自己的定时任务在每天 21:30 读取输入并生成 AI 结构�
 
 领域（关注主题）完全由 `config/topics.json` 描述，**新增领域只需改 JSON，不用改代码**。每个领域至少包含：
 
-- `id`（唯一标识，如 `ai-embedded`）
+- `id`（唯一标识，如 `ai-models`）
 - `name`（显示名）
 - `enabled`（是否启用）
 - `weight`（基础权重）
@@ -344,7 +344,7 @@ WorkBuddy 自己的定时任务在每天 21:30 读取输入并生成 AI 结构�
  "keywords": ["MLOps", "训练", "数据标注"], "exclude_keywords": ["招生"]}
 ```
 
-**本机权重覆盖**（不破坏公共基础配置）：人工反馈写入 `state/topics_override.json`（如 `{"ai-embedded": {"delta": 1}}`），与 `config/topics.json` 分开。最终权重 = `clamp(base_weight + delta, -10, +10)`。
+**本机权重覆盖**（不破坏公共基础配置）：人工反馈写入 `state/topics_override.json`（如 `{"ai-models": {"delta": 1}}`），与 `config/topics.json` 分开。最终权重 = `clamp(base_weight + delta, -10, +10)`。
 
 ### 12.2 分级日报
 
@@ -441,7 +441,7 @@ cloudflare-pages/
    npx --yes wrangler@latest pages project create ai-daily-report-feedback --production-branch=main
    ```
 
-3. 确认 `wrangler.toml` 里的 KV 绑定是现有 namespace（`23beae27ecf34a63b89899f0947cd320`），`ALLOWED_DOMAINS=ai-embedded`。
+3. 确认 `wrangler.toml` 里的 KV 绑定是现有 namespace（`23beae27ecf34a63b89899f0947cd320`），`ALLOWED_DOMAINS=ai-models,ai-embedded,embedded-linux-foundation`。
 4. 设置密钥（交互输入，**不写入任何文件**）：
 
    ```bash
@@ -773,7 +773,7 @@ python scripts/regression_test_stage7.py     # 62 项，全部用假插件，不
 
 违反规则一律 400，不做"部分信任"。事件同时写入 `fevent:<eventId>`（TTL 30 天，`{eventId, domain, delta, date, itemId, tags, title, at}`），供 `GET /api/feedback-events` 读取（需 `X-Feedback-Key`，最多 500 条，按 `at` 排序）；响应另带 `itemStates`，每个 `itemId` 只包含最新记录。**不记录 IP / UA / Cookie。**
 
-`ALLOWED_DOMAINS` 已扩到 `ai-embedded,embedded-linux-foundation`（`wrangler.toml` 与 handler 默认值都改了）。**已部署的实例需要更新这个环境变量**，否则新领域的反馈会被 400 拒掉。
+`ALLOWED_DOMAINS` 当前为 `ai-models,ai-embedded,embedded-linux-foundation`（`wrangler.toml` 与 handler 默认值一致）；`ai-embedded` 只作旧日报兼容。
 
 ### 18.3 本地聚类：标签 / 标签对权重（不调用模型）
 
@@ -816,7 +816,7 @@ score = base_score + adjustment
 
 ### 18.4 嵌入式 Linux 基础（当前主线，优先级更高）
 
-`config/topics.json` 新增 `embedded-linux-foundation`，`priority: 30`（`ai-embedded` 是 10）。选域规则改为**先比 priority，再比分数**，所以同时命中两域的内容会归到嵌入式 Linux 基础；纯粹的 AI 资讯仍归 `ai-embedded`。
+`config/topics.json` 中 `embedded-linux-foundation` 是独立领域；当前 AI 领域 id 为 `ai-models`。两域关键词不再共享 `ESP32/STM32/TinyML/端侧AI` 等硬件词，因此不会把硬件内容归成通用 AI，也不会把 DeepSeek/LLM 等模型新闻归成嵌入式 Linux。
 
 关键词：嵌入式Linux、Linux基础、Linux命令、文件系统、权限、进程管理、systemd、journalctl、C语言、GCC、Makefile、GDB、I2C、GPIO、UART、SPI、MQTT、断网重连、设备树、Linux驱动、交叉编译、Buildroot、Yocto、rootfs、watchdog、OTA。
 
@@ -850,7 +850,7 @@ score = base_score + adjustment
 python scripts/regression_test_stage8.py      # 90 项
 ```
 
-覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变；同一内容只按最后一次选择、清除标记、历史保留、聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/清除按钮/状态恢复/多行列表续行/无标记泄漏/幂等）；桌面表格与手机文本双布局；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 51 项（含 `feedback-events`、last-wins 与 clear）。当前 stage8 为 107 项。
+覆盖：电源四态 + 入口拦截（退出码 6）+ 中途拔电保留 checkpoint + 22:00 不受限；领域优先级与热更新；标签/标签对权重影响分数与排序、未点击不变；同一内容只按最后一次选择、清除标记、历史保留、聚类平滑、幂等、非法标签/非法事件、`itemId` 回查；逐条按钮渲染（数量/itemId/日期/标签/独立状态/清除按钮/状态恢复/多行列表续行/无标记泄漏/幂等）；AI/嵌入式双领域独立归属与章节；桌面表格与手机文本双布局；日报新格式（核心问题/关键方法/适用场景/一行概括/不编造）；Pages 后端 51 项（含 `feedback-events`、last-wins 与 clear）。当前 stage8 为 109 项。
 
 ---
 
@@ -1075,13 +1075,41 @@ python scripts/validate_ai_report.py --date YYYY-MM-DD
 C语言 / TinyML / 文件系统 / ESP32
 ```
 
-这比按 JSON 顺序直接截取前 8 个嵌入式词更均衡，同时不会把搜索请求数翻倍。若后续仍偏少，优先调整 `config/topics.json` 的 `ai-embedded.search_keywords`，而不是增加全部关键词。
+这比按 JSON 顺序直接截取前 8 个嵌入式词更均衡，同时不会把搜索请求数翻倍。若后续仍偏少，优先调整 `config/topics.json` 的 `ai-models.search_keywords`，而不是增加全部关键词。
 
 领域归属与排序也已拆开：负向反馈会降低某领域的排序优先级，但不会因为“嵌入式Linux”这种两边共享的词，就把普通嵌入式内容误判成 AI 内容。领域选择先看命中的具体词数量，再用领域优先级和有效权重决胜。
 
 ### 21.3 已验证
 
-- `regression_test_stage11.py`：18/18（滚动窗口、同指纹多日期、同日重跑、旧标题兼容、URL/平台标记、AI/嵌入式搜索轮询、负权重不误判领域）。
+- `regression_test_stage11.py`：18/18（滚动窗口、同指纹多日期、同日重跑、旧标题兼容、URL/平台标记、AI/嵌入式独立搜索轮询、负权重不误判领域）。
 - 11/14→11/15 真实数据回放：8 条中识别出 4 条前一天重复内容；升级前会全部进入日报，升级后会过滤这 4 条。
 - 真实 B站只读 dry-run 使用 `端侧AI / 边缘AI / TinyML / ESP32`：8 个候选中 3 个无字幕被跳过，仍得到 1 条可总结的 ESP32 AI 语音智能体内容，证明新搜索词有效。
 - B站采集回归：62/62；抖音采集回归：107/107；夜间和生产入口回归均通过。
+
+---
+
+## 22. AI 大模型与嵌入式 Linux 正式拆分（2026-11-17）
+
+### 22.1 两个独立领域
+
+| 领域 | id | 收录内容 | 不收录内容 |
+|---|---|---|---|
+| AI 大模型 | `ai-models` | DeepSeek/OpenAI/Claude/Gemini 等模型发布、能力、价格、生态、训练与推理、Agent、RAG、多模态、AIGC | 开发板、MCU/RTOS、Linux、驱动、外设、TinyML 实践 |
+| 嵌入式 Linux | `embedded-linux-foundation` | Linux、驱动、开发板、MCU/RTOS、ESP32/STM32、I2C/GPIO/UART/SPI、NPU、TinyML、模型量化与边缘部署 | 通用大模型新闻、模型公司动态、纯 AI 算法/产品 |
+
+`config/topics.json` 中两域各自维护 `search_keywords` 与完整 `keywords`。搜索前 8 个轮询词当前为：
+
+```text
+嵌入式Linux / DeepSeek / Linux命令 / AI大模型 /
+Linux驱动 / LLM / 设备树 / AIGC
+```
+
+旧 `ai-embedded` 仅作为历史兼容 id 保留在后端白名单，新内容不再使用该 id。
+
+### 22.2 日报结构
+
+日报固定按 `AI 大模型`、`嵌入式 Linux`、`未分类` 三个独立章节输出；某领域当天没有新内容时明确写“本期没有新的可推荐内容”，不会用另一领域填充。桌面表格也增加独立“领域”列，手机长文本同样按章节展示。
+
+### 22.3 真实采集验证
+
+2026-11-17 原采集只有嵌入式内容。拆分后使用真实 B站只读接口搜索 `DeepSeek / AI大模型 / LLM / AIGC`，16 个候选中得到 2 条 AI 内容；当前 WorkBuddy 输入为 AI 2 条、嵌入式 Linux 5 条、未分类 1 条，日报和反馈按钮均按两个领域分开生成。

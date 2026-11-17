@@ -69,7 +69,7 @@ export const MAX_TAGS = 8;
 export const MAX_TITLE_LEN = 120;
 export const MAX_EVENTS_RETURNED = 500;
 // Keep in sync with config/topics.json (enabled topic ids).
-export const DEFAULT_ALLOWED_DOMAINS = "ai-embedded,embedded-linux-foundation";
+export const DEFAULT_ALLOWED_DOMAINS = "ai-models,ai-embedded,embedded-linux-foundation";
 
 // ------------------------------------------------------------------ helpers
 

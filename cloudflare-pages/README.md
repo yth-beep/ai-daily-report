@@ -39,15 +39,15 @@ cloudflare-pages/
 请求体：
 
 ```json
-{ "domain": "ai-embedded", "delta": 1, "date": "2026-11-14", "eventId": "<UUID v4>" }
+{ "domain": "ai-models", "delta": 1, "date": "2026-11-17", "eventId": "<UUID v4>" }
 ```
 
 响应：
 
 ```json
-{ "ok": true, "domain": "ai-embedded", "delta": 1, "weight": 3, "updatedAt": "2026-11-14T14:00:00.000Z" }
-{ "ok": true, "idempotent": true, "domain": "ai-embedded", "weight": 3, "updatedAt": "..." }
-{ "ok": true, "weights": { "ai-embedded": { "weight": 3, "updatedAt": "..." } } }
+{ "ok": true, "domain": "ai-models", "delta": 1, "weight": 3, "updatedAt": "2026-11-17T14:00:00.000Z" }
+{ "ok": true, "idempotent": true, "domain": "ai-models", "weight": 3, "updatedAt": "..." }
+{ "ok": true, "weights": { "ai-models": { "weight": 3, "updatedAt": "..." } } }
 ```
 
 错误码：`400` 参数/JSON 非法 · `401` 密钥缺失或错误 · `404` 未知路由 · `405` 方法错误 ·
@@ -84,7 +84,7 @@ Workers KV 不提供 compare-and-swap，本轮**没有**引入 Durable Object / 
 |---|---|---|
 | `WEIGHTS_KV` | KV 绑定 | 已在 `wrangler.toml` 绑定到现有 namespace |
 | `FEEDBACK_KEY` | **Secret** | 前端 `X-Feedback-Key` 要比对的值。未配置时所有受保护接口一律 401 |
-| `ALLOWED_DOMAINS` | 普通变量 | 逗号分隔的领域 ID，默认 `ai-embedded` |
+| `ALLOWED_DOMAINS` | 普通变量 | 逗号分隔的领域 ID，默认 `ai-models,ai-embedded,embedded-linux-foundation` |
 
 `FEEDBACK_KEY` **不要写进 `wrangler.toml`、`.dev.vars` 提交、代码或文档**，只用下面的 secret 命令或控制台设置。
 

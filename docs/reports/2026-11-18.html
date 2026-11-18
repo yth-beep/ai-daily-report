@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="report-kind" content="normal">
+<title>2026-11-18 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
+<link rel="stylesheet" href="../assets/styles.css?v=20261117-split-domains-v2">
+<script src="../assets/feedback-config.js?v=20261117-split-domains-v2"></script>
+<script src="../assets/table-view.js?v=20261117-split-domains-v2" defer></script>
+<script src="../assets/feedback.js?v=20261117-split-domains-v2" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="../index.html">AI 与嵌入式 Linux 双领域信息日报</a>
+    <span class="date-badge">2026-11-18</span>
+  </header>
+
+  <main class="report">
+<h1>2026-11-18 信息日报</h1>
+<blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
+<blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
+<blockquote>采集 17 条（另过滤 1 条不相关内容）。</blockquote>
+<h2>AI 大模型</h2>
+<p><strong>重要内容</strong></p>
+<h3>【实验记录 EP10】280 条崩了 300 条又好，为什么｜DeepSeek 小满</h3>
+<p>bilibili · 打工的小满 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1Tzs166EfZ" rel="noopener noreferrer">https://www.bilibili.com/video/BV1Tzs166EfZ</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：同一个长文档任务“280 条崩了、300 条又好”，抖动到底是上下文长度的硬阈值、量化精度不够，还是别的东西在起作用。</p>
+<p><strong>关键方法 / 结论</strong>：作者用了一套很干净的控制变量法。先把上下文窗口锁死在 2 万 4 只改文档长度：1.1 万字 30 轮全对；1.3 万字第一轮就崩；只再多加 20 条，又全对了；1.5 万字再崩。为排除运气，同一长度连跑三次，三次结果一模一样，说明这个位置确实“站不稳”。再把同一位置换成 16 位精度，崩照旧，量化的嫌疑也洗清。最后把其中一条要求拿掉——那句“先报口令编号”——不加强制口令时全对。结论不是某条长度阈值，而是模型同时要维持几件事（口令、长文档、输出格式）时被挤爆，作者的原话是“不是阈值，是他同时要记几样东西”。</p>
+<p><strong>为什么推荐</strong>：它把“长上下文能力”从厂商标称的支持多少 token，拽回到“同一时刻要并行维持几条约束”的工程问题上，这正好是写 prompt、做长文档抽取时最容易被忽略的变量。更值钱的是方法本身：锁定单一变量、连跑三次验可复现、再逐条剥离干扰项——这套动作可以直接搬进你自己的任何模型实验，比再多看十篇评测都有用。</p>
+<p><strong>适用场景</strong>：做 RAG、长文档抽取、或多约束指令任务（同时要求格式、编号、内容口径）之前看。也适合用来给自己解释一个常见困惑：为什么上下文明明没超窗口，答案还是掉；以及为什么“加一条格式要求”会让整体正确率断崖。</p>
+<div class="item-fb" data-item-id="a58ec67f9546f92e06bea123c0a319abea5892d9" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek,上下文窗口" data-title="【实验记录 EP10】280 条崩了 300 条又好，为什么｜DeepSeek 小满" data-url="https://www.bilibili.com/video/BV1Tzs166EfZ" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>ROS 2机器人×LLM 智能体: 本地模型部署, MCP协议与安全实践</h3>
+<p>bilibili · Theitzy资源网 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1uis16kEx1" rel="noopener noreferrer">https://www.bilibili.com/video/BV1uis16kEx1</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：让一个本地小模型去控制机器人，成功率的瓶颈究竟在模型不够聪明，还是在“你给了它什么工具”。</p>
+<p><strong>关键方法 / 结论</strong>：实验设计得很干脆：普通笔记本、纯 CPU 就能跑，Qwen2.5-3B 由 Ollama 本地服务（下载约 1.9GB，不用注册、不用 API key、不走云），任务是让仿真乌龟到达 20 个目标点，只改变工具集。只给基础速度工具，20 个目标到达 0 个；加一个转向工具，到达 15 个；只保留任务真正需要的那几个工具，20 个全中。评分标准是关键设计：只看机器人实际到达的位置，从不采信模型自己声称“我到了”。配套还给了 fixed 与 broken 两套代码和一条命令的 verify.sh，要求报错必须打印真正的失败行而不是崩溃，让人先确认环境和检查脚本本身是对的，再让模型介入。</p>
+<p><strong>为什么推荐</strong>：0 → 15 → 20 这组数字把“智能体效果差”从玄学变成了可调参数：工具粒度就是那个旋钮。它同时示范了两个工程习惯——用外部可观测结果当评分依据（不信模型自述），以及先把环境校验跑通再上模型，这两点在你自己搭智能体（尤其是接硬件/执行器）时会反复救你。另外它还证明了一件事：3B 级本地模型配好工具，能做的不比云端大模型差太多。</p>
+<p><strong>适用场景</strong>：准备让大模型去驱动任何真实执行器（小车、机械臂、仿真环境）之前必看，可以直接抄它的工具粒度消融实验；也适合当作本地小模型 + MCP 的最小可行範例，先在笔记本上把 agent 闭环跑通，再考虑搬到板子上。</p>
+<div class="item-fb" data-item-id="d1f4b0357a60e296e0fd2590ec93ff1026508b45" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="模型部署,LLM,智能体" data-title="ROS 2机器人×LLM 智能体: 本地模型部署, MCP协议与安全实践" data-url="https://www.bilibili.com/video/BV1uis16kEx1" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<p><strong>其他相关</strong></p>
+<ul><li>企业级 AI 应用落地 智能体评估与可观测实战 Langfuse LLM as a judge 交叉验证 数据集建设｜Agent评估｜可观测性（bilibili · Java面试八股文 · AI 大模型）：[推荐] 先立三个认知再谈工具：智能体评估不可能做到 100%（底层是逐 token 的概率模型，目标是让结论趋近正确而非保证正确）、智能体评估不等于大模型评估（后者只给问题看答案，前者要评感知—规划—调工具—产出整条链）、智能体评估也不等于软件测试（软件测试判能不能跑通，它判决策质量）；落地手段是 Langfuse 做 trace/span 级可观测 + LLM a… <a href="https://www.bilibili.com/video/BV1xPsm6GEyb" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7e12ec8ebc72dbf9ff1bea83e313b37fe302666a" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,LLM,OpenAI,智能体" data-title="企业级 AI 应用落地 智能体评估与可观测实战 Langfuse LLM as a judge 交叉验证 数据集建设｜Agent评估｜可观测性" data-url="https://www.bilibili.com/video/BV1xPsm6GEyb" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>2026 LLM Wiki实战：只有代码和表结构，Agent怎么读懂业务？用MCP接入可追溯知识库｜Open Wiki｜证据链｜业务规则｜增量更新｜大模型应用（bilibili · AI大模型升升 · AI 大模型）：[推荐] 点出企业落地最疼的一环：业务规则只存在老员工脑子里、没有文字、业务方还不配合，所以 Agent 做出来永远“不懂业务”；作者主张不去硬造文档，而是用 MCP 接入可追溯的知识库（证据链、业务规则、增量更新），思路方向对，但字幕停在问题陈述，方案细节没展开到能照抄的程度。 <a href="https://www.bilibili.com/video/BV1GKsy65ES9" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="6cc884109edcef8657620e7e2bc27883ac99a1bc" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,LLM,智能体" data-title="2026 LLM Wiki实战：只有代码和表结构，Agent怎么读懂业务？用MCP接入可追溯知识库｜Open Wiki｜证据链｜业务规则｜增量更新｜大模型应用" data-url="https://www.bilibili.com/video/BV1GKsy65ES9" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>AI日报·肥鱼速览 | 11月18日：英伟达 Q3 营收 1158 亿，黄仁勋称愿回归，OpenAI 发布 GPT-6.（bilibili · 大肥鱼接管b站啦 · AI 大模型）：[推荐] 一天行业信息压缩：英伟达 2027 财年 Q3 营收 1158 亿、数据中心 1276 亿、下季指引 1300 亿且不含中国算力收入，黄仁勋称若董事会认为符合最大利益愿回归；OpenAI 推 GPT-6.2 并把输入输出单价降 20%、缓存输入降 60%；微软 Ignite 放出多款小模型（编程旗舰 Code 据称达上一代 98% 表现、价格约四成）；另有智… <a href="https://www.bilibili.com/video/BV1Rcsy62EqT" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="dcb0c67b5b474a2905f7586f70c591d2eba813b4" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="OpenAI,Gemini,智能体" data-title="AI日报·肥鱼速览 | 11月18日：英伟达 Q3 营收 1158 亿，黄仁勋称愿回归，OpenAI 发布 GPT-6." data-url="https://www.bilibili.com/video/BV1Rcsy62EqT" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>Balanced Twin Weight Factorization：面向高效多模态大模型的平衡双子权重分解（bilibili · 数源AI官方 · AI 大模型）：[推荐] 论文精讲：多模态大模型里读同一输入的多个层共享一次基础投影 B、各层只学一个小混合矩阵 A，用按 Frobenius 范数归一化的“成员平衡”机制加输出敏感度加权，避免 KV 投影这类小层在联合分解时被大层淹没，训练期用超参数化分组补容量、推理前折叠回去，理论上不增加推理开销；6 个模型 9 个 benchmark 上优于 SOTA。属于“不提速也要提效果”… <a href="https://www.bilibili.com/video/BV1v6sk6GEzm" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="fa861fc9383b00ff8fe5f0b708b8e09b22b75df4" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,多模态" data-title="Balanced Twin Weight Factorization：面向高效多模态大模型的平衡双子权重分解" data-url="https://www.bilibili.com/video/BV1v6sk6GEzm" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>严肃调整滑动变速器，免费版祭天，法力无边（，Deepseek 宣布模型调用联网搜索与抓取免费话说牢梁什么时候把 v4.1 Pro 端出来（bilibili · 究委会 · AI 大模型）：[推荐] 自 2026 年 11 月 18 日 12 点起，DeepSeek 调用模型时触发的服务端联网搜索与网页抓取不再单独计费、只按 token 计费（抓回内容与输出仍算 token）；作者把它和 App 端限额收紧放在一起读，认为是拿免费端省出的算力补贴付费端。对常写检索类 demo 的人是实打实的成本变化，对 V4.1 Pro 何时发布的期待也一并记下。 <a href="https://www.bilibili.com/video/BV1ALsS6CEto" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="9f84345d707f21e18bfe031fd8be0a0fac505fa0" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek,OpenAI,Token" data-title="严肃调整滑动变速器，免费版祭天，法力无边（，Deepseek 宣布模型调用联网搜索与抓取免费话说牢梁什么时候把 v4.1 Pro 端出来" data-url="https://www.bilibili.com/video/BV1ALsS6CEto" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>AI 编程实战教程 Claude Code 与 Cursor 差异 整个项目当上下文 token 成本 提示词怎么写｜AI编程｜Vibe Coding（bilibili · Java讲师孙探 · AI 大模型）：[可略读] 讲清了 Claude Code 与 Copilot/Cursor 的关键差别不在代码补全，而在“把整个项目当上下文”：能通读项目内容交给模型、还能自动调错；代价就是标题里那个 token 成本。但字幕在中途截断、正文有大段课程推销，当概念区分看可以，成本账要自己在小项目上实测。 <a href="https://www.bilibili.com/video/BV165sm6vE9a" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c89d8adaf1521415f1cca00020c5030c575261a8" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,OpenAI,Claude,提示词,Token" data-title="AI 编程实战教程 Claude Code 与 Cursor 差异 整个项目当上下文 token 成本 提示词怎么写｜AI编程｜Vibe Coding" data-url="https://www.bilibili.com/video/BV165sm6vE9a" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>智能体可观测性面试题精讲 Langfuse 自托管部署 trace span 追踪 LLM 评估 提示词管理复盘｜LangSmith｜Agent 追踪（bilibili · IT职业领路人 · AI 大模型）：[可略读] 面试向清单：AI 大模型岗位 11 个高频考点、Langfuse 自托管部署、trace/span 追踪、LLM 评估、提示词管理复盘；有一个工程细节值得记——流式输出被用户中断后，会话上下文必须完整保留，不能“关了页面记录就消失”。技术密度被薪资话题和课程推销冲淡不少。 <a href="https://www.bilibili.com/video/BV186sm6mEvH" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="728567e56de84c50d4de657987aa6c7cf1cce170" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,LLM,智能体,提示词" data-title="智能体可观测性面试题精讲 Langfuse 自托管部署 trace span 追踪 LLM 评估 提示词管理复盘｜LangSmith｜Agent 追踪" data-url="https://www.bilibili.com/video/BV186sm6mEvH" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>大模型量化与推理加速 从 tokenizer 到 scheduler PD 分离 KV Cache 与 TTFT 全流程优化｜LLM｜推理引擎（bilibili · IT技能树 · AI 大模型）：[可略读] 标题列出推理引擎的完整优化链条（tokenizer → scheduler、PD 分离、KV Cache、TTFT），但字幕大半在讲岗位技能地图和课程体系，唯一可用的判断是“只做应用开发会用 vLLM/SGLang 这类引擎就够，想让面试答得住才需要往下钻机制”，具体优化原理没讲开。 <a href="https://www.bilibili.com/video/BV1dCs26dEdV" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="d780c2a9687568212f4ee072d923e5b7ca1122dd" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="模型量化,AI大模型,大模型,LLM,智能体,RAG" data-title="大模型量化与推理加速 从 tokenizer 到 scheduler PD 分离 KV Cache 与 TTFT 全流程优化｜LLM｜推理引擎" data-url="https://www.bilibili.com/video/BV1dCs26dEdV" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>AIGC【主流生图模型】质量评测（bilibili · 设计师的睡前毒物 · AI 大模型）：[可略读] 生图工具主观横评（字幕里的“2.6”与“5.5”、以及 banana）：GPT 系人物场景细节多但画面碎、显脏，原生只出 1K~1.5K 需再超分到 4K；5.5 一档在真实照片感上更稳；banana 的强项是插画与 3D 质感、弱项是图文排版，logo 类目前谁都做不好。选工具时可参考，别当评测结论。 <a href="https://www.bilibili.com/video/BV1WXsm6zEeq" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="6c45b0b88f64faf444ef0cef8175485196592809" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AIGC" data-title="AIGC【主流生图模型】质量评测" data-url="https://www.bilibili.com/video/BV1WXsm6zEeq" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>【AI教程】B站最牛的AI大模型入门教程，2026最新版，包含所有干货！七天就能从小白到大神！少走99%的弯路！存下吧！很难找全的！！（bilibili · 大模型产品经理 · AI 大模型）：[一般相关] 提示词工程第一节课的导言，字幕只有 97 字，只说了“提示词不只是发消息”和本章讲四个问题，内容为零；标题里的“七天从小白到大神”是典型课程话术，等同占位条目。 <a href="https://www.bilibili.com/video/BV1p3sm6qEGy" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="8c98501de1d5e117a452f5f14e4fbafd05afbff3" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,提示词" data-title="【AI教程】B站最牛的AI大模型入门教程，2026最新版，包含所有干货！七天就能从小白到大神！少走99%的弯路！存下吧！很难找全的！！" data-url="https://www.bilibili.com/video/BV1p3sm6qEGy" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>【全652集】目前B站最全最细的AI大模型零基础全套教程，2026最新版，从入门到实战！包含所有干货！七天就能从小白到大神！少走99%的弯路！学完即就业！（bilibili · 吴恩达AndrewNg · AI 大模型）：[一般相关] 652 集课程大纲可当目录：认知篇（大模型与传统程序的差别、预训练/微调/上下文窗口/token 与计费/幻觉）、进阶篇（提示词工程与结构化输出、RAG 全链路向量库与召回调优、function calling、效果评测与成本控制、私有化部署）、实战篇（企业知识库问答带引用溯源、Excel 智能报表、本地私有化问答）、就业篇（简历与面试）；但“652 集”“… <a href="https://www.bilibili.com/video/BV193sU6xEBT" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="df8802e5b69753367fa9c05a1498c930f064e221" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,提示词,上下文窗口,Token,Transformer" data-title="【全652集】目前B站最全最细的AI大模型零基础全套教程，2026最新版，从入门到实战！包含所有干货！七天就能从小白到大神！少走99%的弯路！学完即就业！" data-url="https://www.bilibili.com/video/BV193sU6xEBT" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>AIGC教程｜让AI讲好故事的5个步骤（bilibili · 设计师言炎 · AI 大模型）：[一般相关] 短视频叙事五步模板（先来个意外 → 添点麻烦 → 来个转折 → 高潮 → 解悬念），字幕仅 175 字，只能当短视频脚本的自查清单，与 AI 大模型、嵌入式 Linux 两个方向都不沾边。 <a href="https://www.bilibili.com/video/BV11Hsy6AEr3" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="a5f687e1fd2fad8cb5a7302485e7a9bcb5614993" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AIGC" data-title="AIGC教程｜让AI讲好故事的5个步骤" data-url="https://www.bilibili.com/video/BV11Hsy6AEr3" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>使用豆包、Deepseek等工具辅助论文参考文献、初稿注意AI检测率（bilibili · xbiye论文 · AI 大模型）：[一般相关] 本质是论文代写/降 AI 率平台的广告（“想毕业”之类的工具，内置院校模板、文献解析核验、自动三级大纲）；前半段那句“AI 总编造参考文献，是因为接不到知网数据库”倒是真话，但用这类平台绕过 AI 检测属学术不端风险，别把它写进自己的写作路径。 <a href="https://www.bilibili.com/video/BV1pDs16AEgT" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="708eb5dede2bdd1794c0e013f1d2046456746231" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="权限,DeepSeek,豆包,提示词" data-title="使用豆包、Deepseek等工具辅助论文参考文献、初稿注意AI检测率" data-url="https://www.bilibili.com/video/BV1pDs16AEgT" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>姐妹打12345说DeepSeek继续限额的话就走极端（bilibili · 灵依不想做视频 · AI 大模型）：[一般相关] DeepSeek App 限额后，有人照着短视频里的维权套路拨 12315 并声称轻生施压，结果民警医护上门、触发紧急处置流程的社会新闻；与 AI 技术无关，只提醒一件事——平台限额属于资源调配规则，别拿极端话术去换资源，也别浪费公共应急资源。 <a href="https://www.bilibili.com/video/BV1LtsS6eE9C" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="9a6a1a9ece2fb78ec6eaf09ab300e0ffee3e3b0a" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek" data-title="姐妹打12345说DeepSeek继续限额的话就走极端" data-url="https://www.bilibili.com/video/BV1LtsS6eE9C" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<h2>嵌入式 Linux</h2>
+<p><strong>重要内容</strong></p>
+<h3>ESP32开发之ESP-IDF也玩设备树</h3>
+<p>bilibili · 命叔杂技 · 嵌入式 Linux</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1t1sB6pEaW" rel="noopener noreferrer">https://www.bilibili.com/video/BV1t1sB6pEaW</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：一套固件要同时适配多块开发板，硬件差异只能靠一堆编译条件分支堆在驱动里，越加越容易出错——怎么把“板级差异”从代码里赶出去。</p>
+<p><strong>关键方法 / 结论</strong>：作者给原生 ESP-IDF 加了一层轻量设备树（LWDT，Apache-2.0 开源）。做法是用一份分层 JSON 描述处理器、开发板和板上外设，构建时读取板级配置、由该 JSON 生成 C 宏，硬件参数在编译期就确定下来，运行时不需要解析，零额外开销。驱动则按启动优先级分层初始化：时钟、GPIO、总线、再到应用层，顺序固定。效果是换开发板只改一个板子编号，驱动代码不用跟着板卡改动，同时保留 ESP-IDF 原生驱动与 CMake 构建生态，属于“轻量接入”而不是另起一套框架。</p>
+<p><strong>为什么推荐</strong>：设备树是 Linux 里“硬件描述与驱动解耦”的标准答案，这条把它搬到了 MCU 侧，等于用你嵌入式 Linux 主线里正在学的概念去解释 ESP-IDF 的工程组织方式，两边能对上号。而且“一份描述复用多块开发板”是从单板点灯走向产品化的必经一步，早一点建立这个分层意识，后面看内核设备树、看 BSP 分层都不会陌生。</p>
+<p><strong>适用场景</strong>：手上有两块以上开发板、或同一份工程要交付给不同硬件版本时直接可用；现在也可以当作“设备树到底解决什么问题”的低门槛样本，先把 JSON 描述硬件 → 编译期生成配置这条链路看明白，再回去读 Linux dts 会顺很多。</p>
+<div class="item-fb" data-item-id="603d7eab47ca2878fd73a648cda25c215de87e6a" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="设备树,ESP32" data-title="ESP32开发之ESP-IDF也玩设备树" data-url="https://www.bilibili.com/video/BV1t1sB6pEaW" data-report-date="2026-11-18">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h2>未分类</h2>
+<blockquote>本期没有新的可推荐内容。</blockquote>
+<blockquote>AI 结论仅用于选题和分级；视频事实请以原视频为准。</blockquote>
+<div class="key-modal" id="key-modal" hidden>
+  <div class="key-modal-backdrop"></div>
+  <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <h3 id="key-modal-title">输入反馈密钥</h3>
+    <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
+    <form id="key-form" novalidate>
+      <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
+      <div class="key-modal-actions">
+        <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
+        <button type="submit" class="pref-btn pref-up">确定</button>
+      </div>
+    </form>
+  </div>
+</div>
+  </main>
+  <footer class="site-footer">
+    <p>时区 Asia/Shanghai · 内容由本地采集与汇总流程生成</p>
+  </footer>
+</div>
+</body>
+</html>

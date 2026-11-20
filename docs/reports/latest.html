@@ -1,83 +1,97 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-latest-report="2026-11-19" data-latest-hash="23d3fad37d97d1e9">
+<html lang="zh-CN" data-latest-report="2026-11-20" data-latest-hash="e7215d4ccf5a0aa5">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="report-kind" content="normal">
-<title>2026-11-19 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
+<title>2026-11-20 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
 <link rel="stylesheet" href="../assets/styles.css?v=20261117-split-domains-v2">
 <script src="../assets/feedback-config.js?v=20261117-split-domains-v2"></script>
 <script src="../assets/table-view.js?v=20261117-split-domains-v2" defer></script>
 <script src="../assets/feedback.js?v=20261117-split-domains-v2" defer></script>
-<meta name="report-latest-date" content="2026-11-19">
+<meta name="report-latest-date" content="2026-11-20">
 <meta name="report-latest-stable" content="true">
 </head>
 <body>
 <div class="wrap">
-  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-19 日报 · 每日 22:00 自动更新</div>
+  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-20 日报 · 每日 22:00 自动更新</div>
   <header class="site-header">
     <a class="brand" href="../index.html">AI 与嵌入式 Linux 双领域信息日报</a>
-    <span class="date-badge">2026-11-19</span>
+    <span class="date-badge">2026-11-20</span>
   </header>
 
   <main class="report">
-<h1>2026-11-19 信息日报</h1>
+<h1>2026-11-20 信息日报</h1>
 <blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
 <blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
-<blockquote>采集 13 条。</blockquote>
+<blockquote>采集 12 条。</blockquote>
 <h2>AI 大模型</h2>
 <p><strong>重要内容</strong></p>
-<h3>大模型怎么知道词的顺序：多头注意力与RoPE｜图解大模型架构04</h3>
-<p>bilibili · 图解AI_Infra · AI 大模型</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1casy64ECK" rel="noopener noreferrer">https://www.bilibili.com/video/BV1casy64ECK</a></p>
+<h3>突破长 horizon 代码智能体训练瓶颈！RepoFactory 自动生成万级仓库级训练环境，性能暴涨22.6个百分点 【大模型智能体】【代码生成】</h3>
+<p>bilibili · 熊二等兵 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV14ksi62EyG" rel="noopener noreferrer">https://www.bilibili.com/video/BV14ksi62EyG</a></p>
 <p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：自注意力只看两个词的向量打分，一句话里谁先谁后完全丢失，「狗咬人」和「人咬狗」对它一模一样，模型靠什么补回词序和相对距离？</p>
-<p><strong>关键方法 / 结论</strong>：多头把 4096 维切成 32 个 128 维的头，每个头各有一套 QKV 独立算完再首尾拼回，32 个 128 维头的总计算量与一个 4096 维大头相当，等于不多花钱多看几种关系；训练后不同头自然分工，有的盯前一个词、有的找代词指代、有的盯标点。位置信息用 RoPE 而不是加位置向量：把 Q/K 每两维配成平面上的箭头，按所在位置旋转固定角度，因为旋转只改方向不改长度，而注意力看的正是夹角，所以整句平移后两个词的夹角不变，打分只依赖相对距离；128 维的头能配 64 对快慢不同的箭头，慢频率负责长距离不混叠。</p>
-<p><strong>为什么推荐</strong>：这是 AI 大模型侧最该打牢的底层机制，用「注意力看不见顺序」这个漏洞串起多头与 RoPE 的因果，比背公式更容易迁移到长上下文、位置外推、KV 共享省显存这些后续话题。</p>
-<p><strong>适用场景</strong>：读 Transformer 原论文或做长上下文、位置编码外推实验前的原理补课；也可作为面试时把 self-attention 讲清楚的素材。</p>
-<div class="item-fb" data-item-id="cd9bc5ecc36528f01f1d2e01a510bc32872fce1f" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,Token" data-title="大模型怎么知道词的顺序：多头注意力与RoPE｜图解大模型架构04" data-url="https://www.bilibili.com/video/BV1casy64ECK" data-report-date="2026-11-19">
+<p><strong>核心问题</strong>：长周期编程智能体（要从零搭出完整可运行仓库）的训练环境严重不足，怎么低成本、大规模地造出来？</p>
+<p><strong>关键方法 / 结论</strong>：RepoFactory 做的是把真实代码仓库自动转成可验证的训练环境，任务是「按语言规范从零搭建一个完整可运行仓库」。关键设计是一个乘性目标函数，由有效性、结构耦合度、实现范围三个维度相乘构成，因此不必让模型去求解，就能对每个候选任务快速、低成本地拿到反馈；再接一个「环境演化循环」，用这个反馈同时修订参考实现、任务规范和测试用例，把原本要被丢弃的仓库救回成合规环境，而不是靠扩大筛选范围来堆规模。UP 主转述论文称性能提升 22.6 个百分点。</p>
+<p><strong>为什么推荐</strong>：属于 AI 大模型侧的智能体训练数据工程，讨论的是环境与任务合成而非模型结构，能直接解释「Agent 能力上限取决于环境质量」这句话在工程上落成什么样；对只做过 RAG 应用、没接触过 Agent 训练数据来源的人是一个明确的补位。</p>
+<p><strong>适用场景</strong>：在跑通 RAG/Agent 应用、开始追问「这些 Agent 是怎么被训出来的」的阶段读；也适合当作读原论文前的导读，先抓住环境演化循环与三维护乘性目标这两个抓手，再回去看公式。</p>
+<div class="item-fb" data-item-id="2fb626676ef781b97a9873ca957f8d30a424e414" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,智能体,代码生成" data-title="突破长 horizon 代码智能体训练瓶颈！RepoFactory 自动生成万级仓库级训练环境，性能暴涨22.6个百分点 【大模型智能体】【代码生成】" data-url="https://www.bilibili.com/video/BV14ksi62EyG" data-report-date="2026-11-20">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>Agent 记忆怎么做？短期上下文、长期存储与遗忘策略｜AI Agent｜记忆系统｜智能体</h3>
+<p>bilibili · 八方网域-小漾 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1gcsB6WEkh" rel="noopener noreferrer">https://www.bilibili.com/video/BV1gcsB6WEkh</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：Agent 的记忆系统到底该怎么起步，最小可用版本长什么样？</p>
+<p><strong>关键方法 / 结论</strong>：作者的路径是反着来的：先写一个只有循环的最小 agent——Python 单循环、固定 system prompt、一个 bash 工具、上下文只留 20 条历史消息的滑动窗口，工具调用结果进来就把最老的一条顶出去，摘要、压缩、分层、召回全部不做。system prompt 里只写清身份、唯一工具、可见目录边界，并要求它自己给自己设长任务。等这个「很 low」的版本跑起来、暴露出具体问题之后，再针对性加记忆机制。</p>
+<p><strong>为什么推荐</strong>：把「Agent 记忆」这个容易讲玄的话题拆成了可实验的最小单元，属于 AI 大模型侧的智能体工程实现路径，先立基线再加能力，避免一上手就照抄分层召回+摘要压缩却说不清每层解决了什么问题。</p>
+<p><strong>适用场景</strong>：写第一个 Agent 循环时用来定基线版本，并记录滑动窗口撑不住的具体现象（丢关键工具结果、任务中途断片）；之后做长任务实验时再逐项对比加摘要、加外置存储的收益。</p>
+<div class="item-fb" data-item-id="8fa412e3faf04a75884af4e2dd8d29403130ca81" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,智能体,AI Agent,提示词" data-title="Agent 记忆怎么做？短期上下文、长期存储与遗忘策略｜AI Agent｜记忆系统｜智能体" data-url="https://www.bilibili.com/video/BV1gcsB6WEkh" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
 <p><strong>其他相关</strong></p>
-<ul><li>b站保姆级Pi Agent 实战教程，零基础两小时搞定入门+实战， 涵盖MCP、Skill、子智能体、自定义插件、记忆管理与微信远程控制，建议先收藏！AI大模型（bilibili · 码士集团-马小小 · AI 大模型）：[可略读] 标题覆盖 MCP、Skill、子智能体、自定义插件、记忆管理与微信远程控制，但已采集的前 2500 字几乎全是 Star History 增长曲线和「评论区找小助理领笔记」的导流，实质操作得往后翻。 <a href="https://www.bilibili.com/video/BV1m1s46XEub" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="abe343262de44f6440600010e938f9f3052a8c78" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,智能体,AI Agent" data-title="b站保姆级Pi Agent 实战教程，零基础两小时搞定入门+实战， 涵盖MCP、Skill、子智能体、自定义插件、记忆管理与微信远程控制，建议先收藏！AI大模型" data-url="https://www.bilibili.com/video/BV1m1s46XEub" data-report-date="2026-11-19">
+<ul><li>自动为你的手机定制专属端侧小语言模型！华盛顿大学全新Mobile AI Factory系统，效果超越大模型五样本表现 【端侧AI】【大模型落地】（bilibili · 熊二等兵 · AI 大模型）：[可略读] 华盛顿大学的 Mobile AI Factory 只需任务说明加目标机型，就自动产出微调并量化后的小语言模型和对应推理后端配置；论文里的实测很说明问题——同一份 llama.cpp GPU 预填充在小屏机上比 CPU 快 5.4 倍，在另一台机型上反而慢 7.4 倍，所以用大模型调度做迭代搜索而非人工逐机适配。 <a href="https://www.bilibili.com/video/BV1UXsY6GEZy" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="96563750267cd5159865ca29381856ec7b1679e8" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="端侧AI,大模型,智能体,Token" data-title="自动为你的手机定制专属端侧小语言模型！华盛顿大学全新Mobile AI Factory系统，效果超越大模型五样本表现 【端侧AI】【大模型落地】" data-url="https://www.bilibili.com/video/BV1UXsY6GEZy" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>【全36集】吊打付费！目前B站最全最细的AI视频制作保姆级教程！2026最新版AI视频生成全流程教学！底层逻辑+过审避坑！带你从入门到精通AIGC实现商业变现！（bilibili · AI视频入门教程 · AI 大模型）：[可略读] 36 集 AI 短片流水线课，可迁移的只有提示词三要素（设定身份、说清核心需求、限定输出格式）和「剧本看故事、脚本管落地」的区分，其余偏商业变现话术。 <a href="https://www.bilibili.com/video/BV1Qysb6wEHG" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="191de6d43b2582fa99e5ca3acb84ec83e4d7d19b" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AIGC,豆包,提示词,视频生成" data-title="【全36集】吊打付费！目前B站最全最细的AI视频制作保姆级教程！2026最新版AI视频生成全流程教学！底层逻辑+过审避坑！带你从入门到精通AIGC实现商业变现！" data-url="https://www.bilibili.com/video/BV1Qysb6wEHG" data-report-date="2026-11-19">
+</div></li><li>2027 MCP 实战，把订单知识库接进 Agent，怎么从启动服务走到查询取证？｜RAG｜企业知识库｜LLM Wiki｜订单排障｜业务规则｜证据链｜知识检索（bilibili · Java八股文 · AI 大模型）：[可略读] 思路是用 Open Wiki 把企业文档抽取成 markdown、按目录结构检索并构建证据链，再经 MCP 接进 Agent 做订单排障取证；但已采集的字幕大半在数 LongChain 官网四个框架谁排第一、哪个还是公测，实操演示要靠后段。 <a href="https://www.bilibili.com/video/BV1RrsY6SEng" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="ea2e8ae40a0361caea629c25aab9e8cd460339bc" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="LLM,智能体,RAG" data-title="2027 MCP 实战，把订单知识库接进 Agent，怎么从启动服务走到查询取证？｜RAG｜企业知识库｜LLM Wiki｜订单排障｜业务规则｜证据链｜知识检索" data-url="https://www.bilibili.com/video/BV1RrsY6SEng" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>达里奥：你们 deepseek 都把我们 claude 的利润挤压没了！（bilibili · 地雷菠mineapple · AI 大模型）：[一般相关] DeepSeek 与 Claude 的拟人化配音段子，全篇只有「低价把利润挤压没了」的梗，没有任何可用的模型能力或价格信息。 <a href="https://www.bilibili.com/video/BV1umsb6cENA" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="2ffaf02e54884af4e1d70d39c0978010eaba2887" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek,Claude" data-title="达里奥：你们 deepseek 都把我们 claude 的利润挤压没了！" data-url="https://www.bilibili.com/video/BV1umsb6cENA" data-report-date="2026-11-19">
+</div></li><li>【三大构成】立体构成 AIGC 提示词汇总｜16 幅建筑作品，中文＋英文＋参数全公开，直接复制可用（bilibili · 许老师数学博士教授 · AI 大模型）：[一般相关] 一份课程作业汇报，16 幅建筑主题图逐页配中英双语提示词与比例、主体、光线、背景、风格参数，可以当「哪几个词决定了画面结构」的对照样例翻，本身没有方法层面的提炼。 <a href="https://www.bilibili.com/video/BV1NWsY6AEqG" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="5d08779d40dea43844957b32ca4d541fe5ea27fa" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AIGC,提示词" data-title="【三大构成】立体构成 AIGC 提示词汇总｜16 幅建筑作品，中文＋英文＋参数全公开，直接复制可用" data-url="https://www.bilibili.com/video/BV1NWsY6AEqG" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>本地部署AI大模型，有什么优势？（bilibili · 懒猫微服 · AI 大模型）：[可略读] 懒猫微服四机串联方案介绍（512G 统一内存显存、百G光口互连、磁吸防尘罩），卖点是「模型不会拒绝你」和硬件划算，讲的是买什么而不是怎么部署。 <a href="https://www.bilibili.com/video/BV13Ys16yEtb" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="b7124fbbdd4483949ea20beb105763c9c82b0855" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型" data-title="本地部署AI大模型，有什么优势？" data-url="https://www.bilibili.com/video/BV13Ys16yEtb" data-report-date="2026-11-19">
+</div></li><li>匿名模型Gestalt设计榜超Fable5.2；GPT Plus小范围测dots；谷歌预热Gemini 4 Helium；A\创最大IPO纪录|11.20早报（bilibili · 阿梨Aria早鸟报 · AI 大模型）：[推荐] 11.20 早报可记四条：匿名模型 Gestalt 以 1931 Elo 登设计榜、超过 Fable 5.2；谷歌以元素周期表点亮氦预热 Gemini 4「Helium」；世界模型开放 API，约 0.10 美元每秒、单会话最长 120 秒；Gemini Mac 端已能跨文件夹与应用代操作，ChatGPT 的 Dots 向 Plus 小范围开测。 <a href="https://www.bilibili.com/video/BV1Cgsi6BENF" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="b1ec36de2c93e2c9bea800b68389bb30a1780e8c" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="ChatGPT,OpenAI,Gemini,智能体" data-title="匿名模型Gestalt设计榜超Fable5.2；GPT Plus小范围测dots；谷歌预热Gemini 4 Helium；A\创最大IPO纪录|11.20早报" data-url="https://www.bilibili.com/video/BV1Cgsi6BENF" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>【真栗/直播切片】烧心是什么意思？我帮你们问问豆包（bilibili · 睡不醒的柴犬 · AI 大模型）：[一般相关] 直播切片借豆包解释「烧心/不烧心」这个短剧梗，能看到连续追问把模糊问题问清楚的用法，但本身没有技术信息。 <a href="https://www.bilibili.com/video/BV1bwsm6CENq" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="303b4a804f35ceb37224c07692a4c44545c7a26f" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="豆包" data-title="【真栗/直播切片】烧心是什么意思？我帮你们问问豆包" data-url="https://www.bilibili.com/video/BV1bwsm6CENq" data-report-date="2026-11-19">
+</div></li><li>【2026最新版】DeepSeek Harness保姆级速通教程！从安装到自动化完整流程！免费平替付费工具，少走99%弯路！——大模型/智能体/Agent（bilibili · Agent教程 · AI 大模型）：[一般相关] 标题写 Harness 速通教程，已采集字幕其实是「AI 主导测试」三节训练营的开场，通篇讲 AI 如何改变测试岗和面试话术，安装与自动化流程一句没到，想要命令细节得另找。 <a href="https://www.bilibili.com/video/BV1q4sB6vE73" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="62275fb8f8a23d21aa7f2a886456b6e8eca02b1b" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,DeepSeek,智能体" data-title="【2026最新版】DeepSeek Harness保姆级速通教程！从安装到自动化完整流程！免费平替付费工具，少走99%弯路！——大模型/智能体/Agent" data-url="https://www.bilibili.com/video/BV1q4sB6vE73" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>DeepSeek网页版限额了，要不要换 DeepSeek Harness？（bilibili · 牧羊人AILab · AI 大模型）：[推荐] 按四种用法实测网页版限额与 Harness 成本：只问短问题、改总结就留在网页版；长期写长文或常处理长 PDF 才换，50 页密排 PDF 全读约六分钱；并提醒让它续写长稿前先列人物与伏笔再人工核对，因为它会假装读完。 <a href="https://www.bilibili.com/video/BV1BPst66E4A" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="0a5f17b47fe76fa29394eea8abcddc8fe43f6955" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek" data-title="DeepSeek网页版限额了，要不要换 DeepSeek Harness？" data-url="https://www.bilibili.com/video/BV1BPst66E4A" data-report-date="2026-11-19">
+</div></li><li>换底座！！11月20日DeepSeek V5被曝明年用华为昇腾950训练，昇腾此前只做推理，这是首款原生昇腾训练的大模型，团队常驻杭州，华为不持股只出人和算力（bilibili · 全网找Shit结束王 · AI 大模型）：[可略读] 转述产业链消息称 DeepSeek 下一代 V5 将用华为昇腾 950 训练，而 V4 阶段昇腾只承担推理；佐证是 10 月 8 日已开源昇腾版 DeepGEMM、团队常驻杭州、华为不持股只出人与算力——单一信源且字幕仅 202 字，先当待证消息看。 <a href="https://www.bilibili.com/video/BV13csB6WEKH" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="98973cbf14dd33f2c8e3269db43a4d4dc2e222e8" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,DeepSeek" data-title="换底座！！11月20日DeepSeek V5被曝明年用华为昇腾950训练，昇腾此前只做推理，这是首款原生昇腾训练的大模型，团队常驻杭州，华为不持股只出人和算力" data-url="https://www.bilibili.com/video/BV13csB6WEKH" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>【全748集】目前B站最全最细的AI Agent开发零基础教程，2026最新版，包含所有干货！七天就能从小白到大神！少走99%的弯路！学完即就业，带你玩转AI！（bilibili · AI大模型教程_ · AI 大模型）：[一般相关] 748 集 AI Agent 课程的宣传导言，只给了基础（prompt、AI coding、SDD）、进阶（工具、记忆、评测、治理与成本）、实战（七个商业项目）三段大纲，无任何具体方法。 <a href="https://www.bilibili.com/video/BV1R7s86zEZB" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="273678de667a3a1646fc1ba5bb50bddd8fe981dc" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI Agent" data-title="【全748集】目前B站最全最细的AI Agent开发零基础教程，2026最新版，包含所有干货！七天就能从小白到大神！少走99%的弯路！学完即就业，带你玩转AI！" data-url="https://www.bilibili.com/video/BV1R7s86zEZB" data-report-date="2026-11-19">
+</div></li><li>【B站精选】目前B站最细最全的AI大模型零基础全套教程，2026最新版，包含所有干货！手把手带你从入门到精通！少走99%的弯路！存下吧！真的很难找全的！（bilibili · 大模型AI应用 · AI 大模型）：[一般相关] 三篇式课程宣传（基础/进阶/实战），大纲列了提示词工程、RAG 与向量库选型、LangChain 工具绑定与多智能体、部署评测，但正文全是课程介绍与三连话术，没有能直接拿来用的方法细节。 <a href="https://www.bilibili.com/video/BV1SwsB6QEXL" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c268af26e2f3c87699f94d588700a7768567983e" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,智能体,提示词,RAG,向量数据库,上下文窗口,Transformer" data-title="【B站精选】目前B站最细最全的AI大模型零基础全套教程，2026最新版，包含所有干货！手把手带你从入门到精通！少走99%的弯路！存下吧！真的很难找全的！" data-url="https://www.bilibili.com/video/BV1SwsB6QEXL" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>大模型上线工程卡点｜限流监控熔断，FDE 日常要解决什么（bilibili · 唐宇迪的AI入门课 · AI 大模型）：[推荐] 把大模型上线的工程卡点归纳成三件事：限流用令牌桶或漏桶挡住高并发，监控要盯延迟、显存占用和报错率而不是只看 loss，熔断在报错率超标或超时时主动切流量防雪崩，适合写进部署类课题的实验设计。 <a href="https://www.bilibili.com/video/BV1Dysb6wEQA" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="2b06070993ca19b3544dbefb7cb327405b9a7fc4" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="模型部署,大模型" data-title="大模型上线工程卡点｜限流监控熔断，FDE 日常要解决什么" data-url="https://www.bilibili.com/video/BV1Dysb6wEQA" data-report-date="2026-11-19">
+</div></li><li>【AI大模型本地推理 11-19】打印机也能跑本地模型：小模型在边缘设备本地运行（bilibili · umRick · AI 大模型）：[推荐] 本地推理生态速览：Ollama mini 7A1B、NVIDIA 放出 NVFP4 量化版 Qwen、llama.cpp 调整 KV cache 读取顺序以提高 L2 命中、Intel Crescent Island 首批基准曝光、Gemma 被塞进打印机这类边缘设备、AMD Ryzen AI Max 上 Gemma 4 推理约提速一倍——大多是「值得关注」… <a href="https://www.bilibili.com/video/BV1r7sB6rEu7" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="113e92afae44ec7308bbcc6fa3c34b06915bb101" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="模型部署,AI大模型,大模型,LLM,ChatGPT,智能体" data-title="【AI大模型本地推理 11-19】打印机也能跑本地模型：小模型在边缘设备本地运行" data-url="https://www.bilibili.com/video/BV1r7sB6rEu7" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
@@ -85,41 +99,22 @@
 </div></li></ul>
 <h2>嵌入式 Linux</h2>
 <p><strong>重要内容</strong></p>
-<h3>基于大模型意图分流与 GPS-IMU 融合定位的校园智能语音导航终端｜等我回去就报名</h3>
-<p>bilibili · 乐鑫信息科技 · 嵌入式 Linux</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1LLst6PEc2" rel="noopener noreferrer">https://www.bilibili.com/video/BV1LLst6PEc2</a></p>
+<h3>AI时代嵌入式Linux驱动开发新范式：从手敲寄存器到AI协同重塑驱动架构</h3>
+<p>bilibili · RobinLi609 · 嵌入式 Linux</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1Tpsq6JEBz" rel="noopener noreferrer">https://www.bilibili.com/video/BV1Tpsq6JEBz</a></p>
 <p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：校园里简称与地图正式名对不上、运动场有多个入口、楼宇树木又让低成本 GPS 抖动，语音导航终端怎么同时把「听懂需求」和「给准坐标」做稳？</p>
-<p><strong>关键方法 / 结论</strong>：职责切开：大模型只做意图分流（地点介绍、地点推荐、步行导航），最终坐标一律由人工审核的地点库给出，模型不直接推荐地点；「我饿了」「我想运动」这类宽泛需求先落到设施类型，再由本地库按当前位置展开候选并让用户按键确认。定位用 GPS 与 MPU6050 融合，进入遮挡区就降低 GPS 权重、由 IMU 和最近运动状态短时接管，只有 GPS 可信且进入 15 米范围才判定到达；路口前预告转向，等用户实际转弯后再切下一段指令。硬件以 ESP32-S3 为主控，接数字麦克风、4 英寸 LCD 与数字功放，用双机位实拍把真实行走和屏上距离同步比对。</p>
-<p><strong>为什么推荐</strong>：嵌入式 Linux 侧最值得学的不是堆模型，而是「模型管语义、本地库管事实」这条职责切分线，以及多入口、模糊称呼这类真实约束如何落到地点库与入口库的数据结构上；传感器降权与到达判定的阈值也能直接搬到自己做的定位项目里。</p>
-<p><strong>适用场景</strong>：做 ESP32、边缘 AI 综合项目或竞赛作品时当系统分层参考；任何需要端侧语音加定位闭环的课设都可套这套结构。</p>
-<div class="item-fb" data-item-id="9161b1327f044750ff8f666ca33b9e39b9a2f11a" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="ESP32,大模型" data-title="基于大模型意图分流与 GPS-IMU 融合定位的校园智能语音导航终端｜等我回去就报名" data-url="https://www.bilibili.com/video/BV1LLst6PEc2" data-report-date="2026-11-19">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div>
-<h3>27届秋招嵌入式！单片机方向疲软原因！</h3>
-<p>bilibili · 勃勃法雷尔 · 嵌入式 Linux</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1ots46NEfJ" rel="noopener noreferrer">https://www.bilibili.com/video/BV1ots46NEfJ</a></p>
-<p><strong>推荐等级</strong>：推荐</p>
-<p><strong>核心问题</strong>：27 届秋招单片机方向为什么明显比往年疲软，只会单片机的人在补什么才不至于被挤掉？</p>
-<p><strong>关键方法 / 结论</strong>：往年单片机与 Linux 岗位约七比三，今年疲软主要来自占岗位一半的传统消费电子与制造侧需求下滑，新兴行业增长补不上缺口。招聘行为也在变：不限经验的岗位占比下降，企业从「招进来再培养」转向「招进来就能上手」，受影响最直接的是本科为主的单片机求职群体。技术端低端 MCU 正被 SoC 集成吃掉，国产化后 WiFi、蓝牙甚至 AI 都进了一颗芯片，只做最小系统加外围的价值在缩水；同时 AI 让有经验的人效率更高，进一步拉开差距。</p>
-<p><strong>为什么推荐</strong>：嵌入式 Linux 侧少见的带结构性原因的方向判断，把「岗位变少」拆成行业需求、招聘偏好、芯片集成三条线，比笼统的「嵌入式不行了」更能指导决策；也顺带解释了简历上烂大街的网关、电子钟项目为什么不再有竞争力。</p>
-<p><strong>适用场景</strong>：现在就该用来校正项目选题和技术栈补强方向，尤其是准备明年秋招、需要判断是否从纯 MCU 往 Linux 驱动或端侧 AI 迁移的阶段。</p>
-<div class="item-fb" data-item-id="db78e1d70408f617c9aa4f06fc24e888a85eb433" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="单片机" data-title="27届秋招嵌入式！单片机方向疲软原因！" data-url="https://www.bilibili.com/video/BV1ots46NEfJ" data-report-date="2026-11-19">
+<p><strong>核心问题</strong>：大模型进入嵌入式 Linux 驱动开发后，哪几段工作可以放心交给 AI，哪几段必须由工程师亲自兜底？</p>
+<p><strong>关键方法 / 结论</strong>：UP 主给出的分工是：把芯片手册的寄存器与引脚复用表投喂给模型，秒级生成合规的设备树节点；内核版本升级时让 AI 把老式 GPIO 接口重构到现代描述符（gpiod）架构，并顺手补上资源自动释放；最难查的并发静态面让 AI 当审计员，专盯中断上下文里误调用会睡眠的函数、核对多核环境下自旋锁与原子变量的边界。但结论很清醒：AI 看不到示波器上的时序毛刺，也感知不到量产芯片的硅片缺陷和 DMA 缓存一致性冲刷，物理实测与架构设计必须人工做。</p>
+<p><strong>为什么推荐</strong>：这是嵌入式 Linux 驱动主线上少见的「分工判断」而不是「工具演示」，把 AI 的适用面限定在静态审计、代码重构、设备树生成，把时序与硬件实测留给示波器和经验，正好对上嵌入式方向要先建立能力边界的学习顺序。</p>
+<p><strong>适用场景</strong>：已经能写简单字符设备、正准备做第一个 GPIO/平台驱动或做内核版本迁移时最有用；也可以当成驱动代码 review 的自查清单，逐条问自己并发面和时间序面有没有被 AI 的「看起来对」掩盖。</p>
+<div class="item-fb" data-item-id="7f2468bcde94c834c4f63e4fff6b2b540d38367f" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="嵌入式Linux,GPIO,Linux驱动,大模型" data-title="AI时代嵌入式Linux驱动开发新范式：从手敲寄存器到AI协同重塑驱动架构" data-url="https://www.bilibili.com/video/BV1Tpsq6JEBz" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
 <p><strong>其他相关</strong></p>
-<ul><li>【特纳斯电子】基于AI大模型的智能枕头【T0012602M】（bilibili · 特纳斯电子 · 嵌入式 Linux）：[一般相关] STM32F103C8T6 加 OLED、DS18B20、HX711、时钟与串口模拟 WiFi 的 Proteus 仿真演示，标题里的「AI 大模型」只是挂名，实际是按键翻页与传感器读数联调的毕设模板。 <a href="https://www.bilibili.com/video/BV1dgst6iEJX" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c14de753ea0ec7fb9bad922ed298f55edc33f975" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="STM32,AI大模型,大模型" data-title="【特纳斯电子】基于AI大模型的智能枕头【T0012602M】" data-url="https://www.bilibili.com/video/BV1dgst6iEJX" data-report-date="2026-11-19">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>Linux云计算运维命令精讲，常用命令、文件操作、权限管理、磁盘网络、进程控制与排查工具，老男孩运维带你吃透企业级运维高频命令，提升 Linux 运维实战效率（bilibili · 老男孩IT教育 · 嵌入式 Linux）：[一般相关] 老男孩的 Linux 云计算运维课开场，前三千字都在讲装 Xshell、Termora、做笔记和「先问同桌」的流程，命令结构与目录部分还没进入正题，且方向偏互联网运维而非嵌入式。 <a href="https://www.bilibili.com/video/BV1gzs46ZEFm" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="5aec33ce827d383e883906efa045dc7cbf61b0c9" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="权限" data-title="Linux云计算运维命令精讲，常用命令、文件操作、权限管理、磁盘网络、进程控制与排查工具，老男孩运维带你吃透企业级运维高频命令，提升 Linux 运维实战效率" data-url="https://www.bilibili.com/video/BV1gzs46ZEFm" data-report-date="2026-11-19">
+<ul><li>想学好嵌入式？MCU+RTOS 学习路线一次性讲清（bilibili · 社畜小椰的嵌入式日记 · 嵌入式 Linux）：[推荐] 五模块校招路线：C 语言留 8-10 天，重点抓指针与内存模型、位运算、结构体内存对齐和 static/const/extern；C++ 只补 STL 容器与面向对象概念应付笔试；STM32 建议 2-3 周直接上 HAL 库而不是标准库，外设小实验抓原理别抠细节。 <a href="https://www.bilibili.com/video/BV1iVs86GE4X" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="dcd05bc0c8daa6c1f6b94b79d2a800daac0dbced" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="C语言,MCU,单片机,RTOS" data-title="想学好嵌入式？MCU+RTOS 学习路线一次性讲清" data-url="https://www.bilibili.com/video/BV1iVs86GE4X" data-report-date="2026-11-20">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>

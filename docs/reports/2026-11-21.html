@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="report-kind" content="normal">
+<title>2026-11-21 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
+<link rel="stylesheet" href="../assets/styles.css?v=20261117-split-domains-v2">
+<script src="../assets/feedback-config.js?v=20261117-split-domains-v2"></script>
+<script src="../assets/table-view.js?v=20261117-split-domains-v2" defer></script>
+<script src="../assets/feedback.js?v=20261117-split-domains-v2" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="../index.html">AI 与嵌入式 Linux 双领域信息日报</a>
+    <span class="date-badge">2026-11-21</span>
+  </header>
+
+  <main class="report">
+<h1>2026-11-21 信息日报</h1>
+<blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
+<blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
+<blockquote>采集 11 条（另过滤 1 条不相关内容）。</blockquote>
+<h2>AI 大模型</h2>
+<p><strong>重要内容</strong></p>
+<h3>数学家称与 Claude 找到黎曼猜想证明，ChatGPT 桌面端大改版｜Grok AI 日报 11.21</h3>
+<p>bilibili · 别人班的学委 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1uzytzxEUG" rel="noopener noreferrer">https://www.bilibili.com/video/BV1uzytzxEUG</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：一天之内密集出现的模型与工具变更里，哪些会真正影响开发者的选型、接口设计和迁移成本。</p>
+<p><strong>关键方法 / 结论</strong>：逐条拆 11.21 前后的变化：Anthropic 一位数学家称借助 Claude 找到黎曼猜想证明、公开了 Lean 形式化代码，但尚无论文与同行核验；ChatGPT 桌面端重做对话线程与 Projects 页面并提速，Codex 更稳，Dots 移动端从 Pro 扩到部分 Plus。OpenAI 另公布对抗性蒸馏防御研究（防止用前沿模型输出训练出的模型复制能力却不带同等安全措施）与药物化学推理基准，并说明 GPT-6.2 起 Responses API 的推理项会绑定此前的对话、编辑早先消息将打断推理复用，WebSocket 单请求上限由 16MB 提至 128MB。谷歌一边给 Gemini 上动图生成、把语音编辑能力开进 Gemini API，一边让 Isomorphic 与默沙东合作设计抗癌药；Thinking Machines 放出 Inkling 2 mini，264 亿总参、34 亿激活、24 层。</p>
+<p><strong>为什么推荐</strong>：属 AI 大模型领域的能力与接口层动态：开放范围、API 行为变更和推理复用规则直接决定应用侧要不要重构、成本怎么算，是选型评估的输入；内容全部停在模型与平台侧，不涉及板卡、驱动或端侧部署。</p>
+<p><strong>适用场景</strong>：适合在模型选型、接口迁移和成本核算阶段当周度情报用；建议先锁定与自己栈相关的两三条接口行为变更，再回头查官方原文。</p>
+<div class="item-fb" data-item-id="48e30188207e7f6bada9591c55e6d667e284dd1b" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="ChatGPT,OpenAI,Claude,Gemini,开源模型,Token" data-title="数学家称与 Claude 找到黎曼猜想证明，ChatGPT 桌面端大改版｜Grok AI 日报 11.21" data-url="https://www.bilibili.com/video/BV1uzytzxEUG" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>DeepSeek的省显存秘诀：MLA把KV缓存压小57倍｜图解大模型架构09</h3>
+<p>bilibili · 图解AI_Infra · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1busQ6sEv2" rel="noopener noreferrer">https://www.bilibili.com/video/BV1busQ6sEv2</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：DeepSeek 参数量比 80 亿小模型大一个量级，为什么每 token 的 KV 缓存反而只有它的一半，MLA 到底把什么省掉了。</p>
+<p><strong>关键方法 / 结论</strong>：用“4×4 乘法表只要记住一行一列就能还原整张表”类比低秩：128 个头的 K/V 表面有几万个数，但彼此高度相关，真正独立的信息没那么多，于是每个 token 先压成一个 512 维潜在向量，缓存里只存这 512 个数，做注意力时再用矩阵展开成各头的 K/V。真正的巧劲在矩阵吸收——矩阵乘法可以先乘后乘换顺序，把展开矩阵并到 Q 一侧（V 侧并进输出矩阵），注意力直接在压缩向量上算，完整 K/V 从头到尾不需要真的算出来，省显存又不把计算加回去。剩一个零件不配合：RoPE 要按位置旋转，正好夹在 Q 和 K 中间，于是把位置单独拎出 64 个数由 128 个头共用，512+64=576 个数/层/token，约是标准多头 32768 的 1/57，比 8 组 GQA 的 2048 还小；乘 61 层、两字节，标准多头近 4MB 而 MLA 约 69KB，DeepSeek-V2 论文里 MLA 效果还略优于标准多头。</p>
+<p><strong>为什么推荐</strong>：这是推理成本的底层账本：KV 缓存直接决定显存占用、并发上限和长上下文的单价，理解 MLA 才能自己估算部署规格，也能反过来读懂 GQA/MQA 的取舍。属模型结构与推理侧知识，与板卡、驱动、端侧部署无关。</p>
+<p><strong>适用场景</strong>：适合在学完注意力机制和 KV cache 基础之后看，作为推理成本估算与模型结构对照的中间一环；看完可用同一套算法手算 GQA、MQA、MLA 三者的每 token 缓存量对齐。</p>
+<div class="item-fb" data-item-id="11384e12983cafe0658a99f3a82d739e875e8e0d" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,DeepSeek,Token" data-title="DeepSeek的省显存秘诀：MLA把KV缓存压小57倍｜图解大模型架构09" data-url="https://www.bilibili.com/video/BV1busQ6sEv2" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<p><strong>其他相关</strong></p>
+<ul><li>彻底结束！！11月18日DeepSeek限额真相曝出，先开源出口再设上限，官方直言聊天框只是基础形态，83天插件3.5万，它想做Agent时代的操作系统（bilibili · 全网找Shit结束王 · AI 大模型）：[可略读] 把 DeepSeek 限额解读成战略而非故障：先建聊天前端仓库、开放接口并支持导入历史对话，之后才让长对话不可用，官方称现有对话产品只是较基础的形态；并给出插件工作区日活约 154 万、第三方插件 3.5 万个、“不贴钱也不赚暴利”的定价口径，落点是做 Agent 时代的操作系统。 <a href="https://www.bilibili.com/video/BV1T2sm6CEct" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="c77faa6ca1cdeb1fda03bbac4c07f89039198597" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek" data-title="彻底结束！！11月18日DeepSeek限额真相曝出，先开源出口再设上限，官方直言聊天框只是基础形态，83天插件3.5万，它想做Agent时代的操作系统" data-url="https://www.bilibili.com/video/BV1T2sm6CEct" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>DeepSeek限额？七天前的长对话无法继续？教你拯救大肥鱼🐳（需付费充值API）（仅手机也可操作）（bilibili · wERRORw · AI 大模型）：[推荐] 限额后的可操作路径：登录 API 开放平台充值（最低 1 元）创建 Key，再打开官方开源 web 客户端，在设置-数据管理里填 Key；历史对话从 App 或网页导出压缩包上传导入即可续上，注意首次载入长对话会大量烧 token（示例一句“喵”就约 7 万），之后消耗才降下来。 <a href="https://www.bilibili.com/video/BV1oes66BEaB" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="f22d11e7ada153df9b6e284baed2cb4376e4d5ae" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek,Token" data-title="DeepSeek限额？七天前的长对话无法继续？教你拯救大肥鱼🐳（需付费充值API）（仅手机也可操作）" data-url="https://www.bilibili.com/video/BV1oes66BEaB" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>终极反转！11月18号DeepSeek白嫖党限额！对话降智！3天清除！新用户7天免费！梁圣一夜崩成梁子？重度用户彻底破防！（bilibili · 楠归的雁 · AI 大模型）：[可略读] 情绪化复盘 11.16 三条限额规则——7 天不活跃的长对话不再支持接续、单次输入压到约 4 万字、每日对话额度封顶，并用“闲置长对话仍占显存”解释动机；同期提到应用商店评分跌到 3.1、10 月已记录多起服务异常，事实与解读混写且缺官方口径，宜与公告对照。 <a href="https://www.bilibili.com/video/BV1Tus66dEx3" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="e11135c6d0e0e90571f86d06171bea4df08cf15b" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,DeepSeek" data-title="终极反转！11月18号DeepSeek白嫖党限额！对话降智！3天清除！新用户7天免费！梁圣一夜崩成梁子？重度用户彻底破防！" data-url="https://www.bilibili.com/video/BV1Tus66dEx3" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<h2>嵌入式 Linux</h2>
+<p><strong>重要内容</strong></p>
+<h3>一天一个Linux命令，零基础入门Linux命令合集</h3>
+<p>bilibili · 高鲲教育 · 嵌入式 Linux</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1nyst6VEaJ" rel="noopener noreferrer">https://www.bilibili.com/video/BV1nyst6VEaJ</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：零基础怎么把 cat 真正用成排查工具，而不是只会“cat 一个文件看内容”。</p>
+<p><strong>关键方法 / 结论</strong>：以查 /etc/os-release 判断发行版为例说明 cat 的定位：Linux 一切皆文件，想知道软件配置就看配置文件、想知道运行过程就看日志文件，cat 就是最直接的入口（示例里三台看着一样的机器分别读出麒麟 V10、CentOS 7、Ubuntu 24.04.3 LTS）。参数上 -n 给每行加行号便于定位，-b 只显示非空行，配置里空行多时很省眼。合并文件可以直接 cat a.txt b.txt c.txt &gt; out.txt 把内容串成一个文件，此时要分清 &gt; 覆盖与 &gt;&gt; 追加，否则一条命令就把原文件冲掉。片尾两个提醒更值得记：不要用 cat 打开大文件，会把终端和系统拖到卡死，大文件应换分页或截取类命令；用 &gt; 写文件前先确认目标文件能不能被覆盖。</p>
+<p><strong>为什么推荐</strong>：属嵌入式 Linux 基础命令层的最小可用工具集：上板后第一步往往是读配置、读日志，cat 配合行号参数和重定向就够完成大半初查，也能顺带建立“标准输入输出可组合”的 shell 直觉。</p>
+<p><strong>适用场景</strong>：适合 Linux 入门第一周和刚上板调试的阶段；建议在真机 /etc 与 /var/log 下把 -n、-b、多文件合并三组各练一遍，并把 &gt; 与 &gt;&gt; 的差别亲手验证一次。</p>
+<div class="item-fb" data-item-id="3bdca6c0b5e10a978b7af54e5db2c8f6a230fd41" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="Linux命令" data-title="一天一个Linux命令，零基础入门Linux命令合集" data-url="https://www.bilibili.com/video/BV1nyst6VEaJ" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<p><strong>其他相关</strong></p>
+<ul><li>做机器人嵌入式，该学STM32还是ROS开发？嵌入式开发/STM32单片机/MCU开发/电机控制/Linux/机器人开发/C++/算法/编程/操作系统/BMS（bilibili · 嵌入式自学DeepMeet · 嵌入式 Linux）：[可略读] 给机器人嵌入式选型下结论：本科生走 MCU 派并补电机控制/BMS 才不会只卷 MCU，硕士优先嵌入式 Linux＋ROS＋算法；并指出 ROS 只是中间件、真正拉开差距的是 C++、系统与算法，结尾转为自学指南和一对一辅导引流。 <a href="https://www.bilibili.com/video/BV1EAsq6AERb" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="df4ac6b6cb833f6c7b7486ae374837f2355c470f" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="嵌入式Linux,MCU,单片机,STM32,大模型" data-title="做机器人嵌入式，该学STM32还是ROS开发？嵌入式开发/STM32单片机/MCU开发/电机控制/Linux/机器人开发/C++/算法/编程/操作系统/BMS" data-url="https://www.bilibili.com/video/BV1EAsq6AERb" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>第一个linux驱动:点亮ili9488并运行lvgl（bilibili · 小猫凯特唉 · 嵌入式 Linux）：[一般相关] 标题是点亮 ili9488 并跑通 LVGL 的第一个 Linux 驱动，但字幕全文只有一段歌词，没有任何设备树、初始化序列或 framebuffer 线索，只能当作知道这条路线存在。 <a href="https://www.bilibili.com/video/BV1kAyWzeE4g" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="9c4d773be7528f5d62dbd427a4e56463622edc1d" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="Linux驱动" data-title="第一个linux驱动:点亮ili9488并运行lvgl" data-url="https://www.bilibili.com/video/BV1kAyWzeE4g" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>ESP32桌面伴侣(3): 轻松养鱼配置DSH/大模型/语音/网络（bilibili · bi胜li量老师 · 嵌入式 Linux）：[推荐] ESP32 语音伴侣第三集，关键做法是把 WiFi、模型接口和百度语音 TTS 的发音人/语速/音调搬到网页后台配置，不用改代码重烧固件即可换网络和模型；链路是“语音识别→本地智能体→TTS”，不接本地智能体也能直连在线大模型 API，单次播报限 60 字内、需多轮接续。 <a href="https://www.bilibili.com/video/BV1rxyezbEZK" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="63ddc5b5c0d9b6f6ae23d2ad417edc1b9fa6cd27" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="ESP32,大模型,智能体" data-title="ESP32桌面伴侣(3): 轻松养鱼配置DSH/大模型/语音/网络" data-url="https://www.bilibili.com/video/BV1rxyezbEZK" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>【韦东山】韦东山手把手教你嵌入式Linux快速入门到精通 | Linux应用驱动开发基于I.MX6ULL Pro（bilibili · 韦东山 · 嵌入式 Linux）：[一般相关] 韦东山把历年课程按单片机、Linux、专题三条线整理成视频-文档-源码对照表，讲清零基础、单片机转 Linux、全栈三种学习顺序，本质是开发板＋课程包的导购说明，无具体技术内容。 <a href="https://www.bilibili.com/video/BV1w4411B7a4" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="91ea4bfa2bdc800cdb1b18c609c8c59861f3cef9" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="嵌入式Linux,文件系统,MCU,单片机" data-title="【韦东山】韦东山手把手教你嵌入式Linux快速入门到精通 | Linux应用驱动开发基于I.MX6ULL Pro" data-url="https://www.bilibili.com/video/BV1w4411B7a4" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>尚硅谷嵌入式Linux应用层开发，linux网络编程，linux进程线程，linux文件io（bilibili · 尚硅谷 · 嵌入式 Linux）：[可略读] 尚硅谷应用层开发课程导言，用 shell 层/用户层/应用/系统调用/内核的分层图说明本课重点下沉到内核与系统调用，再由“一个核原则上只能跑一个进程”引出 CPU 多进程调度，属课程开场无实操。 <a href="https://www.bilibili.com/video/BV1DJ4m1M77z" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="9027c433f28895f8a929aba3682e8a5ce390d2b2" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="嵌入式Linux,Linux命令,C语言" data-title="尚硅谷嵌入式Linux应用层开发，linux网络编程，linux进程线程，linux文件io" data-url="https://www.bilibili.com/video/BV1DJ4m1M77z" data-report-date="2026-11-21">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<h2>未分类</h2>
+<blockquote>本期没有新的可推荐内容。</blockquote>
+<blockquote>AI 结论仅用于选题和分级；视频事实请以原视频为准。</blockquote>
+<div class="key-modal" id="key-modal" hidden>
+  <div class="key-modal-backdrop"></div>
+  <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <h3 id="key-modal-title">输入反馈密钥</h3>
+    <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
+    <form id="key-form" novalidate>
+      <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
+      <div class="key-modal-actions">
+        <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
+        <button type="submit" class="pref-btn pref-up">确定</button>
+      </div>
+    </form>
+  </div>
+</div>
+  </main>
+  <footer class="site-footer">
+    <p>时区 Asia/Shanghai · 内容由本地采集与汇总流程生成</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="report-kind" content="normal">
+<title>2026-11-22 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
+<link rel="stylesheet" href="../assets/styles.css?v=20261117-split-domains-v2">
+<script src="../assets/feedback-config.js?v=20261117-split-domains-v2"></script>
+<script src="../assets/table-view.js?v=20261117-split-domains-v2" defer></script>
+<script src="../assets/feedback.js?v=20261117-split-domains-v2" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="../index.html">AI 与嵌入式 Linux 双领域信息日报</a>
+    <span class="date-badge">2026-11-22</span>
+  </header>
+
+  <main class="report">
+<h1>2026-11-22 信息日报</h1>
+<blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
+<blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
+<blockquote>采集 7 条（另过滤 2 条不相关内容）。</blockquote>
+<h2>AI 大模型</h2>
+<p><strong>重要内容</strong></p>
+<h3>Jev 和 LLM 有什么不同？让大模型只答一个字母，还需要 Jev 吗？</h3>
+<p>bilibili · 直觉透镜 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1XiyuzyEUZ" rel="noopener noreferrer">https://www.bilibili.com/video/BV1XiyuzyEUZ</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：分类、路由这类“只需从固定选项里挑一个”的任务，到底该让大模型在提示词里只答一个字母，还是为它单独部署一个判别式小模型？</p>
+<p><strong>关键方法 / 结论</strong>：把三种做法摆在同一张工单上对比：提示词约束只输出 A/B/C，程序能拿到标签却拿不到置信度，除非服务额外返回 token 概率；自己接管输出，先关掉思考、确认候选在当前分词器里各占一个 token，取最后一个位置的 logits，只在三个候选上做 softmax（0.54/0.27/0.09 除以 0.9 得 0.6/0.3/0.1），与全词表归一后再截取等价；或直接调判别模型接口的 choice、NLI、score 三件套，一次拿回类别与各选项概率。延迟数字要连带条件一起读：官方计时是同一短输入连问 27 个问题、整份结果 0.114 秒对 8.566 秒，但对手用了默认推理设置、短输入本身对判别模型有利，独立研究测得的 0.36 秒含服务等待与 32 路并发，两边都只答一个字母时谁更快仍须同条件另测。</p>
+<p><strong>为什么推荐</strong>：这是 AI 大模型侧的推理工程基本功：它把“用生成模型硬凑分类”和“用判别模型做分类”的取舍拆到了 token 概率层面，讲清 logits 归一化这一实操技巧，同时示范了如何审读对比基准里的不对等条件——搭 Agent 路由、工单分流、意图识别时可直接套用。</p>
+<p><strong>适用场景</strong>：适合在给智能体做意图分类与工具路由、或判断“某个子任务值不值得单独训一个小模型”的选型阶段看；也可作为读论文与厂商基准数字时的校准参考。</p>
+<div class="item-fb" data-item-id="f2073faf58a0af1a8ffd62f64a001b3d334e7d22" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,LLM,提示词" data-title="Jev 和 LLM 有什么不同？让大模型只答一个字母，还需要 Jev 吗？" data-url="https://www.bilibili.com/video/BV1XiyuzyEUZ" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>[中配]新AI架构比LLM快31倍？NCM解析 [Better Stack]</h3>
+<p>bilibili · THE_OREGANO · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1cayLzkEsA" rel="noopener noreferrer">https://www.bilibili.com/video/BV1cayLzkEsA</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：斯坦福提出的 NCM 号称文本生成比 LLM 快 31 倍，它究竟换了什么思路，这个倍数能不能直接当真？</p>
+<p><strong>关键方法 / 结论</strong>：核心是把“逐 token 自回归”换成“分层并行生成”：先用一个独立网络把文本编码成多层级离散码（多尺度残差 VQ-VAE），低层只保留粗粒度轮廓，每往上一层补充前层遗漏的细节；训练时故意丢掉最后几层仍要求重建，逼低层自身携带可用信息。生成时同一层的所有位置可以一起预测，从而绕开“下一个 token 依赖刚选中的 token”的串行链，也避开芯片算力快于权重读取、生成被内存带宽卡住的瓶颈。视频对 31 倍保持怀疑：计时有的是根据官方录像帧读数换算，对比条件也未必对等，作者明确建议回原论文核对。</p>
+<p><strong>为什么推荐</strong>：属于 AI 大模型侧的架构前沿：它把自回归解码慢的两个根因（顺序依赖、内存带宽受限）和一条从图像生成借来的并行化路线讲清楚了，是从 Transformer 解码往外看非自回归与分层码本生成的入口，也顺手示范了怎样对待二手媒体的夸张倍数。</p>
+<p><strong>适用场景</strong>：适合在已熟悉 Transformer 解码、想了解非自回归与分层码本生成方向的进阶阶段看；做推理加速选型时，可作为“换架构”与“换硬件、换量化”并列的一条对照思路。</p>
+<div class="item-fb" data-item-id="2248cb4f4c7c2d139abc5aedbd76f108ddad2b35" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="LLM,图像生成" data-title="[中配]新AI架构比LLM快31倍？NCM解析 [Better Stack]" data-url="https://www.bilibili.com/video/BV1cayLzkEsA" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<h3>Java后端转工业Agent：本体驱动平台落地，面试追问的评测、幻觉与链路追踪全讲透｜Agent｜大模型｜FDE｜本体｜知识图谱</h3>
+<p>bilibili · AI白帽小七 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1XvyuzLEfB" rel="noopener noreferrer">https://www.bilibili.com/video/BV1XvyuzLEfB</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：传统 Java 后端要接入一个别人已经做好的 Agent 服务，两边入参出参对不上时该怎么落地——这条讲的是真实工业场景里的接口契约问题。</p>
+<p><strong>关键方法 / 结论</strong>：场景是制造业设备异常分析：定时任务由 Java 组编写，调用隔壁项目组的 Agent 生成异常报告，再把结果写库。矛盾点很具体——Java 端只能传 JSON 字符串，而那个 Agent 只接受自然语言；Agent 只回一段自由文本，Java 端却要结构化 JSON 才能入库。可行方向是在中间加一层适配：把结构化参数渲染成自然语言提示，再把自由文本约束或解析回固定字段，把跨团队的接口契约显式写下来，而不是让上下游各自猜。视频还点出 2026 年岗位要求的位移：从“项目里集成一个简单 ReAct Agent 就算亮点”，转向“能跨团队把 Agent 接进既有系统并保证长期稳定运行”。</p>
+<p><strong>为什么推荐</strong>：属 AI 大模型侧的工程化落地：它给的不是模型能力，而是 Agent 进企业系统时最先撞上的那堵墙——自然语言接口与传统结构化接口的边界，以及“工程化落地”这个说法在真实需求里到底指什么。</p>
+<p><strong>适用场景</strong>：适合在把 Agent 接入已有后端系统（定时任务、报表、告警）的联调阶段看；准备大模型应用岗面试时，也可用来把“工程化落地”组织成一个有细节的案例而不是口号。</p>
+<div class="item-fb" data-item-id="5d31b52d718ffda48faf0583dcc7e41629f0f85f" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型" data-title="Java后端转工业Agent：本体驱动平台落地，面试追问的评测、幻觉与链路追踪全讲透｜Agent｜大模型｜FDE｜本体｜知识图谱" data-url="https://www.bilibili.com/video/BV1XvyuzLEfB" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
+<p><strong>其他相关</strong></p>
+<ul><li>Agent效果怎么评？Langfuse实战双层闭环｜Agent评估｜日志追踪｜RAG评估｜交叉验证-码士集团AI大模型（bilibili · AI大模型学习中心 · AI 大模型）：[可略读] 讲清智能体评估的三条前提认知——概率底座注定无法 100%、Agent 评估不等于模型评估、也不等于软件测试，但 Langfuse 双层闭环的实操在字幕里没展开。 <a href="https://www.bilibili.com/video/BV1XvyuzLEfR" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="0379b987ff88dcce32e0b009e924011bd4f5ee79" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,OpenAI,智能体,RAG" data-title="Agent效果怎么评？Langfuse实战双层闭环｜Agent评估｜日志追踪｜RAG评估｜交叉验证-码士集团AI大模型" data-url="https://www.bilibili.com/video/BV1XvyuzLEfR" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>2027 企业知识库选型：RAG、GraphRAG和LLM Wiki怎么选？用订单排障看证据链｜MCP｜知识检索｜业务规则（bilibili · 码士集团-码小爆 · AI 大模型）：[可略读] 用 LangChain 四框架谱系定位 LLM Wiki，说清 OpenWiki 是把企业知识转成 markdown 再按目录检索、串证据链，但选型结论未展开。 <a href="https://www.bilibili.com/video/BV1hDyezGETs" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="83ba2e999c5bfc716389e2fcf0c4de9f2c326d6b" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="LLM,智能体,RAG" data-title="2027 企业知识库选型：RAG、GraphRAG和LLM Wiki怎么选？用订单排障看证据链｜MCP｜知识检索｜业务规则" data-url="https://www.bilibili.com/video/BV1hDyezGETs" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>WorkBuddy和DeepSeek Harness咋选？（bilibili · 知著观 · AI 大模型）：[一般相关] 用“装好的车 vs 一套零件”区分开箱即用工作台与插件式 Agent 框架，结论是求快选前者、要定制选后者。 <a href="https://www.bilibili.com/video/BV1uZs267E7s" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="a1e0e1a38002ff28d6c3a9e1657ae780797c28dc" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek" data-title="WorkBuddy和DeepSeek Harness咋选？" data-url="https://www.bilibili.com/video/BV1uZs267E7s" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<h2>嵌入式 Linux</h2>
+<p><strong>其他相关</strong></p>
+<ul><li>讲解 chmod 权限修改等命令，配合终端演示 ls 目录列表与文件属性查看。（bilibili · 生信帮 · 嵌入式 Linux）：[可略读] 课堂实录讲 find 的“主命令＋路径＋匹配条件”三段式并用 Windows 搜索类比，提醒空格不能省，chmod 只在标题里。 <a href="https://www.bilibili.com/video/BV13nsz6bEWS" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="e5a866a051d44203e9b4843b5331d66da8ec6647" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="Linux命令,权限" data-title="讲解 chmod 权限修改等命令，配合终端演示 ls 目录列表与文件属性查看。" data-url="https://www.bilibili.com/video/BV13nsz6bEWS" data-report-date="2026-11-22">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li></ul>
+<h2>未分类</h2>
+<blockquote>本期没有新的可推荐内容。</blockquote>
+<blockquote>AI 结论仅用于选题和分级；视频事实请以原视频为准。</blockquote>
+<div class="key-modal" id="key-modal" hidden>
+  <div class="key-modal-backdrop"></div>
+  <div class="key-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <h3 id="key-modal-title">输入反馈密钥</h3>
+    <p class="meta">密钥仅保存在本设备浏览器（localStorage），可清除，不会发送到其他位置。</p>
+    <form id="key-form" novalidate>
+      <input type="password" id="key-input" autocomplete="off" placeholder="请输入反馈密钥">
+      <div class="key-modal-actions">
+        <button type="button" class="pref-btn pref-btn-plain" id="key-cancel">取消</button>
+        <button type="submit" class="pref-btn pref-up">确定</button>
+      </div>
+    </form>
+  </div>
+</div>
+  </main>
+  <footer class="site-footer">
+    <p>时区 Asia/Shanghai · 内容由本地采集与汇总流程生成</p>
+  </footer>
+</div>
+</body>
+</html>

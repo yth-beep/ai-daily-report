@@ -733,7 +733,7 @@ python scripts/collect_bilibili_local.py --json
 ### 17.6 测试
 
 ```bash
-python scripts/regression_test_stage7.py     # 62 项，全部用假插件，不联网
+python scripts/regression_test_stage7.py     # 70 项，全部用假插件，不联网
 ```
 
 覆盖：worker action 白名单（含源码扫描无写操作）、坏 JSON/空 stdin/非法参数、登录失效→3、风控→4、普通异常→5、字幕截断、正常采集字段、排除词/无命中/无字幕/过旧/重复标题过滤、重复运行幂等、`--recent-days`、发布时间未知的 keep/drop 两种策略、403/429 立即停止、`run_nightly` 与 `run_boot` 调用链。
@@ -1084,7 +1084,7 @@ C语言 / TinyML / 文件系统 / ESP32
 - `regression_test_stage11.py`：18/18（滚动窗口、同指纹多日期、同日重跑、旧标题兼容、URL/平台标记、AI/嵌入式独立搜索轮询、负权重不误判领域）。
 - 11/14→11/15 真实数据回放：8 条中识别出 4 条前一天重复内容；升级前会全部进入日报，升级后会过滤这 4 条。
 - 真实 B站只读 dry-run 使用 `端侧AI / 边缘AI / TinyML / ESP32`：8 个候选中 3 个无字幕被跳过，仍得到 1 条可总结的 ESP32 AI 语音智能体内容，证明新搜索词有效。
-- B站采集回归：62/62；抖音采集回归：107/107；夜间和生产入口回归均通过。
+- B站采集回归：70/70；抖音采集回归：107/107；夜间和生产入口回归均通过。
 
 ---
 
@@ -1113,3 +1113,33 @@ Linux驱动 / LLM / 设备树 / AIGC
 ### 22.3 真实采集验证
 
 2026-11-17 原采集只有嵌入式内容。拆分后使用真实 B站只读接口搜索 `DeepSeek / AI大模型 / LLM / AIGC`，16 个候选中得到 2 条 AI 内容；当前 WorkBuddy 输入为 AI 2 条、嵌入式 Linux 5 条、未分类 1 条，日报和反馈按钮均按两个领域分开生成。
+
+---
+
+## 23. B站多P视频与 UGC 合集整体采集（2026-11-24）
+
+采集器不再只读取搜索结果命中的第一个 CID。每个候选先调用只读 `bundle_info`：
+
+| 详情结果 | 处理通道 |
+|---|---|
+| `single` | 走原单视频通道，维持原 `subtitle_char_budget` |
+| `multi_page` | 展开全部 `pages[].cid`，逐P读取字幕 |
+| `ugc_season` | 展开 `ugc_season.sections[].episodes[]`，逐集读取 bvid/cid 字幕 |
+
+多P/合集会把完整分集目录、各P标题、全部可用字幕和合集简介合并成一个采集条目；日报中只出现一条，由 WorkBuddy 做整体总结，不把某一集误当成整个合集。没有字幕的分集会明确标注，至少有一个分集字幕可用时仍保留整个合集；全部无字幕时才按原规则跳过。
+
+去重同时覆盖“同一次搜索里的不同分P”和“以前已采过的同一合集”：合集使用稳定合集 ID/URL 生成内容 ID，后续再次命中任意分P都会跳过。
+
+配置：
+
+```json
+{
+  "collection_max_episodes": 200,
+  "collection_episode_subtitle_budget": 1800,
+  "collection_summary_char_budget": 120000
+}
+```
+
+AI 输入对普通视频仍限制 2200 字符；`content_type=collection` 单独放宽到 120000 字符，保证 WorkBuddy 能看到全部分集。
+
+真实 47P 验证：`BV1gcsB6WEkh` 被识别为 `multi_page`、47 集；首P和末P的指定 CID 字幕均可正常读取。回归测试 `regression_test_stage7.py` 为 **70/70**。

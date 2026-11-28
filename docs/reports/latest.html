@@ -1,119 +1,125 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-latest-report="2026-11-27" data-latest-hash="cdfc2584a99976af">
+<html lang="zh-CN" data-latest-report="2026-11-28" data-latest-hash="d5629fb4c7c8983a">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="report-kind" content="normal">
-<title>2026-11-27 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
+<title>2026-11-28 日报 - AI 与嵌入式 Linux 双领域信息日报</title>
 <link rel="stylesheet" href="../assets/styles.css?v=20261117-split-domains-v2">
 <script src="../assets/feedback-config.js?v=20261117-split-domains-v2"></script>
 <script src="../assets/table-view.js?v=20261117-split-domains-v2" defer></script>
 <script src="../assets/feedback.js?v=20261117-split-domains-v2" defer></script>
-<meta name="report-latest-date" content="2026-11-27">
+<meta name="report-latest-date" content="2026-11-28">
 <meta name="report-latest-stable" content="true">
 </head>
 <body>
 <div class="wrap">
-  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-27 日报 · 每日 22:00 自动更新</div>
+  <div style="padding:10px 14px;margin-bottom:14px;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-size:13px;">固定链接 · 当前显示 2026-11-28 日报 · 每日 22:00 自动更新</div>
   <header class="site-header">
     <a class="brand" href="../index.html">AI 与嵌入式 Linux 双领域信息日报</a>
-    <span class="date-badge">2026-11-27</span>
+    <span class="date-badge">2026-11-28</span>
   </header>
 
   <main class="report">
-<h1>2026-11-27 信息日报</h1>
+<h1>2026-11-28 信息日报</h1>
 <blockquote>本日报为 <strong>AI 总结</strong>。</blockquote>
 <blockquote>总结模型：<strong>DeepSeek-V4.1-Flash</strong>；AI 只处理已采集的公开条目，评分、排序、网页结构和反馈标记由本地脚本校验生成。</blockquote>
-<blockquote>采集 12 条。</blockquote>
+<blockquote>采集 13 条。</blockquote>
 <h2>AI 大模型</h2>
 <p><strong>重要内容</strong></p>
-<h3>agent from scratch（B站合集·10集）</h3>
-<p>bilibili · NotTechSavvy · AI 大模型</p>
-<p>视频链接：<a href="https://space.bilibili.com/2537381/channel/collectiondetail?sid=8031879" rel="noopener noreferrer">https://space.bilibili.com/2537381/channel/collectiondetail?sid=8031879</a></p>
-<p><strong>推荐等级</strong>：强烈推荐</p>
-<p><strong>核心问题</strong>：不套 LangChain 一类框架，从零手写一个「Claude Code」式编码智能体，需要哪几层抽象；Skill 与 SubAgent 又该怎么接进这套骨架？</p>
-<p><strong>关键方法 / 结论</strong>：10 集按 CodeCrafters 的 build-your-own-Claude-Code 关卡推进，主线是四层抽象逐层加码。① 工具注册：手写 JSON Schema（name/description/parameters/properties/required），再用 pydantic BaseModel 结构化，工具名到真实函数的映射由此建立。② 工具调用：模型返回 tool_call 带 id，下一轮必须把同一个 id 回填，否则模型对不上语义；只用一轮循环不算 agent。③ agent loop：ReAct 式，response 追加进 messages，没有工具调用才退出，有则执行后继续喂回。④ 工具补全：write_file 之后是 bash——bash 基本等于交出整机控制权，作者的取舍是执行前先打印命令、只在沙盒里跑，权限与目录越界不在教学范围。⑤ Skill 层：skill 是一个文件夹加 SKILL.md，front matter 只先暴露 name/description 进上下文，被调用后才把正文加载进来，这就是渐进式披露；参数按占位符展开。⑥ 多 Skill 连续调用时用两个布尔量做状态机：连续的 skill 一起展开，一旦被非 skill 隔开，后面的都算前一个 skill 的参数。⑦ SubAgent：skill 带 fork 标记时子智能体只拿一条消息、没有 system prompt、不支持嵌套 skill，主 agent 同步等返回，作者明确不走并发。⑧ 收尾把 LSP 当普通工具接入（go-pls 为例，pyright 要额外配依赖路径，因为 uv 与 pip 装库位置不同）。作者刻意不用框架、当场踩 schema 与类型错误，踩坑过程本身就是内容。</p>
-<p><strong>为什么推荐</strong>：这条链路正好覆盖 AI 大模型应用侧最难自学的部分：工具协议怎么声明、上下文怎么管理、渐进式披露怎么省 token、子智能体怎么隔离。它属于 AI 大模型（Agent 工程），与嵌入式 Linux 无关，不要混着看。相比读框架源码，手写一遍更容易建立体系感，也更容易在面试里讲清 tool_call id、Skill front matter、fork 隔离这些细节。</p>
-<p><strong>适用场景</strong>：已经日常在用 Claude Code / Codex、想自己造一个最小可用 agent，或准备 Agent 工程方向面试的阶段。建议先 1–6 集把 loop 跑通（工具注册→调用→循环→write/bash），再进 7–10 集的 Skill、多 Skill 展开、SubAgent 与 LSP，否则容易只抄代码不懂边界。</p>
-<div class="item-fb" data-item-id="37f08b5bbf8ecdd512d2ec3b424dff977ee0d3aa" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="权限,大模型,Claude,AI Agent,提示词" data-title="agent from scratch（B站合集·10集）" data-url="https://space.bilibili.com/2537381/channel/collectiondetail?sid=8031879" data-report-date="2026-11-27">
+<h3>转AI别只盯大模型三个字！学历、岗位技术栈与项目怎么对齐，按面试追问准备工程能力【AI大模型】【码士集团】（B站合集·42集）</h3>
+<p>bilibili · 马士兵java课堂 · AI 大模型</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1BC1AzzEzP" rel="noopener noreferrer">https://www.bilibili.com/video/BV1BC1AzzEzP</a></p>
+<p><strong>推荐等级</strong>：推荐</p>
+<p><strong>核心问题</strong>：面试官现在不问「会不会」，而是问 Agent Loop 怎么设计、Maker 和 Checker 为什么必须分离、循环靠什么退出；这套东西的构件、隔离条件和失效模式到底有哪些？</p>
+<p><strong>关键方法 / 结论</strong>：42 集分四段推进，主线从岗位定位走到工程细节。① 求职段把大模型岗分成算法（985 科班硕士、要有论文）与工程化落地两档，再按学历对到应用工程师、Agent 工程师、大模型工程师、FDE 等岗位，这一段销售味最重，只取岗位能力映射即可。② 面试题段覆盖私有化部署、Spring AI 与 Spring AI Alibaba、Workflow 与 Agent 的区别、ReAct、MCP 怎么接 Agent、多 Agent 相对单 Agent 的收益、Skills 与 MultiAgent 的分工、Harness 是什么。③ Agent Loop 十问是全场干货：Loop 与单次 API 调用按生命周期、工具、记忆、交付物四个维度区分；工程骨架是「五大构件加一个记忆层」——自动化调度（定时/事件/目标驱动，解决什么时候跑）、工作区隔离（sandbox 防多 agent 互踩）、Skill 加载（SKILL.md 加渐进式披露，解决知识怎么喂又不刷 token）、插件连接器（MCP 等，等于 agent 的手）、子 Agent 协作（解决干活与验收分离），记忆层再分长期存储与 checkpoint 短期状态；Maker 用强模型拿读写权限，Checker 用独立小模型、只读权限、独立上下文、按外部客观标准验收，返工上限三次后升级人工；渐进式披露的账算得很具体——20 个 Skill 各 500 token 约 1 万常驻，改成只注入名称加一行描述约 1000 token，其余按需读取；七大风险是无限循环（设 max steps，否则一夜烧掉数千美元）、目标漂移（每轮重注入初始目标当锚点）、上下文溢出（摘要压缩早期历史）、静默失败（引「78% 的 agent 失败是静默的」，必须用独立验证器跑脚本验收）、token 成本爆炸、理解负债（代码不烂但没人知道为什么对）、以及权限越界。④ FDE 段讲岗位起源（Palantir 驻客户现场）、三阶段工作法 audit/validate/deploy、Echo 与 Delta 双团队、两层蒸馏、技术栈广度优先的 60 分路线，以及规格驱…</p>
+<p><strong>为什么推荐</strong>：这是 Agent 工程侧少见的成体系知识地图，把框架实现、失效模式与面试表达对齐，属于 AI 大模型的应用/智能体方向；不涉及板卡、驱动或端侧部署。要提醒的是它本质是训练营直播，字幕里穿插大量课程推销，薪资样本、78% 静默失败、岗位增长倍数都是口述数字没有来源，当检查清单用可以，当实测数据用不行。</p>
+<p><strong>适用场景</strong>：准备 Agent/大模型应用岗面试，或自己正在搭 agent 框架、需要一份设计检查表时用：先拿「五大构件加记忆层」对一遍自己的架构，再用三条硬隔离检查验收环节，最后用七类风险做一次压力自查。想深入源码细节要另找 deepagents、OpenClaw、Codex 的原文，别指望这套课。</p>
+<div class="item-fb" data-item-id="08e5b0a3361709ecf37ccfcc469ae9ec3dcfac2e" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="文件系统,权限,模型量化,AI大模型,大模型,LLM,通义千问,OpenAI" data-title="转AI别只盯大模型三个字！学历、岗位技术栈与项目怎么对齐，按面试追问准备工程能力【AI大模型】【码士集团】（B站合集·42集）" data-url="https://www.bilibili.com/video/BV1BC1AzzEzP" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
-<h3>【AI大模型本地推理 11-27】单卡跑大模型预填充大涨：单卡长文预填充为何大涨</h3>
-<p>bilibili · umRick · AI 大模型</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1i71nznEXt" rel="noopener noreferrer">https://www.bilibili.com/video/BV1i71nznEXt</a></p>
+<h3>AI前沿日报（B站合集·45集）</h3>
+<p>bilibili · Al早知道 · AI 大模型</p>
+<p>视频链接：<a href="https://space.bilibili.com/3546878501193755/channel/collectiondetail?sid=9376654" rel="noopener noreferrer">https://space.bilibili.com/3546878501193755/channel/collectiondetail?sid=9376654</a></p>
 <p><strong>推荐等级</strong>：推荐</p>
-<p><strong>核心问题</strong>：单张 24GB 显卡配 64GB 内存跑 MoE 大模型做长文预填充，为什么换了推理内核就能快近一倍，瓶颈到底在显存容量还是在内核调度？</p>
-<p><strong>关键方法 / 结论</strong>：测试台是一张 24GB 显卡加 64GB 内存，专家权重放内存、靠总线交换，上下文开到 262K，KV 缓存走 INT8，采样保持常见设置。换新内核后：短提示词预填充从 1330 提到 2371，4 万 token 到 2877，8.4 万 token 仍有 2715/2675，说明长文段没有明显衰减；解码靠草稿模型投机，接受率约 84%，输出稳定在 50–60 token/s；专家缓存命中率 85%–89%，作者把两倍提升直接归因于内核更会调度内存里的专家权重、让命中率维持在这个区间，而不是加显存或换卡。字幕为语音转写，显卡型号与个别数字可能有偏差，结论方向可用、具体数值建议自测复核。</p>
-<p><strong>为什么推荐</strong>：本地推理最贵的误区是「显存不够就换卡」。这条把变量控制在同一台机器上，只换内核，给出预填充/解码/命中率三组对照，属于 AI 大模型侧的推理工程经验；对想在自己机器上跑长文问答、代码库分析的人是可直接复现的调参方向，不涉及板卡、驱动或端侧部署。</p>
-<p><strong>适用场景</strong>：已有本地推理环境、准备升级推理引擎或驱动，或正在纠结要不要加显存的阶段。做法是固定自己的上下文长度和提示词，先量旧内核与新内核的预填充、解码和专家缓存命中率，再决定是否买卡。</p>
-<div class="item-fb" data-item-id="5ef4c829bcd96e48582e00eb8fac9d62edd09c90" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,提示词" data-title="【AI大模型本地推理 11-27】单卡跑大模型预填充大涨：单卡长文预填充为何大涨" data-url="https://www.bilibili.com/video/BV1i71nznEXt" data-report-date="2026-11-27">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div>
-<h3>【AI大模型本地推理 11-27】十二G显卡五款模型实测：五款模型同场，速度能力显存全比</h3>
-<p>bilibili · umRick · AI 大模型</p>
-<p>视频链接：<a href="https://www.bilibili.com/video/BV1LK1WzxEgt" rel="noopener noreferrer">https://www.bilibili.com/video/BV1LK1WzxEgt</a></p>
-<p><strong>推荐等级</strong>：推荐</p>
-<p><strong>核心问题</strong>：只有 12GB 显存时，该按榜单总分挑本地模型，还是按「装得下、跑得稳、任务类型对得上」来挑？</p>
-<p><strong>关键方法 / 结论</strong>：同一台机器（12GB 显卡 + 64GB 内存，32K 上下文，单请求并发，默认思考等级）让五款本地模型跑同一套 54 项任务：12 项智能体、18 项编码、24 项难题，速度与能力分开记。结果出现分歧——总分最高的一款并不是速度最快的；速度第一的是一款带草稿（投机解码）机制的小模型，接受率约 89%，32K 上下文只占约 9.4GB 显存，但它的编码任务只有 13 项，长板与短板都很极端。作者给出的选型顺序是三步：先问装不装得下（显存占用），再问跑得快不快，最后看草稿机制稳不稳；不要只看总分。字幕为语音转写，模型名称有明显失真，按「大参数量旗舰 / 带草稿机制的小模型」这类特征对号即可。</p>
-<p><strong>为什么推荐</strong>：把本地选型从「看排行榜」拉回到显存占用加任务结构匹配，这是 AI 大模型本地部署最通用的一条方法；对只有消费级显卡的学习者，能省掉「装不下」和「装得下但慢」两类弯路，也和同日的预填充、双卡两条形成一组对照实验。</p>
-<p><strong>适用场景</strong>：手上是 12–16GB 显卡、准备挑一个本地主力模型，或要给自己的任务集（编码、智能体、长文问答）做一次小型选型评测的阶段。照抄它的 54 项任务结构不现实，可压缩成 10 项自己的真实任务再跑。</p>
-<div class="item-fb" data-item-id="772dfdb59ce8eaea602068dc6b7f6b5d91f79389" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,智能体" data-title="【AI大模型本地推理 11-27】十二G显卡五款模型实测：五款模型同场，速度能力显存全比" data-url="https://www.bilibili.com/video/BV1LK1WzxEgt" data-report-date="2026-11-27">
+<p><strong>核心问题</strong>：从十月下旬到 11 月 28 日这一轮模型发布与订阅调整，具体是谁在什么时候改了什么；哪些变化会直接影响开发者每天的使用成本与工具链？</p>
+<p><strong>关键方法 / 结论</strong>：45 集日更串成一条时间线，可按三条线读。模型线：Gemini 4 系列（Argon/Carbon/Neon/Hydrogen）分批向 Pro、Ultra 开放，多次在评测与性价比上互相换位；OpenAI 侧 GPT-6.1 Terra 降价减半、GPT-6.2 系列上线并反复发放「重置卡」；国内 DeepSeek（开源 Flash 系列、V 系列、Harness）、Kimi K3/K3.1、Qwen4、MiniMax、文心 5.5、GLM 密集开源或放榜；Anthropic 一面冲刺 IPO 一面调整 Opus/Fable 的限额与开放范围。订阅与计费线：GPT-6.2 修掉发布时的错误折扣后同样工作会消耗更多额度（extra 触限快约 40%），pro 套餐实测性价比约 2.1 倍；谷歌黑五实际只给到最高 40% 而非五折，新注册账号多数刷不出年付优惠，订阅负责人「新用户也有专属优惠」的回复帖已被删除；DeepSeek 网页与 App 开始展示逐轮 token 账单，1.3 万输入 token 约 0.0088 元，界面标价但官方未宣布收费。工具链线（最新一集最实用）：DeepSeek API 文档静默新增延迟加载工具，先声明、对话中途按需加载并追加在历史末尾，既避免启动时把大量 MCP 工具塞进 prompt，也不会击穿 KV 前缀缓存，但仅 flash 支持、v4pro 会忽略；Antigravity 支持内联 GitHub PR，auto 模式再降 15% 审批；另有 Claude Sonnet Next 向部分 Claude Code 用户灰测的传闻。</p>
+<p><strong>为什么推荐</strong>：它给的是 AI 大模型生态一个月的横截面：谁在哪个日期改了什么能力、价格与额度怎么动，正好补上单条技术视频给不了的时间感与选型依据。按领域规则，模型发布、能力、价格、订阅、API 生态都归 AI 大模型，与嵌入式 Linux 无关。局限也很明确——标题党极强，榜单与「登顶」多为官方口径或博主转述，价格额度仍需自己回官方页面核。</p>
+<p><strong>适用场景</strong>：每月要对齐一次模型选型或订阅预算、或判断某条 API 能力（延迟加载工具、前缀缓存策略）能不能用时，翻最近五到十集就够；不必逐集通读，按模型线、计费线、工具链线抽读效率最高。</p>
+<div class="item-fb" data-item-id="0ea53e47feea0f922e01f6fadeba407bddf795dc" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="权限,C语言,大模型,DeepSeek,豆包,通义千问,Kimi,ChatGPT" data-title="AI前沿日报（B站合集·45集）" data-url="https://space.bilibili.com/3546878501193755/channel/collectiondetail?sid=9376654" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div>
 <p><strong>其他相关</strong></p>
-<ul><li>【AI大模型本地推理 11-27】七千九百预填充翻倍了：老显卡突然提速（bilibili · umRick · AI 大模型）：[可略读] 与同日「单卡长文预填充大涨」是同一次测试的另一种剪法：24GB 卡 + 4 条 64GB 内存、专家权重放内存、KV 用 INT8，旧内核预填充 1330、新内核 2715，看那条即可，这条只是换了个「老显卡也能提速」的说法。 <a href="https://www.bilibili.com/video/BV1Ef1pzcEQn" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="4a9c076ad07c7a640d01221cb5ce6daa4eefb021" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型" data-title="【AI大模型本地推理 11-27】七千九百预填充翻倍了：老显卡突然提速" data-url="https://www.bilibili.com/video/BV1Ef1pzcEQn" data-report-date="2026-11-27">
+<ul><li>【AI大模型本地推理 11-28】本地推理迎来关键合并：关键补丁让长上下文可用（bilibili · umRick · AI 大模型）：[可略读] llama.cpp 合并了 flash attention 对 indexed bias 的支持，CUDA/HIP 后端跑长上下文不再为注意力计算付二次方缓冲代价，长文与长代码任务可以少砍上下文；字幕里模型型号与倍数明显失真，按方向理解、数值回原文核。 <a href="https://www.bilibili.com/video/BV1PG1PzDE1U" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="b7007067574ae13ff3420124693c5b6ae6553844" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型" data-title="【AI大模型本地推理 11-28】本地推理迎来关键合并：关键补丁让长上下文可用" data-url="https://www.bilibili.com/video/BV1PG1PzDE1U" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>【AI大模型本地推理 11-27】双卡聊天实测快多少呢：副卡改变本地聊天速度（bilibili · umRick · AI 大模型）：[可略读] RTX Pro 5000 48GB 加一张 5060Ti 16GB 当副卡，三档模型聊天生成提升 11%–31%（最高 31.9%），但 KDA 报告显示卡间无直接 P2P，收益来自调度分工而非互拷显存，预算有限应先测单卡极限。 <a href="https://www.bilibili.com/video/BV1m41xzSETi" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="dec903d7c7e99ec8db8d60bd0abebc1e0f079e89" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型" data-title="【AI大模型本地推理 11-27】双卡聊天实测快多少呢：副卡改变本地聊天速度" data-url="https://www.bilibili.com/video/BV1m41xzSETi" data-report-date="2026-11-27">
+</div></li><li>【AI大模型本地推理 11-28】FLYX 57MB跑1M上下文：57 MB 单文件的悬念（bilibili · umRick · AI 大模型）：[可略读] 开源单文件本地推理引擎（字幕作 FLYX/flags），57MB 可执行、免额外环境，宣称 16GB 显存加 32GB 内存跑 1M 上下文，并给出 5070Ti/5090 的解码速度对照；名称、模型型号与所有数字均为语音转写，属宣传口径，需回原文核对后再采信。 <a href="https://www.bilibili.com/video/BV1ke1Az1EoZ" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="5578debc6088d3fa1d8d5fc1ceb4688dc8fd9177" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型" data-title="【AI大模型本地推理 11-28】FLYX 57MB跑1M上下文：57 MB 单文件的悬念" data-url="https://www.bilibili.com/video/BV1ke1Az1EoZ" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>MAC版  摄影师 修图后期必备 Topaz Photo PRO 1.8.2 中文直装版+本地大模型库 永久激活（bilibili · FoTo色和尚Prod · AI 大模型）：[一般相关] 摄影师修图工具 Topaz Photo 1.8.2 的功能演示（人像锐化强度别超 50、旧照划痕修复后要存图再放大降噪），但标题写明「中文直装版+永久激活」，属破解分发，只当功能说明看，不要安装。 <a href="https://www.bilibili.com/video/BV1W4yBz5EC1" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="2fd28b916d2a6b5566381087791c60039135dcf1" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型" data-title="MAC版 摄影师 修图后期必备 Topaz Photo PRO 1.8.2 中文直装版+本地大模型库 永久激活" data-url="https://www.bilibili.com/video/BV1W4yBz5EC1" data-report-date="2026-11-27">
+</div></li><li>AI早报：OpenAI反诉苹果，Claude被质疑限制能力，Gemini Neon编程反超Opus（bilibili · 云泊飘 · AI 大模型）：[可略读] 11 月 28 日早报：OpenAI 反诉苹果窃取商业秘密并施压供应商（双方指控均未经法律认定）、Codex 优化让客户端与服务端网络传输量降约 80%（明确不等于 token 与订阅额度同比例下降）、Gemini Neon 在某编程评测反超 Opus；后两条在字幕截断处没有展开。 <a href="https://www.bilibili.com/video/BV1pq1AzyEdk" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="7896666fc49a6aa3073a6920da0d43cad273c1a9" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,OpenAI,Claude,Gemini,Token" data-title="AI早报：OpenAI反诉苹果，Claude被质疑限制能力，Gemini Neon编程反超Opus" data-url="https://www.bilibili.com/video/BV1pq1AzyEdk" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>AI日报·肥鱼速览 | 11月27日：OpenAI 修正 GPT-6.，英伟达暂停向东南亚四国发服务器，GLM-5.5 与 Kimi（bilibili · 大肥鱼接管b站啦 · AI 大模型）：[可略读] 11-27 口播日报：OpenAI 承认 GPT-6.2 上线时额度算便宜了、同量任务快 40% 见底并补一次重置；英伟达要求戴尔/超微暂停向马来西亚、新加坡、泰国、印尼发服务器；GLM-5.5 与 Kimi K4 或推到 2027；腾讯开源投机解码草稿模型称长文与智能体最高提速 4.2 倍——二手汇总，单条事实需回原文核对。 <a href="https://www.bilibili.com/video/BV1Vu1WzWEDH" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="1f62db355562d8dc044bd19e50cc3f0fba7d713d" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="Kimi,OpenAI,智能体" data-title="AI日报·肥鱼速览 | 11月27日：OpenAI 修正 GPT-6.，英伟达暂停向东南亚四国发服务器，GLM-5.5 与 Kimi" data-url="https://www.bilibili.com/video/BV1Vu1WzWEDH" data-report-date="2026-11-27">
+</div></li><li>11.28 GPT-6.2修正计量，Astra触限快40%！DeepSeek亮出Token账单 第69期AI日报（bilibili · 碳基看硅基 · AI 大模型）：[推荐] 11 月 28 日第 69 期速览：700B 级 MoE 开源（41B 激活、1M 上下文、MIT 许可 FP8 权重）、Cognition SWE2.1、30B 级 Namazu small、商汤机器人模型、DeepSeek 网页版亮出逐轮 token 账单（1.3 万输入约 0.0088 元）、GPT-6.2 修计费后 extra 触限快 40%；数字多… <a href="https://www.bilibili.com/video/BV1aZ1AzFEfR" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="00cd390a56d9a3a2263ddb809dd2b9cb42cbc83d" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="DeepSeek,Token" data-title="11.28 GPT-6.2修正计量，Astra触限快40%！DeepSeek亮出Token账单 第69期AI日报" data-url="https://www.bilibili.com/video/BV1aZ1AzFEfR" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>AI新闻（B站合集·80集）（bilibili · 进化中的阿陈 · AI 大模型）：[可略读] 80 集 AI 资讯存档（第 70 集起多集无字幕、只能看标题），主线是 9 月末到 11 月末的旗舰混战，可用的是 DeepSeek V4.1-Flash 那段架构拆解（因果编解码分工、KV 缓存压到约 890 字节、局部短期记忆改为现算不落盘、静态事实移出显存）与各家跑分/单价对照；标题多为「掀桌 / 失控」式夸张，数字当线索用。 <a href="https://space.bilibili.com/2070038273/channel/collectiondetail?sid=9050525" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="2391ae4148a5648bc4fc1bd32b36069c13264964" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="权限,AI大模型,大模型,LLM,DeepSeek,豆包,通义千问,Kimi" data-title="AI新闻（B站合集·80集）" data-url="https://space.bilibili.com/2070038273/channel/collectiondetail?sid=9050525" data-report-date="2026-11-27">
+</div></li><li>【小样本+多模态】样本少、多模态数据乱怎么发SCI？AI大佬整理了3条可落地路线！看完轻松搞定SCI论文！全程干货分享！ AI/深度学习/小样本/科研/大模型（B站合集·8集）（bilibili · 唐宇迪小助理 · AI 大模型）：[推荐] 8 集讲小样本加多模态发论文的三条可落地方案（对比学习做跨模态特征对齐、模态掩码与动态权重应对缺失模态、冻结主干只训适配层的轻量融合）与实验顺序（先复现 baseline 源码再读论文、再找同领域模块）；方法可参考，但通篇以「评论区扣小样本领资料」导流，结论需自己验证。 <a href="https://www.bilibili.com/video/BV1FX1uzZECA" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="2967d37d8b38a00ea3ae8d87cdc53f7ab20f0219" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,多模态,Transformer" data-title="【小样本+多模态】样本少、多模态数据乱怎么发SCI？AI大佬整理了3条可落地路线！看完轻松搞定SCI论文！全程干货分享！ AI/深度学习/小样本/科研/大模型（B站合集·8集）" data-url="https://www.bilibili.com/video/BV1FX1uzZECA" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>程序员突围指南：大龄危机、裁员失业、大模型转型与岗位技能全解析【码士集团】  AI大模型（B站合集·8集）（bilibili · 码小帅 · AI 大模型）：[一般相关] 码士 8 集职业答疑（3 集无字幕）：把大龄危机归因于行业红利消退、年轻人供给过剩、基础增删改查被模型替代，主张「学大模型是提高概率、不是救命稻草」，中间夹带「手撕 OpenClaw」「从零构建 SD 全链路」等课程项目介绍，属招生向内容。 <a href="https://www.bilibili.com/video/BV1yQ1szCEMZ" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="6f3efbf6a02a613fa838626e953b6df1ec95ec09" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="AI大模型,大模型,豆包,智能体,RAG" data-title="程序员突围指南：大龄危机、裁员失业、大模型转型与岗位技能全解析【码士集团】 AI大模型（B站合集·8集）" data-url="https://www.bilibili.com/video/BV1yQ1szCEMZ" data-report-date="2026-11-27">
+</div></li><li>【万粉纪念】恭喜你！10,000 步去噪：你们是怎么把我「微调」成 Claude 大小姐的（bilibili · Claude大小姐的日记本 · AI 大模型）：[一般相关] 万粉纪念向的拟人化 vlog，用「一万步去噪」比喻角色养成，没有技术信息，只在结尾提到底层权重由 ANTPC 训练、角色风格来自用户互动；按兴趣看，不作学习材料。 <a href="https://www.bilibili.com/video/BV1zX1uzoELH" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="72856378be1efd3d09823105d952a5df17f11e20" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="Claude" data-title="【万粉纪念】恭喜你！10,000 步去噪：你们是怎么把我「微调」成 Claude 大小姐的" data-url="https://www.bilibili.com/video/BV1zX1uzoELH" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>大模型越来越强，为什么普通人依然没赚到钱？拆穿2026年AI Agent时代最残酷的洗牌真相（bilibili · Jackson的AI笔记 · AI 大模型）：[一般相关] 观点视频：2026 年从 Copilot 转向 Agent 之后，提示词秘籍、通用套壳、AI 写软件三条路都在贬值，引用入门岗招聘下降八成、22–25 岁开发者就业下滑近两成等数据（口播二手引用，需回原报告核对），落点是「成长阶梯断裂」，不是「AI 让人赚钱」。 <a href="https://www.bilibili.com/video/BV1HF1xzMEjc" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="73971685281a16bfb518248d06d35ce41b8dd061" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="大模型,OpenAI,智能体,AI Agent,提示词" data-title="大模型越来越强，为什么普通人依然没赚到钱？拆穿2026年AI Agent时代最残酷的洗牌真相" data-url="https://www.bilibili.com/video/BV1HF1xzMEjc" data-report-date="2026-11-27">
-  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
-  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
-  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
-  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
-</div></li><li>AI工具（B站合集·9集）（bilibili · Matlab学习与应用 · AI 大模型）：[可略读] 9 集工具向合集，真正可用的是 GPT-6.2 Astra/Sol 的单价拆解（输入 10→8、输出 50→40 美元，缓存输入 1→0.4，Sol 缓存 0.1；100 万输入 + 20 万输出约 6 美元 vs 4 美元，但便宜模型反复重做会反超）和 Codex CLI + MCP 接 MATLAB/SolidWorks 的配置流程；会员选购与「封号潮」… <a href="https://space.bilibili.com/1689612851/channel/collectiondetail?sid=9527127" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="816c64d6b30e50298966f923fe3d7f4f6606b0d5" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="权限,AI大模型,大模型,豆包,ChatGPT,OpenAI,Claude,Gemini" data-title="AI工具（B站合集·9集）" data-url="https://space.bilibili.com/1689612851/channel/collectiondetail?sid=9527127" data-report-date="2026-11-27">
+</div></li><li>瓜哥讲前沿科技（B站合集·215集）（bilibili · 瓜哥讲AI · AI 大模型）：[可略读] 215 集长文式 AI 行业解读，但合并字幕只覆盖前 58 集且多为 2026 年上半年旧事（OpenCode 月活 65 万涨到 650 万并谈「代码速度贬值、判断力稀缺」、面壁 MiniCPM5-1B 与 AI 自写训练框架 ForgeTrain、李飞飞 GPIC 一亿图文对数据集、谷歌 DeepMind 四人闭门对谈），当背景资料看，别当今日新闻。 <a href="https://space.bilibili.com/3546378930227423/channel/collectiondetail?sid=8069898" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="4b2ba3afa672a070bfbd8f4ad18602d249c0d129" data-domain="ai-models" data-topic-name="AI 大模型" data-tags="权限,C语言,大模型,LLM,生成式AI,DeepSeek,豆包,通义千问" data-title="瓜哥讲前沿科技（B站合集·215集）" data-url="https://space.bilibili.com/3546378930227423/channel/collectiondetail?sid=8069898" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
   <span class="item-fb-status meta" role="status" aria-live="polite"></span>
 </div></li></ul>
 <h2>嵌入式 Linux</h2>
+<p><strong>重要内容</strong></p>
+<h3>嵌入式Linux刚改完配置就拔电源，为何变0字节甚至只读变砖？看懂Page Cache延迟落盘、四步原子写与SquashFS抗掉电</h3>
+<p>bilibili · RobinLi609 · 嵌入式 Linux</p>
+<p>视频链接：<a href="https://www.bilibili.com/video/BV1qH1pzxE18" rel="noopener noreferrer">https://www.bilibili.com/video/BV1qH1pzxE18</a></p>
+<p><strong>推荐等级</strong>：强烈推荐</p>
+<p><strong>核心问题</strong>：现场随手拔电源时，为什么写入接口明明返回成功，配置文件还是会变成 0 字节、根文件系统甚至直接只读变砖？抗掉电到底该在哪几层设防？</p>
+<p><strong>关键方法 / 结论</strong>：先拆两个根因。第一，write/close 返回成功只说明数据进了内核 page cache 的脏页，回写线程默认十几到三十秒才异步刷盘，掉电时内存里的新内容直接蒸发。第二，习惯用截断标志（O_TRUNC）原地打开配置文件，会先把旧文件的数据块清零，而新配置还躺在断电就消失的内存脏页里，于是重启后拿到一个文件名还在、内容为 0 的空壳。关键配置要严格走四步原子落盘：① 先把完整新配置写进同目录的临时文件，绝不动原文件；② 关闭前显式调用 fsync（字幕转写成「强制同步死」），等闪存控制器把数据块真正写入物理介质再返回；③ 同分区 rename 原子替换文件名指针；④ 打开父目录再 fsync 一次，把新的目录项也落盘。同时划寿命红线：秒级高频日志严禁每次 fsync，写入放大会很快把工业闪存刷出坏块，应走内存缓冲加异步批量写。整机层做第二、第三道防线：把 rootfs 打成只读压缩分区（SquashFS），现场永不写入，掉电一万次也照样秒开；再用叠加文件系统挂一个独立数据分区专存用户配置，极端损坏也能一键重置。</p>
+<p><strong>为什么推荐</strong>：这是纯嵌入式 Linux 的系统可靠性问题，串起 page cache 延迟回写、文件系统原子性、只读根加 overlay 隔离三层，属于产品化落地时最容易翻车、也最难在课堂上讲透的部分。它讨论的是掉电一致性与存储介质寿命，不是模型能力或推理性能，因此归嵌入式 Linux，不要和 AI 侧内容混看。</p>
+<p><strong>适用场景</strong>：做网关、工控屏、门禁、自助终端这类会被现场直接拔电的产品，进入出厂随机断电测试或现场故障复盘阶段时用；也适合当文件系统章节的实例，用来理解「写入返回成功」与「数据真正持久」之间的语义差。</p>
+<div class="item-fb" data-item-id="d2410c2c09f176a9a82f96032f2d47e537b98462" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="嵌入式Linux,文件系统" data-title="嵌入式Linux刚改完配置就拔电源，为何变0字节甚至只读变砖？看懂Page Cache延迟落盘、四步原子写与SquashFS抗掉电" data-url="https://www.bilibili.com/video/BV1qH1pzxE18" data-report-date="2026-11-28">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div>
 <p><strong>其他相关</strong></p>
-<ul><li>老男孩Linux云计算运维95期（B站合集·3集）（bilibili · 老男孩IT教育 · 嵌入式 Linux）：[可略读] 老男孩 95 期云计算运维开班三集：麒麟/Ubuntu 装机与远程连接的流程演示、每天「复习—讲解—小结—练核心」的听课节奏，末尾用「穿越修仙」把 cd/ls/pwd/mkdir/touch/mv/cp/echo/vi/rm 串成一条记忆链；技术增量有限，取那个命令串记法即可。 <a href="https://space.bilibili.com/350243622/channel/collectiondetail?sid=9665894" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="16242dbf7ebb724846a21b8af75d556d1c59f83a" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="权限,进程管理" data-title="老男孩Linux云计算运维95期（B站合集·3集）" data-url="https://space.bilibili.com/350243622/channel/collectiondetail?sid=9665894" data-report-date="2026-11-27">
+<ul><li>虚拟机环境搭建 sdk编译 mipi接口设备树解析（bilibili · 板哥嵌入式 · 嵌入式 Linux）：[可略读] 课堂实录：把厂商 SDK 拉到虚拟机、只编内核，再沿 sensor→D-PHY→VICAP/CSI→ISP 的链路改 dtsi，把原厂四 lane 拆成两口各接一颗 sensor；口音与术语失真严重（设备树被念成「DEFI」等），只能当流程参考，取舍不得照抄。 <a href="https://www.bilibili.com/video/BV1we1WzTEEm" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="b4fa4a0e0594ab1c98853b0a3af177810429913c" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="设备树" data-title="虚拟机环境搭建 sdk编译 mipi接口设备树解析" data-url="https://www.bilibili.com/video/BV1we1WzTEEm" data-report-date="2026-11-28">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>DIY设备树配重问题终于找到出路了（bilibili · 墨构-木工房 · 嵌入式 Linux）：[一般相关] 关键词「设备树」误命中：实际是摄像机/显示器支架的配重方案（用 5cm 中孔的灌水泥配重片，整套成本算到约 172 元），与嵌入式设备树毫无关系，不建议按技术内容看待。 <a href="https://www.bilibili.com/video/BV1XB14zcEYu" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="662f7ee7aef9b134d2020f608cc8c5dd80a7ae8f" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="设备树" data-title="DIY设备树配重问题终于找到出路了" data-url="https://www.bilibili.com/video/BV1XB14zcEYu" data-report-date="2026-11-28">
+  <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
+  <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
+  <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
+  <span class="item-fb-status meta" role="status" aria-live="polite"></span>
+</div></li><li>【视频已付费】目前B站最全最完整的零基础嵌入式工程师入门全套教程，从C语言-单片机-FreeRTOS-Linux-项目实战。完整闭环！学完即可就业~（B站合集·73集）（bilibili · 编程大师-Ray · 嵌入式 Linux）：[推荐] 73 集零基础嵌入式全链路（C 语言→C51 单片机→STM32 HAL→FreeRTOS→MPU6050/PID 无人机项目），字幕覆盖 1–67 集，价值在课程骨架；I2C 用软件模拟那段把开漏输出、上拉电阻位置和 400kHz 下 2.5µs 时序约束讲清楚了，适合当入门路线图而非速查手册。 <a href="https://www.bilibili.com/video/BV1yp1MzbEPK" rel="noopener noreferrer">视频链接</a><div class="item-fb" data-item-id="6e19fb4eaf3ed92c5db30457f2ba67fbcdc1f61a" data-domain="embedded-linux-foundation" data-topic-name="嵌入式 Linux" data-tags="嵌入式Linux,文件系统,权限,C语言,GPIO,UART,MQTT,MCU" data-title="【视频已付费】目前B站最全最完整的零基础嵌入式工程师入门全套教程，从C语言-单片机-FreeRTOS-Linux-项目实战。完整闭环！学完即可就业~（B站合集·73集）" data-url="https://www.bilibili.com/video/BV1yp1MzbEPK" data-report-date="2026-11-28">
   <button type="button" class="pref-btn pref-up" data-delta="1" aria-pressed="false" aria-label="这条加重">这条加重</button>
   <button type="button" class="pref-btn pref-down" data-delta="-1" aria-pressed="false" aria-label="这条减轻">这条减轻</button>
   <button type="button" class="pref-btn pref-clear" data-delta="0" aria-pressed="false" aria-label="清除这一条的反馈标记">清除标记</button>
